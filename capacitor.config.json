@@ -1,0 +1,9 @@
+{
+  "appId": "com.mangkujagad.app",
+  "appName": "mangkujagad",
+  "webDir": "public",
+  "server": {
+    "url": "https://mangkujagad.my.id",
+    "allowNavigation": ["mangkujagad.my.id"]
+  }
+}

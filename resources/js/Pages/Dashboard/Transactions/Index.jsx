@@ -9,11 +9,13 @@ import {
     IconDoorEnter, IconDoorExit, IconClockPause, IconRestore, IconTrash,
     IconCashOff, IconLayoutGrid, IconList, IconCategory, IconUser, IconLoader,
     IconChevronUp, IconChevronDown, IconArmchair, IconArrowsExchange, IconGitMerge, 
-    IconDeviceFloppy, IconInfoCircle, IconBoxSeam
+    IconDeviceFloppy, IconInfoCircle, IconBoxSeam, IconCheck
 } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import ThermalReceipt from "@/Components/Receipt/ThermalReceipt";
 import ShiftReceipt from "@/Components/Receipt/ShiftReceipt";
+import { printBluetooth } from "@/Utils/BluetoothPrinter";
+import toast from "react-hot-toast";
 
 // --- HELPER FORMAT HARGA ---
 const formatPrice = (value) =>
@@ -22,13 +24,22 @@ const formatPrice = (value) =>
 // --- KOMPONEN ITEM KERANJANG ---
 const CartItem = ({ c, discounts, updateCartItem, deleteCart }) => {
     const [localQty, setLocalQty] = useState(c.qty);
+    const [showNoteInput, setShowNoteInput] = useState(false);
+    const [noteValue, setNoteValue] = useState(c.notes || "");
+
     useEffect(() => { setLocalQty(c.qty); }, [c.qty]);
+    useEffect(() => { setNoteValue(c.notes || ""); }, [c.notes]);
 
     const handleBlur = () => {
         const val = parseFloat(localQty);
         if (!isNaN(val) && val !== parseFloat(c.qty)) {
-            updateCartItem(c.id, val, c.product_unit_id);
+            updateCartItem(c.id, val, c.product_unit_id, c.notes);
         } else { setLocalQty(c.qty); }
+    };
+
+    const handleSaveNote = () => {
+        updateCartItem(c.id, c.qty, c.product_unit_id, noteValue);
+        setShowNoteInput(false);
     };
 
     const itemDiscount = (discounts || []).find(d => d.product_id === c.product_id && d.type !== 'buy_get');
@@ -59,19 +70,52 @@ const CartItem = ({ c, discounts, updateCartItem, deleteCart }) => {
                         </div>
                     </div>
                     
-                    <select value={c.product_unit_id || ''} onChange={(e) => updateCartItem(c.id, c.qty, e.target.value || null)} className="bg-slate-50 dark:bg-slate-800 border-none text-[8px] font-black p-1 rounded-md focus:ring-0 uppercase cursor-pointer">
+                    {/* Tombol Catatan */}
+                    <button 
+                        onClick={() => setShowNoteInput(!showNoteInput)}
+                        className={`p-1 rounded-md transition-colors ${c.notes ? 'text-primary-500 bg-primary-50 dark:bg-primary-950/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    >
+                        <IconInfoCircle size={14} />
+                    </button>
+
+                    <select value={c.product_unit_id || ''} onChange={(e) => updateCartItem(c.id, c.qty, e.target.value || null, c.notes)} className="bg-slate-50 dark:bg-slate-800 border-none text-[8px] font-black p-1 rounded-md focus:ring-0 uppercase cursor-pointer">
                         <option value="">UTAMA</option>
                         {c.product?.units?.map(u => <option key={u.id} value={u.id}>{u.unit_name}</option>)}
                     </select>
 
                     <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5 border dark:border-slate-600">
-                        <button onClick={() => updateCartItem(c.id, parseFloat(c.qty) - 1, c.product_unit_id)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">-</button>
+                        <button onClick={() => updateCartItem(c.id, parseFloat(c.qty) - 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">-</button>
                         <input type="number" step="0.01" value={localQty} onChange={(e) => setLocalQty(e.target.value)} onBlur={handleBlur} className="w-7 text-[9px] font-black text-center bg-transparent border-none p-0 dark:text-white focus:ring-0" />
-                        <button onClick={() => updateCartItem(c.id, parseFloat(c.qty) + 1, c.product_unit_id)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">+</button>
+                        <button onClick={() => updateCartItem(c.id, parseFloat(c.qty) + 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">+</button>
                     </div>
                     
                     <button onClick={() => deleteCart(c.id)} className="text-slate-300 hover:text-red-500 transition-colors"><IconX size={14} /></button>
                 </div>
+
+                {/* Input Catatan */}
+                {showNoteInput && (
+                    <div className="mt-2 flex gap-1 animate-in slide-in-from-top-1 duration-200">
+                        <input 
+                            type="text" 
+                            value={noteValue} 
+                            onChange={(e) => setNoteValue(e.target.value)}
+                            placeholder="Catatan (Pedes, Sedeng, dll)..."
+                            className="flex-1 text-[9px] font-bold uppercase bg-slate-50 dark:bg-slate-900 border-none rounded-lg focus:ring-1 focus:ring-primary-500 p-2 dark:text-white"
+                        />
+                        <button onClick={handleSaveNote} className="bg-primary-500 text-white p-1.5 rounded-lg active:scale-90 transition-transform">
+                            <IconCheck size={14} />
+                        </button>
+                    </div>
+                )}
+
+                {/* Preview Catatan */}
+                {c.notes && !showNoteInput && (
+                    <div className="mt-1.5 px-2 py-1 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-200 dark:border-slate-700">
+                        <p className="text-[8px] font-bold text-primary-600 dark:text-primary-400 italic uppercase">
+                            Note: {c.notes}
+                        </p>
+                    </div>
+                )}
 
                 {c.product?.type === 'bundle' && c.product?.bundle_items?.length > 0 && (
                     <div className="mt-2 pl-2 border-l-2 border-purple-200 dark:border-purple-900 flex flex-col gap-0.5">
@@ -98,7 +142,6 @@ const CartItem = ({ c, discounts, updateCartItem, deleteCart }) => {
     );
 };
 
-// --- MAIN PAGE COMPONENT ---
 const Index = ({ carts = [], products: initialProducts, customers = [], discounts = [], paymentSetting = {}, activeShift = null, holds = [], tables = [], categories = [], filters = {} }) => {
     const { auth, receiptSetting, flash } = usePage().props;
     
@@ -110,7 +153,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const [viewMode, setViewMode] = useState("grid"); 
     const [cash, setCash] = useState(0);
     const [selectedCustomer, setSelectedCustomer] = useState(""); 
-    const [showQrisModal, setShowQrisModal] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(false);
     const [showModalHold, setShowModalHold] = useState(false);
     const [showCashOut, setShowCashOut] = useState(false);
@@ -134,17 +176,13 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         );
     }, [holds, searchHold]);
 
-    // --- REALTIME LISTENER (SINKRONISASI MASUK & HAPUS) ---
+    // --- REALTIME LISTENER ---
     useEffect(() => {
         if (window.Echo && auth.user) {
             const channelName = `public-order.${auth.user.id}`;
             const channel = window.Echo.channel(channelName);
             
-            console.log("Listening on channel:", channelName);
-
-            // 1. Listen jika ada order baru (Event: order.placed)
             channel.listen('.order.placed', (data) => {
-                console.log("Real-time: New Order Received");
                 const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
                 audio.play().catch(err => console.log("Audio play blocked"));
 
@@ -165,18 +203,11 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 });
             });
 
-            // 2. Listen jika order dihapus/dibayar oleh kasir lain (Event: order.deleted)
             channel.listen('.order.deleted', (data) => {
-                console.log("Real-time: Order Processed/Deleted");
-                router.reload({ 
-                    only: ['holds', 'tables'], 
-                    preserveScroll: true 
-                });
+                router.reload({ only: ['holds', 'tables'], preserveScroll: true });
             });
 
-            return () => {
-                window.Echo.leave(channelName);
-            };
+            return () => { window.Echo.leave(channelName); };
         }
     }, [auth.user.id]); 
 
@@ -220,11 +251,15 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         router.post(route("transactions.addToCart"), { product_id: product.id, qty: 1 }, { preserveScroll: true });
     };
 
-    const updateCartItem = (id, qty, unitId = null) => {
+    const updateCartItem = (id, qty, unitId = null, notes = null) => {
         const val = parseFloat(qty);
         if (isNaN(val) || val < 0) return;
         if (val === 0) return deleteCart(id);
-        router.patch(route("transactions.updateCart", id), { qty: val, product_unit_id: unitId }, { preserveScroll: true });
+        router.patch(route("transactions.updateCart", id), { 
+            qty: val, 
+            product_unit_id: unitId,
+            notes: notes 
+        }, { preserveScroll: true });
     };
 
     const deleteCart = (id) => router.delete(route("transactions.destroyCart", id), { preserveScroll: true });
@@ -232,9 +267,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const handleSaveOrder = () => {
         if (carts.length === 0) return Swal.fire("Peringatan", "Keranjang kosong!", "warning");
         if (!selectedTable) return Swal.fire("Peringatan", "Pilih Meja atau Bawa Pulang!", "warning");
-
         Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
-
         router.post(route('transactions.hold'), { 
             hold_id: activeHoldId, 
             ref_number: currentActiveHold?.ref_number || `ORDER-${Date.now().toString().slice(-4)}`, 
@@ -266,10 +299,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const submitTransaction = (method, paidAmount) => {
         if (carts.length === 0) return;
         if (!selectedTable) return Swal.fire("Peringatan", "Pilih Tipe Pesanan!", "warning");
-
         const queueNumber = currentActiveHold ? currentActiveHold.queue_number : null;
         const tableName = selectedTable === "take_away" ? "TAKE AWAY" : tables.find(t => t.id == selectedTable)?.name;
-
         router.post(route("transactions.store"), {
             customer_id: selectedCustomer || null,
             grand_total: grandTotal, 
@@ -281,9 +312,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             table_name: tableName 
         }, {
             onSuccess: () => { 
-                setCash(0); setShowQrisModal(false); setSearch(""); 
-                setSelectedCustomer(""); setActiveHoldId(null); setShowCartDrawer(false);
-                setSelectedTable("");
+                setCash(0); setSearch(""); setSelectedCustomer(""); setActiveHoldId(null); setShowCartDrawer(false); setSelectedTable("");
             },
         });
     };
@@ -379,12 +408,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                     const promo = discounts.find(d => d.product_id === p.id && d.type === 'buy_get');
                                     return (
                                         <button key={p.id} onClick={() => addToCart(p)} className={`relative text-left group border dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-[1.5rem] p-2.5 transition-all active:scale-95 hover:shadow-xl ${viewMode === 'list' ? 'flex items-center gap-4' : 'flex flex-col'}`}>
-                                            {p.type === 'bundle' && (
-                                                 <div className="absolute top-2 right-2 z-10 bg-purple-500 text-white p-1 rounded-lg shadow-md"><IconBoxSeam size={12} /></div>
-                                            )}
-                                            {promo && (
-                                                <div className="absolute -top-1 -left-1 z-10 bg-emerald-500 text-white p-1.5 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 animate-pulse"><IconGift size={12} /></div>
-                                            )}
+                                            {p.type === 'bundle' && ( <div className="absolute top-2 right-2 z-10 bg-purple-500 text-white p-1 rounded-lg shadow-md"><IconBoxSeam size={12} /></div> )}
+                                            {promo && ( <div className="absolute -top-1 -left-1 z-10 bg-emerald-500 text-white p-1.5 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 animate-pulse"><IconGift size={12} /></div> )}
                                             <div className={`relative overflow-hidden bg-slate-50 dark:bg-slate-800 shrink-0 ${viewMode === 'list' ? 'w-14 h-14 rounded-xl' : 'aspect-square rounded-xl md:rounded-2xl mb-2'}`}>
                                                 <img src={p.image ? (p.image.startsWith('http') ? p.image : `/storage/products/${p.image}`) : `https://ui-avatars.com/api/?name=${p.title}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                             </div>
@@ -470,49 +495,29 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </main>
             </div>
 
-            {/* MODAL DAFTAR SIMPAN PESANAN - FULLSCREEN & SEARCHABLE */}
+            {/* MODAL DAFTAR SIMPAN PESANAN */}
             {showModalHold && (
                 <div className="fixed inset-0 z-[150] flex flex-col bg-slate-100 dark:bg-slate-950 animate-in fade-in duration-200">
                     <div className="h-20 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between px-6 md:px-10 shrink-0 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-primary-50 dark:bg-primary-950/30 text-primary-600 rounded-2xl">
-                                <IconClockPause size={28} />
-                            </div>
+                            <div className="p-3 bg-primary-50 dark:bg-primary-950/30 text-primary-600 rounded-2xl"> <IconClockPause size={28} /> </div>
                             <div>
                                 <h3 className="text-xl font-black uppercase dark:text-white italic tracking-tighter">Antrean Pesanan Aktif</h3>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">{filteredHolds.length} Pesanan Ditemukan</p>
                             </div>
                         </div>
-                        
                         <div className="hidden md:flex relative w-full max-w-md mx-8">
                             <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input 
-                                type="text" 
-                                placeholder="Cari Nama / No Antrean / Meja..." 
-                                className="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-slate-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 transition-all"
-                                value={searchHold}
-                                onChange={(e) => setSearchHold(e.target.value)}
-                            />
+                            <input type="text" placeholder="Cari Nama / No Antrean / Meja..." className="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-slate-50 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 transition-all" value={searchHold} onChange={(e) => setSearchHold(e.target.value)} />
                         </div>
-
-                        <button onClick={() => setShowModalHold(false)} className="p-3 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl hover:bg-red-100 transition-colors">
-                            <IconX size={24} />
-                        </button>
+                        <button onClick={() => setShowModalHold(false)} className="p-3 bg-red-50 dark:bg-red-950/30 text-red-500 rounded-2xl hover:bg-red-100 transition-colors"> <IconX size={24} /> </button>
                     </div>
-
                     <div className="md:hidden p-4 bg-white dark:bg-slate-900 border-b dark:border-slate-800">
                         <div className="relative">
                             <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                            <input 
-                                type="text" 
-                                placeholder="Cari pesanan..." 
-                                className="w-full pl-11 pr-4 py-3 rounded-xl border-none bg-slate-50 dark:bg-slate-800 dark:text-white"
-                                value={searchHold}
-                                onChange={(e) => setSearchHold(e.target.value)}
-                            />
+                            <input type="text" placeholder="Cari pesanan..." className="w-full pl-11 pr-4 py-3 rounded-xl border-none bg-slate-50 dark:bg-slate-800 dark:text-white" value={searchHold} onChange={(e) => setSearchHold(e.target.value)} />
                         </div>
                     </div>
-
                     <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
                         {filteredHolds.length === 0 ? (
                             <div className="h-full flex flex-col items-center justify-center text-center opacity-30">
@@ -523,27 +528,18 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
                                 {filteredHolds.map((h) => (
                                     <div key={h.id} className={`group flex flex-col justify-between p-6 rounded-[2.5rem] border-2 bg-white dark:bg-slate-900 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1 ${h.queue_number.includes('SELF') ? 'border-sky-400 dark:border-sky-800 shadow-sky-100 dark:shadow-none' : 'border-slate-100 dark:border-slate-800'}`}>
-                                        
                                         <div>
                                             <div className="flex justify-between items-start mb-4">
-                                                <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${h.queue_number.includes('SELF') ? 'bg-sky-500 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
-                                                    #{h.queue_number}
-                                                </div>
+                                                <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter ${h.queue_number.includes('SELF') ? 'bg-sky-500 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}> #{h.queue_number} </div>
                                                 <p className="text-sm font-black text-primary-600 dark:text-primary-400 italic">{formatPrice(h.total)}</p>
                                             </div>
-
                                             <div className="mb-4">
-                                                <h4 className="text-base font-black text-slate-900 dark:text-white uppercase leading-tight line-clamp-2">
-                                                    {h.customer_name}
-                                                </h4>
+                                                <h4 className="text-base font-black text-slate-900 dark:text-white uppercase leading-tight line-clamp-2"> {h.customer_name} </h4>
                                                 <div className="flex items-center gap-1.5 mt-2 text-slate-400">
                                                     {h.table_id ? <IconArmchair size={14} className="text-orange-500" /> : <IconBoxSeam size={14} className="text-primary-500" />}
-                                                    <span className="text-[10px] font-black uppercase tracking-widest italic">
-                                                        {h.table?.name || 'BAWA PULANG'}
-                                                    </span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest italic"> {h.table?.name || 'BAWA PULANG'} </span>
                                                 </div>
                                             </div>
-
                                             <div className="py-3 border-y border-slate-50 dark:border-slate-800 mb-6 flex flex-wrap gap-1.5">
                                                 {h.cart_data?.slice(0, 4).map((item, i) => (
                                                     <span key={i} className="text-[8px] font-bold bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border dark:border-slate-700 px-2 py-1 rounded-md">
@@ -553,14 +549,31 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                                 {h.cart_data?.length > 4 && <span className="text-[8px] font-black text-primary-500 ml-1">+{h.cart_data.length - 4} lainnya</span>}
                                             </div>
                                         </div>
-
                                         <div className="flex gap-2">
-                                            <button onClick={() => handleResumeHold(h.id)} className="flex-1 py-4 bg-slate-900 dark:bg-primary-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all">
-                                                Bayar
+                                            <button 
+                                                onClick={() => {
+                                                    const billData = {
+                                                        ...h,
+                                                        details: h.cart_data.map(item => ({
+                                                            ...item,
+                                                            product: { title: item.product_title },
+                                                            price: item.price * item.qty
+                                                        })),
+                                                        grand_total: h.total
+                                                    };
+                                                    toast.promise(printBluetooth(billData, receiptSetting), {
+                                                        loading: 'Menghubungkan ke Printer...',
+                                                        success: 'Bill berhasil dicetak!',
+                                                        error: (err) => `Gagal cetak: ${err.message || 'Bluetooth Timeout'}`,
+                                                    });
+                                                }}
+                                                className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-primary-50 dark:hover:bg-primary-950/30 hover:text-primary-600 transition-all border dark:border-slate-700"
+                                                title="Cetak Bill via Bluetooth"
+                                            >
+                                                <IconPrinter size={18}/>
                                             </button>
-                                            <button onClick={() => { Swal.fire({ title: 'Hapus Pesanan?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' }).then(res => { if(res.isConfirmed) router.delete(route('holds.destroy', h.id)) }) }} className="p-4 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all">
-                                                <IconTrash size={18}/>
-                                            </button>
+                                            <button onClick={() => handleResumeHold(h.id)} className="flex-1 py-4 bg-slate-900 dark:bg-primary-600 text-white rounded-2xl font-black text-[10px] uppercase shadow-lg active:scale-95 transition-all"> Bayar </button>
+                                            <button onClick={() => { Swal.fire({ title: 'Hapus Pesanan?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' }).then(res => { if(res.isConfirmed) router.delete(route('holds.destroy', h.id)) }) }} className="p-4 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all"> <IconTrash size={18}/> </button>
                                         </div>
                                     </div>
                                 ))}
@@ -570,7 +583,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </div>
             )}
 
-            {/* MODAL LAINNYA */}
             {showCashOut && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-md w-full border dark:border-slate-800 shadow-2xl">

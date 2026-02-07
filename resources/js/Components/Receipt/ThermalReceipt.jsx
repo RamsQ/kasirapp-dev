@@ -119,18 +119,19 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                 {transaction.details?.map((item, index) => {
                     const pricePaid = parseFloat(item.price) || 0;
                     const qty = parseFloat(item.qty) || 0;
-                    const normalPrice = parseFloat(item.buy_price || 0);
+                    const priceNormal = parseFloat(item.buy_price || 0);
                     const actualPricePerUnit = qty > 0 ? pricePaid / qty : 0;
-                    const isDiscounted = normalPrice > actualPricePerUnit && pricePaid > 0;
+                    const isDiscounted = priceNormal > actualPricePerUnit && pricePaid > 0;
                     const bundleItems = item.product?.bundle_items || [];
 
                     return (
-                        <div key={index} className="mb-2">
+                        <div key={index} className="mb-2 border-b border-gray-50 pb-1">
                             <div className="uppercase font-bold flex justify-between">
                                 <span className="max-w-[180px]">{item.product?.title || item.product_title}</span>
                                 {pricePaid === 0 && <span className="text-[9px] italic font-black">[GRATIS]</span>}
                             </div>
                             
+                            {/* LOGIKA BUNDLE */}
                             {item.product?.type === 'bundle' && bundleItems.length > 0 && (
                                 <div className="pl-3 mb-1 border-l border-black border-dotted ml-1 opacity-70">
                                     {bundleItems.map((bi, idx) => (
@@ -141,19 +142,26 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                                     ))}
                                 </div>
                             )}
+
+                            {/* CATATAN PRODUK (LINE ITEM NOTE) */}
+                            {item.notes && (
+                                <div className="pl-2 text-[8px] font-bold italic text-gray-600 uppercase">
+                                    ** {item.notes}
+                                </div>
+                            )}
                             
+                            {/* HARGA NORMAL (Coret jika diskon) */}
                             {isDiscounted && (
                                 <div className="flex justify-between pl-2 text-[9px] text-gray-500 italic line-through">
-                                    <span>{qty} x {formatPriceReceipt(normalPrice)}</span>
+                                    <span>{qty} x {formatPriceReceipt(priceNormal)}</span>
                                 </div>
                             )}
 
+                            {/* RINCIAN HARGA FINAL */}
                             <div className="flex justify-between pl-2">
-                                <span>{qty} {item.unit || 'PCS'} x {formatPriceReceipt(actualPricePerUnit)}</span>
+                                <span>{qty} {item.unit_name || item.unit || 'PCS'} x {formatPriceReceipt(actualPricePerUnit)}</span>
                                 <span>{formatPriceReceipt(pricePaid)}</span>
                             </div>
-                            
-                            {item.notes && <div className="pl-2 text-[8px] italic opacity-70">* {item.notes}</div>}
                         </div>
                     );
                 })}

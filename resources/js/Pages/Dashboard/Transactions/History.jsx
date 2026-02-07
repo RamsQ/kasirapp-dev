@@ -4,15 +4,12 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Swal from "sweetalert2";
 import Pagination from "@/Components/Dashboard/Pagination";
 import {
-    IconDatabaseOff,
     IconSearch,
     IconHistory,
     IconReceipt,
     IconPrinter,
     IconFilter,
-    IconX,
     IconRefresh,
-    IconTrash,
     IconArmchair,
     IconUser
 } from "@tabler/icons-react";
@@ -32,7 +29,6 @@ const formatCurrency = (value = 0) =>
 
 const History = ({ transactions, filters }) => {
     const { auth } = usePage().props;
-    const isSuperAdmin = auth.user.roles.some(role => role.name === 'super-admin');
 
     const [filterData, setFilterData] = useState({
         ...defaultFilters,
@@ -92,28 +88,6 @@ const History = ({ transactions, filters }) => {
         });
     };
 
-    const handleReset = () => {
-        Swal.fire({
-            title: "BAHAYA! RESET DATA?",
-            text: "Seluruh riwayat akan dihapus permanen!",
-            icon: "error",
-            input: "password",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            confirmButtonText: "YA, RESET!",
-            preConfirm: (password) => {
-                if (!password) Swal.showValidationMessage("Password wajib diisi!");
-                return password;
-            },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.delete(route("transactions.reset"), {
-                    data: { password: result.value }
-                });
-            }
-        });
-    };
-
     const rows = transactions?.data ?? [];
     const links = transactions?.links ?? [];
     const currentPage = transactions?.current_page ?? 1;
@@ -135,17 +109,17 @@ const History = ({ transactions, filters }) => {
                         </p>
                     </div>
                     <div className="flex gap-2">
-                        {isSuperAdmin && (
-                            <button onClick={handleReset} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors text-sm font-medium">
-                                <IconTrash size={18} />
-                                <span className="hidden sm:inline">Reset Data</span>
-                            </button>
-                        )}
-                        <button onClick={() => setShowFilters(!showFilters)} className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${showFilters || hasActiveFilters ? "bg-primary-50 border-primary-200 text-primary-700" : "bg-white"}`}>
+                        <button 
+                            onClick={() => setShowFilters(!showFilters)} 
+                            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-colors ${showFilters || hasActiveFilters ? "bg-primary-50 border-primary-200 text-primary-700" : "bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300"}`}
+                        >
                             <IconFilter size={18} />
                             <span>Filter</span>
                         </button>
-                        <Link href={route("transactions.index")} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium shadow-lg shadow-primary-500/30">
+                        <Link 
+                            href={route("transactions.index")} 
+                            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium shadow-lg shadow-primary-500/30 transition-all active:scale-95"
+                        >
                             <IconReceipt size={18} />
                             <span>Kasir</span>
                         </Link>
@@ -153,19 +127,33 @@ const History = ({ transactions, filters }) => {
                 </div>
 
                 {showFilters && (
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 p-5 shadow-sm">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm animate-in slide-in-from-top-2 duration-200">
                         <form onSubmit={applyFilters} className="grid gap-4 md:grid-cols-4">
-                            <input type="text" placeholder="Nomor Invoice" value={filterData.invoice} onChange={(e) => handleChange("invoice", e.target.value)} className="rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700" />
-                            <input type="date" value={filterData.start_date} onChange={(e) => handleChange("start_date", e.target.value)} className="rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700" />
-                            <input type="date" value={filterData.end_date} onChange={(e) => handleChange("end_date", e.target.value)} className="rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700" />
-                            <button type="submit" className="bg-primary-500 text-white rounded-xl font-medium px-4 py-2">Cari</button>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">No. Invoice</label>
+                                <input type="text" placeholder="Invoice..." value={filterData.invoice} onChange={(e) => handleChange("invoice", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-primary-500" />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Dari Tanggal</label>
+                                <input type="date" value={filterData.start_date} onChange={(e) => handleChange("start_date", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-primary-500" />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Sampai Tanggal</label>
+                                <input type="date" value={filterData.end_date} onChange={(e) => handleChange("end_date", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-primary-500" />
+                            </div>
+                            <div className="flex items-end gap-2">
+                                <button type="submit" className="flex-1 bg-primary-500 hover:bg-primary-600 text-white rounded-xl font-bold py-2.5 transition-colors uppercase text-xs tracking-widest">Cari</button>
+                                <button type="button" onClick={resetFilters} className="p-2.5 text-slate-400 hover:text-red-500 transition-colors bg-slate-50 dark:bg-slate-800 rounded-xl">
+                                    <IconRefresh size={20} />
+                                </button>
+                            </div>
                         </form>
                     </div>
                 )}
 
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
                                     <th className="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-widest">No</th>
@@ -179,21 +167,25 @@ const History = ({ transactions, filters }) => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {rows.map((transaction, index) => (
-                                    <tr key={transaction.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                                        <td className="px-6 py-4 text-sm text-slate-600">{index + 1 + (currentPage - 1) * perPage}</td>
+                                {rows.length > 0 ? rows.map((transaction, index) => (
+                                    <tr key={transaction.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
+                                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{index + 1 + (currentPage - 1) * perPage}</td>
                                         <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
                                             <div className="flex flex-col">
-                                                <span>{transaction.invoice}</span>
+                                                <span className="group-hover:text-primary-500 transition-colors">{transaction.invoice}</span>
                                                 <span className="text-[10px] font-medium text-slate-400 uppercase">KSR: {transaction.cashier?.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-slate-500">{new Date(transaction.created_at).toLocaleString('id-ID')}</td>
+                                        <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
+                                            {new Date(transaction.created_at).toLocaleString('id-ID', {
+                                                dateStyle: 'medium',
+                                                timeStyle: 'short'
+                                            })}
+                                        </td>
                                         
-                                        {/* KOLOM TIPE / PEMESAN (QR ORDER INFO) */}
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-1">
-                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary-600 uppercase italic">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary-600 dark:text-primary-400 uppercase italic">
                                                     <IconArmchair size={14} />
                                                     {transaction.table_name || 'BAWA PULANG'}
                                                 </div>
@@ -207,33 +199,53 @@ const History = ({ transactions, filters }) => {
                                         </td>
 
                                         <td className="px-6 py-4">
-                                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs">
+                                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-[10px] font-bold uppercase tracking-wider">
                                                 {transaction.customer?.name ?? "Umum"}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right font-bold">{formatCurrency(transaction.grand_total)}</td>
+                                        <td className="px-6 py-4 text-right font-bold text-slate-900 dark:text-white">
+                                            {formatCurrency(transaction.grand_total)}
+                                        </td>
                                         <td className="px-6 py-4 text-right font-black text-emerald-500 italic">
                                             {formatCurrency(transaction.total_profit ?? 0)}
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <div className="flex justify-center gap-2">
-                                                <Link href={route("transactions.print", transaction.invoice)} className="p-2 text-slate-400 hover:text-primary-500 transition-colors" title="Cetak Ulang Struk">
+                                            <div className="flex justify-center gap-1">
+                                                <Link 
+                                                    href={route("transactions.print", transaction.invoice)} 
+                                                    className="p-2 text-slate-400 hover:text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all" 
+                                                    title="Cetak Ulang Struk"
+                                                >
                                                     <IconPrinter size={18}/>
                                                 </Link>
                                                 {transaction.payment_status !== "refunded" && (
-                                                    <button onClick={() => handleRefund(transaction.id)} className="p-2 text-slate-400 hover:text-orange-500 transition-colors" title="Refund Transaksi">
+                                                    <button 
+                                                        onClick={() => handleRefund(transaction.id)} 
+                                                        className="p-2 text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-all" 
+                                                        title="Refund Transaksi"
+                                                    >
                                                         <IconRefresh size={18}/>
                                                     </button>
                                                 )}
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )) : (
+                                    <tr>
+                                        <td colSpan="8" className="px-6 py-10 text-center text-slate-400 italic">
+                                            Belum ada data transaksi yang ditemukan.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
                 </div>
-                {links.length > 3 && <Pagination links={links} />}
+                {links.length > 3 && (
+                    <div className="flex justify-center mt-4">
+                        <Pagination links={links} />
+                    </div>
+                )}
             </div>
         </>
     );

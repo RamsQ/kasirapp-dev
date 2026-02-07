@@ -21,7 +21,8 @@ class TransactionDetail extends Model
         'price',
         'buy_price',       // <--- TAMBAHKAN INI AGAR HPP TERSIMPAN
         'unit',            // Kolom teks: Menyimpan "Sachet", "Box", dll.
-        'product_unit_id'  // Foreign Key: ID referensi ke tabel product_units
+        'product_unit_id',  // Foreign Key: ID referensi ke tabel product_units
+        'notes'
     ];
 
     /**

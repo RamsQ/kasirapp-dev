@@ -7,6 +7,7 @@ import {
     IconChevronDown,
     IconChevronUp,
     IconX,
+    IconPrinter, // Import ikon printer
 } from "@tabler/icons-react";
 import toast from "react-hot-toast";
 
@@ -19,7 +20,6 @@ const formatPrice = (value = 0) =>
 
 /**
  * HeldTransactions - Compact badge with expandable panel
- * Takes minimal space when collapsed, expands to show list with max height
  */
 export default function HeldTransactions({
     heldCarts = [],
@@ -68,7 +68,8 @@ export default function HeldTransactions({
 
         setDeletingId(holdId);
 
-        router.delete(route("transactions.clearHold", holdId), {
+        // Disinkronkan dengan rute holds.destroy di web.php
+        router.delete(route("holds.destroy", holdId), {
             preserveScroll: true,
             onSuccess: () => {
                 toast.success("Transaksi dihapus");
@@ -83,7 +84,6 @@ export default function HeldTransactions({
 
     const totalHeldAmount = heldCarts.reduce((sum, h) => sum + h.total, 0);
 
-    // Collapsed view - compact clickable badge (minimal space)
     if (!isExpanded) {
         return (
             <button
@@ -106,7 +106,6 @@ export default function HeldTransactions({
         );
     }
 
-    // Expanded view - list with max height and scroll
     return (
         <div className="border-b border-amber-200 dark:border-amber-800/50 bg-amber-50 dark:bg-amber-950/30">
             {/* Header */}
@@ -127,8 +126,8 @@ export default function HeldTransactions({
                 </button>
             </div>
 
-            {/* List with max height - won't take over cart space */}
-            <div className="max-h-[140px] overflow-y-auto">
+            {/* List Pesanan */}
+            <div className="max-h-[180px] overflow-y-auto">
                 {heldCarts.map((hold) => (
                     <div
                         key={hold.hold_id}
@@ -136,25 +135,27 @@ export default function HeldTransactions({
                     >
                         <div className="flex-1 min-w-0">
                             <p className="text-xs font-medium text-amber-800 dark:text-amber-200 truncate">
-                                {hold.label}
+                                {hold.label || hold.queue_number}
                             </p>
-                            <p className="text-xs text-amber-600 dark:text-amber-400">
-                                {hold.items_count} item •{" "}
-                                {formatPrice(hold.total)}
+                            <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                                {hold.items_count} item • {formatPrice(hold.total)}
                             </p>
                         </div>
                         <div className="flex items-center gap-1">
+                            {/* TOMBOL PRINT BILL BARU */}
+                            <a
+                                href={route('transactions.bill', hold.hold_id)}
+                                target="_blank"
+                                className="p-1.5 rounded bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-700 text-amber-600 hover:bg-amber-100 transition-colors"
+                                title="Cetak Bill Sementara"
+                            >
+                                <IconPrinter size={12} />
+                            </a>
+
                             <button
                                 onClick={() => handleResume(hold.hold_id)}
-                                disabled={
-                                    resumingId === hold.hold_id || hasActiveCart
-                                }
-                                className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium disabled:opacity-50 flex items-center gap-1"
-                                title={
-                                    hasActiveCart
-                                        ? "Kosongkan keranjang dulu"
-                                        : "Lanjutkan"
-                                }
+                                disabled={resumingId === hold.hold_id || hasActiveCart}
+                                className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium disabled:opacity-50"
                             >
                                 {resumingId === hold.hold_id ? (
                                     <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -177,9 +178,7 @@ export default function HeldTransactions({
     );
 }
 
-/**
- * HoldButton - Compact button to hold current transaction
- */
+// ... Sisanya tetap sama (HoldButton)
 export function HoldButton({ hasItems = false, onHold, isHolding = false }) {
     const [showLabelInput, setShowLabelInput] = useState(false);
     const [label, setLabel] = useState("");

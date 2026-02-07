@@ -1,74 +1,95 @@
 import { BleClient, numbersToDataView } from "@capacitor-community/bluetooth-le";
-import ReceiptPrinterEncoder from "@point-of-sale/receipt-printer-encoder";
+import EscPosEncoder from "esc-pos-encoder";
 
-/**
- * Fungsi Utama untuk cetak via Bluetooth
- */
 export const printBluetooth = async (transaction, receiptSetting) => {
     try {
         const savedDevice = localStorage.getItem("selected_printer");
         if (!savedDevice) {
-            throw new Error("Printer belum dipilih. Silakan pairing terlebih dahulu di menu Pengaturan.");
+            throw new Error("Printer belum dipilih.");
         }
 
         const device = JSON.parse(savedDevice);
-        const encoder = new ReceiptPrinterEncoder();
+        const encoder = new EscPosEncoder();
 
-        // 1. Inisialisasi Data Struk (Format Esc/POS)
-        // Menyesuaikan dengan data dari ThermalReceipt.jsx
-        let data = encoder
+        // Menggunakan line() manual sebagai pengganti feed() jika sering gagal di Android
+        const encodedData = encoder
             .initialize()
             .align('center')
-            .line(receiptSetting.store_name.toUpperCase())
+            .line((receiptSetting.store_name || 'KASIR').toUpperCase())
             .line(receiptSetting.store_address || '')
-            .line(`TELP: ${receiptSetting.store_phone || '-'}`)
-            .line("-".repeat(32)) // Garis pemisah
+            .line("-".repeat(32))
             .align('left')
-            .line(`NO  : ${transaction.invoice}`)
-            .line(`TGL : ${new Date(transaction.created_at).toLocaleString('id-ID')}`)
-            .line(`KSR : ${transaction.cashier?.name?.split(' ')[0]}`)
+            .line(`NO  : ${transaction.invoice || 'BILL'}`)
+            .line(`TGL : ${new Date().toLocaleDateString('id-ID')}`)
+            .line(`KSR : ${transaction.cashier?.name?.split(' ')[0] || 'Admin'}`)
             .line("-".repeat(32));
 
-        // 2. Daftar Item
-        transaction.details.forEach((item) => {
-            data.line((item.product?.title || item.product_title).toUpperCase())
+        // Tambahkan Item
+        const details = transaction.details || transaction.cart_data || [];
+        details.forEach((item) => {
+            const name = (item.product?.title || item.product_title || item.title || 'Produk').toUpperCase();
+            const qty = parseFloat(item.qty || 1);
+            const price = parseFloat(item.price || 0);
+            
+            encodedData.line(name)
                 .align('right')
-                .line(`${item.qty} x ${new Intl.NumberFormat("id-ID").format(item.price / item.qty)} = ${new Intl.NumberFormat("id-ID").format(item.price)}`)
+                .line(`${qty} x ${new Intl.NumberFormat("id-ID").format(price / qty)} = ${new Intl.NumberFormat("id-ID").format(price)}`)
                 .align('left');
         });
 
-        // 3. Footer / Totalan
-        data.line("-".repeat(32))
+        // Finalisasi data
+        const finalBuffer = encodedData
+            .line("-".repeat(32))
             .align('right')
-            .bold(true)
-            .line(`TOTAL: Rp ${new Intl.NumberFormat("id-ID").format(transaction.grand_total)}`)
-            .bold(false)
+            .line(`TOTAL: Rp ${new Intl.NumberFormat("id-ID").format(transaction.grand_total || transaction.total)}`)
             .align('center')
             .line("-".repeat(32))
             .line(receiptSetting.store_footer || 'Terima Kasih')
-            .feed(3)
+            .line(" ") // Manual feed 1
+            .line(" ") // Manual feed 2
+            .line(" ") // Manual feed 3
             .cut()
             .encode();
 
-        // 4. Proses Pengiriman Data ke Hardware
+        // --- PROSES KONEKSI ANTI-TIMEOUT ---
         await BleClient.connect(device.deviceId);
         
-        // Catatan: UUID Service dan Characteristic standar printer thermal 
-        // biasanya adalah "000018f0-0000-1000-8000-00805f9b34fb" 
-        // atau Anda bisa melakukan discovery service.
+        // Sangat krusial untuk printer Bluetooth LE agar tidak timeout saat kirim data banyak
+        try {
+            await BleClient.requestMTU(device.deviceId, 512);
+        } catch (e) {
+            console.warn("MTU Request tidak didukung, menggunakan standar.");
+        }
+
         const services = await BleClient.getServices(device.deviceId);
         
-        // Menggunakan service pertama dan characteristic pertama yang ditemukan (umum pada printer thermal)
-        const serviceUuid = services[0].uuid;
-        const characteristicUuid = services[0].characteristics[0].uuid;
+        // Cari characteristic yang mendukung WRITE secara dinamis
+        let writeCharacteristic = null;
+        for (const service of services) {
+            const char = service.characteristics.find(c => c.properties.write || c.properties.writeWithoutResponse);
+            if (char) {
+                writeCharacteristic = { service: service.uuid, characteristic: char.uuid };
+                break;
+            }
+        }
 
-        await BleClient.write(device.deviceId, serviceUuid, characteristicUuid, numbersToDataView(data));
+        if (!writeCharacteristic) throw new Error("Karakteristik write tidak ditemukan");
+
+        // Kirim data dalam chunk (potongan) 20 byte jika buffer sangat besar (opsional tapi aman)
+        await BleClient.write(
+            device.deviceId, 
+            writeCharacteristic.service, 
+            writeCharacteristic.characteristic, 
+            numbersToDataView(Array.from(finalBuffer))
+        );
         
         await BleClient.disconnect(device.deviceId);
         return true;
 
     } catch (error) {
         console.error("Bluetooth Print Error:", error);
+        // Pastikan disconnect jika gagal agar device tidak "hang"
+        try { await BleClient.disconnect(device.deviceId); } catch (e) {}
         throw error;
     }
 };

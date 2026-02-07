@@ -1,10 +1,14 @@
 import React from 'react';
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react'; // Tambahkan router untuk aksi delete
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
-import FaceRegistration from "@/Components/FaceRegistration"; // Pastikan file ini ada di folder Components
-import { IconUser, IconLock, IconFaceId, IconShieldCheck, IconAlertCircle } from '@tabler/icons-react';
+import FaceRegistration from "@/Components/FaceRegistration";
+import { 
+    IconUser, IconLock, IconFaceId, IconShieldCheck, 
+    IconAlertCircle, IconAlertTriangle, IconTrash 
+} from '@tabler/icons-react';
+import Swal from 'sweetalert2';
 
 export default function Index({ auth, mustVerifyEmail, status }) {
     // Mengecek apakah user memiliki role pimpinan
@@ -12,6 +16,55 @@ export default function Index({ auth, mustVerifyEmail, status }) {
     
     // Status Mandatory dari database
     const isFaceMandatory = auth.user.is_face_mandatory;
+
+    // Fungsi Handle Reset System
+    const handleResetSystem = () => {
+        Swal.fire({
+            title: 'RESET TOTAL SISTEM?',
+            text: "Seluruh data transaksi, stok, bahan baku, dan antrean akan dihapus permanen. Tindakan ini tidak dapat dibatalkan!",
+            icon: 'warning',
+            input: 'password',
+            inputAttributes: {
+                autocapitalize: 'off',
+                placeholder: 'Masukkan Password Admin Anda'
+            },
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'YA, RESET SEMUANYA!',
+            cancelButtonText: 'Batal',
+            showLoaderOnConfirm: true,
+            preConfirm: (password) => {
+                if (!password) {
+                    Swal.showValidationMessage('Password wajib diisi untuk verifikasi!');
+                }
+                return password;
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                router.delete(route('system.reset'), { // Pastikan route name sesuai di web.php
+                    data: { password: result.value },
+                    onSuccess: () => {
+                        Swal.fire({
+                            title: 'Sistem Dibersihkan!',
+                            text: 'Semua data telah berhasil dihapus.',
+                            icon: 'success',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    },
+                    onError: (errors) => {
+                        Swal.fire({
+                            title: 'Gagal!',
+                            text: errors.error || 'Terjadi kesalahan atau password salah.',
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444'
+                        });
+                    }
+                });
+            }
+        });
+    };
 
     return (
         <>
@@ -33,7 +86,7 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                     
                     {/* Sisi Kiri: Update Info & Foto */}
-                    <div className="lg:col-span-7">
+                    <div className="lg:col-span-7 space-y-6">
                         <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden transition-all">
                             <div className="p-6 sm:p-8">
                                 <div className="flex items-center gap-4 mb-8">
@@ -47,12 +100,44 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                                 <UpdateProfileInformationForm mustVerifyEmail={mustVerifyEmail} status={status} />
                             </div>
                         </div>
+
+                        {/* DANGER ZONE: Hanya muncul untuk Super Admin / Owner */}
+                        {isOwner && (
+                            <div className="bg-red-50/50 dark:bg-red-950/10 border-2 border-red-100 dark:border-red-900/30 rounded-[2.5rem] p-6 sm:p-8 overflow-hidden">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-2.5 bg-red-500 text-white rounded-2xl shadow-lg shadow-red-500/20">
+                                        <IconAlertTriangle size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-black text-red-600 dark:text-red-400 uppercase tracking-tight italic">
+                                            Danger Zone
+                                        </h3>
+                                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Akses Khusus Pemilik</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-red-100 dark:border-red-900/50 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+                                    <div className="max-w-md">
+                                        <h4 className="text-sm font-black text-slate-800 dark:text-white uppercase mb-1">Reset Database Kasir</h4>
+                                        <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                                            Hapus seluruh riwayat transaksi, laporan laba rugi, stok produk, bahan baku, dan riwayat shift. Gunakan fitur ini jika ingin memulai buku kas baru dari nol.
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={handleResetSystem}
+                                        className="flex items-center justify-center gap-2 px-8 py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl shadow-red-600/20 shrink-0"
+                                    >
+                                        <IconTrash size={18} /> Reset Total
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Sisi Kanan: Keamanan & Face ID */}
                     <div className="lg:col-span-5 space-y-6">
                         
-                        {/* [KEAMANAN BIOMETRIK] - WAJIB UNTUK SEMUA USER AGAR BISA DAFTAR WAJAH */}
+                        {/* [KEAMANAN BIOMETRIK] */}
                         <div className={`bg-white dark:bg-slate-900 shadow-xl border rounded-3xl overflow-hidden transition-all ${isFaceMandatory ? 'border-indigo-500 ring-4 ring-indigo-500/10' : 'border-slate-200 dark:border-slate-800'}`}>
                             <div className="p-6 sm:p-8">
                                 <div className="flex items-center justify-between mb-6">
@@ -88,7 +173,6 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                                     Daftarkan sampel wajah Anda untuk mengaktifkan fitur login tanpa password yang lebih aman dan cepat.
                                 </p>
                                 
-                                {/* Komponen Utama Registrasi Wajah */}
                                 <FaceRegistration user={auth.user} />
                             </div>
                         </div>

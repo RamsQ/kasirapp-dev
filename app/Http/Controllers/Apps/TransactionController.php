@@ -22,7 +22,7 @@ use App\Models\Recipe;
 use App\Models\Ingredient; 
 use App\Models\User;
 use App\Events\OrderPlaced; 
-use App\Events\OrderDeleted; // Pastikan file Event ini sudah dibuat
+use App\Events\OrderDeleted; 
 use App\Services\CogsService;
 use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Http\Request;
@@ -57,9 +57,6 @@ class TransactionController extends Controller
             ->latest()
             ->get();
 
-        /**
-         * LOGIKA HAK AKSES QR ORDER
-         */
         if ($user->can('public.orders.index')) {
             $holds = Hold::with('table')->latest()->get();
         } else {
@@ -115,7 +112,21 @@ class TransactionController extends Controller
     }
 
     /**
-     * Simpan Transaksi Final (LUNAS)
+     * Cetak Bill Sementara
+     */
+    public function printBill($id)
+    {
+        $hold = Hold::with('table')->findOrFail($id);
+        $receiptSetting = ReceiptSetting::first();
+
+        return Inertia::render('Dashboard/Transactions/PrintBill', [
+            'hold'           => $hold,
+            'receiptSetting' => $receiptSetting,
+        ]);
+    }
+
+    /**
+     * Simpan Transaksi Final
      */
     public function store(Request $request, PaymentGatewayManager $paymentGatewayManager)
     {
@@ -140,7 +151,6 @@ class TransactionController extends Controller
 
                 $buyGetPromos = Discount::active()->where('type', 'buy_get')->get();
 
-                // Ambil data antrean sebelum dihapus
                 $customerName = null; 
                 $queueNumber = $request->queue_number;
 
@@ -237,6 +247,7 @@ class TransactionController extends Controller
                         'buy_price'       => $unitPrice, 
                         'unit'            => $cart->unit->unit_name ?? $product->unit ?? 'Pcs',
                         'product_unit_id' => $cart->product_unit_id,
+                        'notes'           => $cart->notes,
                     ]);
 
                     $transaction->profits()->create(['total' => (float)$totalItemSellingPrice - (float)$totalItemCost]);
@@ -249,7 +260,6 @@ class TransactionController extends Controller
                     }
                     if($hold) $hold->delete();
 
-                    // BROADCAST HAPUS ANTREAN KE SEMUA KASIR YANG BERWENANG
                     $authorizedUsers = User::permission('public.orders.index')->get();
                     foreach ($authorizedUsers as $staff) {
                         event(new OrderDeleted($staff->id));
@@ -326,7 +336,6 @@ class TransactionController extends Controller
 
                 Cart::where('cashier_id', auth()->id())->delete();
                 
-                // BROADCAST KE SEMUA PETUGAS
                 $authorizedUsers = User::permission('public.orders.index')->get();
                 foreach ($authorizedUsers as $staff) {
                     event(new OrderPlaced($staff->id));
@@ -394,7 +403,6 @@ class TransactionController extends Controller
                     'user_id'       => $authorizedUsers->first()->id 
                 ]);
 
-                // BROADCAST KE SEMUA STAFF YANG PUNYA PERMISSION
                 foreach ($authorizedUsers as $staff) {
                     event(new OrderPlaced($staff->id));
                 }
@@ -419,46 +427,12 @@ class TransactionController extends Controller
         }
         $hold->delete();
 
-        // BROADCAST HAPUS KE SEMUA KASIR
         $authorizedUsers = User::permission('public.orders.index')->get();
         foreach ($authorizedUsers as $staff) {
             event(new OrderDeleted($staff->id));
         }
 
         return back()->with('success', 'Antrean dihapus.');
-    }
-
-    public function moveTable(Request $request, $holdId)
-    {
-        $request->validate(['new_table_id' => 'required|exists:tables,id']);
-        $hold = Hold::findOrFail($holdId);
-        $oldTableId = $hold->table_id;
-        $newTable = Table::findOrFail($request->new_table_id);
-        if ($newTable->status === 'occupied') { return back()->with('error', 'Meja tujuan sudah terisi!'); }
-        if ($oldTableId) { Table::where('id', $oldTableId)->update(['status' => 'available']); }
-        $hold->update(['table_id' => $request->new_table_id]);
-        $newTable->update(['status' => 'occupied']);
-        return back()->with('success', 'Berhasil pindah meja.');
-    }
-
-    public function mergeTable(Request $request)
-    {
-        $request->validate(['source_hold_id' => 'required', 'target_hold_id' => 'required']);
-        $source = Hold::with('table')->findOrFail($request->source_hold_id);
-        $target = Hold::with('table')->findOrFail($request->target_hold_id);
-        $mergedCart = array_merge($target->cart_data, $source->cart_data);
-        $sourceLabel = $source->table ? $source->table->name : $source->ref_number;
-        $newLabel = $target->ref_number . " [Merged " . $sourceLabel . "]";
-        $target->update(['cart_data' => $mergedCart, 'total' => (float)$target->total + (float)$source->total, 'ref_number' => $newLabel]);
-        $source->delete();
-        
-        // Broadcast sync untuk merge
-        $authorizedUsers = User::permission('public.orders.index')->get();
-        foreach ($authorizedUsers as $staff) {
-            event(new OrderDeleted($staff->id));
-        }
-
-        return back()->with('success', 'Meja berhasil digabungkan.');
     }
 
     public function resumeCart($holdId)
@@ -472,7 +446,8 @@ class TransactionController extends Controller
                 'product_id'      => $item['product_id'], 
                 'product_unit_id' => $item['product_unit_id'] ?? null,
                 'qty'             => $item['qty'], 
-                'price'           => $item['price']
+                'price'           => $item['price'],
+                'notes'           => $item['notes'] ?? null,
             ]);
         }
         return back()->with('success', 'Data pesanan dipulihkan ke keranjang.');
@@ -483,9 +458,27 @@ class TransactionController extends Controller
         $product = Product::find($request->product_id);
         $unitId = $request->product_unit_id ?? null;
         $unitPrice = $unitId ? (ProductUnit::find($unitId)->sell_price ?? $product->sell_price) : $product->sell_price;
-        $cart = Cart::where(['product_id' => $request->product_id, 'product_unit_id' => $unitId, 'cashier_id' => auth()->id()])->first();
-        if ($cart) { $cart->increment('qty', 1); $cart->update(['price' => $unitPrice * $cart->qty]); } 
-        else { Cart::create(['cashier_id' => auth()->id(), 'product_id' => $request->product_id, 'product_unit_id' => $unitId, 'qty' => 1, 'price' => $unitPrice]); }
+        
+        $cart = Cart::where([
+            'product_id' => $request->product_id, 
+            'product_unit_id' => $unitId, 
+            'cashier_id' => auth()->id(),
+            'notes' => $request->notes ?? null
+        ])->first();
+
+        if ($cart) { 
+            $cart->increment('qty', 1); 
+            $cart->update(['price' => $unitPrice * $cart->qty]); 
+        } else { 
+            Cart::create([
+                'cashier_id' => auth()->id(), 
+                'product_id' => $request->product_id, 
+                'product_unit_id' => $unitId, 
+                'qty' => 1, 
+                'price' => $unitPrice,
+                'notes' => $request->notes ?? null
+            ]); 
+        }
         return back();
     }
 
@@ -494,7 +487,13 @@ class TransactionController extends Controller
         $cart = Cart::with('product')->whereId($cart_id)->firstOrFail();
         $unitId = $request->product_unit_id ?? $cart->product_unit_id;
         $unitPrice = $unitId ? (ProductUnit::find($unitId)->sell_price ?? $cart->product->sell_price) : $cart->product->sell_price;
-        $cart->update(['qty' => $request->qty, 'product_unit_id' => $unitId, 'price' => $unitPrice * $request->qty]);
+        
+        $cart->update([
+            'qty' => $request->qty, 
+            'product_unit_id' => $unitId, 
+            'price' => $unitPrice * $request->qty,
+            'notes' => $request->notes, 
+        ]);
         return back();
     }
 
@@ -527,20 +526,57 @@ class TransactionController extends Controller
         return back()->with('success', 'Kas keluar dicatat.');
     }
 
+    /**
+     * RESET TOTAL SISTEM
+     */
     public function destroyAll(Request $request) 
     {
         if (!auth()->user()->hasRole('super-admin')) return back()->with('error', 'Akses ditolak!');
         if (!Hash::check($request->password, auth()->user()->password)) return back()->with('error', 'Password salah!');
+        
         try {
-            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            DB::table('transaction_details')->truncate(); DB::table('transactions')->truncate(); DB::table('profits')->truncate(); DB::table('expenses')->truncate(); DB::table('shifts')->truncate(); DB::table('carts')->truncate(); DB::table('holds')->truncate();
-            if (Schema::hasTable('stock_movements')) DB::table('stock_movements')->truncate();
-            DB::table('stock_batches')->truncate();
-            if (Schema::hasTable('stock_ins')) DB::table('stock_ins')->truncate();
-            if (Schema::hasTable('stock_opnames')) DB::table('stock_opnames')->truncate();
-            DB::table('products')->update(['stock' => 0]); DB::table('tables')->update(['status' => 'available']);
-            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-            return back()->with('success', 'Sistem berhasil di-reset total.');
+            DB::transaction(function () {
+                // Nonaktifkan check foreign key agar bisa truncate tabel yang berelasi
+                DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+                // 1. Reset Data Transaksi & Keuangan
+                DB::table('transaction_details')->truncate();
+                DB::table('transactions')->truncate();
+                DB::table('profits')->truncate();
+                DB::table('expenses')->truncate();
+                DB::table('shifts')->truncate();
+                
+                // 2. Reset Data Keranjang & Antrean
+                DB::table('carts')->truncate();
+                DB::table('holds')->truncate();
+                
+                // 3. Reset Data Stok & Inventori Produk Jadi
+                if (Schema::hasTable('stock_movements')) DB::table('stock_movements')->truncate();
+                if (Schema::hasTable('stock_ins')) DB::table('stock_ins')->truncate();
+                if (Schema::hasTable('stock_opnames')) DB::table('stock_opnames')->truncate();
+                DB::table('stock_batches')->truncate();
+                
+                // 4. Reset Data Bahan Baku & Resep
+                if (Schema::hasTable('ingredients')) {
+                    DB::table('ingredients')->update(['stock' => 0]); // Reset stok bahan mentah ke 0
+                }
+                if (Schema::hasTable('ingredient_movements')) {
+                    DB::table('ingredient_movements')->truncate(); // Hapus riwayat keluar masuk bahan baku
+                }
+                if (Schema::hasTable('purchases')) {
+                    DB::table('purchase_details')->truncate(); 
+                    DB::table('purchases')->truncate();
+                }
+
+                // 5. Kembalikan Angka Stok Produk ke 0 & Reset Status Meja
+                DB::table('products')->update(['stock' => 0]); 
+                DB::table('tables')->update(['status' => 'available']);
+
+                DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            });
+
+            return back()->with('success', 'Sistem berhasil di-reset total. Transaksi, stok produk, dan bahan baku telah dibersihkan.');
+            
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
             return back()->with('error', 'Gagal reset data: ' . $e->getMessage());

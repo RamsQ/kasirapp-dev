@@ -16,6 +16,8 @@ import {
     IconX,
     IconSearch,
     IconCalendar,
+    IconWorld,
+    IconCash
 } from "@tabler/icons-react";
 
 // Summary Card Component
@@ -113,10 +115,12 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
 
     const handleChange = (field, value) =>
         setFilterData((prev) => ({ ...prev, [field]: value }));
+    
     const handleSelectCashier = (value) => {
         setSelectedCashier(value);
         handleChange("cashier_id", value ? String(value.id) : "");
     };
+    
     const handleSelectCustomer = (value) => {
         setSelectedCustomer(value);
         handleChange("customer_id", value ? String(value.id) : "");
@@ -163,22 +167,33 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
         items_sold: summary?.items_sold ?? 0,
         profit_total: summary?.profit_total ?? 0,
         average_order: summary?.average_order ?? 0,
+        markup_total: summary?.markup_total ?? 0,
+        fee_total: summary?.fee_total ?? 0,
     };
+
+    // Kalkulasi Pendapatan Riil (Setelah potong jatah aplikasi)
+    const totalPotonganPlatform = safeSummary.markup_total + safeSummary.fee_total;
+    const realCashReceived = safeSummary.revenue_total - totalPotonganPlatform;
 
     const summaryCards = [
         {
-            title: "Pendapatan Bersih",
+            title: "Omzet (Pelanggan Bayar)",
             value: formatCurrency(safeSummary.revenue_total),
-            description: "Total setelah diskon",
+            description: "Total bruto masuk sistem",
             icon: <IconReceipt2 />,
             gradient: "from-primary-500 to-primary-700",
         },
         {
-            title: "Total Profit",
+            title: "Uang Diterima Toko",
+            value: formatCurrency(realCashReceived),
+            description: "Netto (Potong platform)",
+            icon: <IconCash />,
+            gradient: "from-emerald-500 to-teal-700",
+        },
+        {
+            title: "Profit Riil",
             value: formatCurrency(safeSummary.profit_total),
-            description: `Rata-rata ${formatCurrency(
-                safeSummary.average_order
-            )}`,
+            description: "Bersih potong HPP & App",
             icon: <IconCoin />,
             gradient: "from-success-500 to-success-700",
         },
@@ -188,13 +203,6 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
             description: `${safeSummary.orders_count} transaksi`,
             icon: <IconShoppingBag />,
             gradient: "from-accent-500 to-accent-700",
-        },
-        {
-            title: "Diskon Diberikan",
-            value: formatCurrency(safeSummary.discount_total),
-            description: "Akumulasi promo",
-            icon: <IconDiscount2 />,
-            gradient: "from-warning-500 to-warning-600",
         },
     ];
 
@@ -213,8 +221,8 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                             />
                             Laporan Penjualan
                         </h1>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Analisis dan ringkasan penjualan
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
+                            Analisis Keuntungan Riil (Offline & Online)
                         </p>
                     </div>
                     <button
@@ -246,87 +254,44 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                         <form onSubmit={applyFilters}>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Tanggal Mulai
-                                    </label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Tanggal Mulai</label>
                                     <input
                                         type="date"
                                         value={filterData.start_date}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "start_date",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("start_date", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Tanggal Akhir
-                                    </label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Tanggal Akhir</label>
                                     <input
                                         type="date"
                                         value={filterData.end_date}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "end_date",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("end_date", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Invoice
-                                    </label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Invoice</label>
                                     <input
                                         type="text"
                                         placeholder="TRX-..."
                                         value={filterData.invoice}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "invoice",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("invoice", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
-                                <InputSelect
-                                    label="Kasir"
-                                    data={cashiers}
-                                    selected={selectedCashier}
-                                    setSelected={handleSelectCashier}
-                                    placeholder="Semua kasir"
-                                    searchable
-                                />
-                                <InputSelect
-                                    label="Pelanggan"
-                                    data={customers}
-                                    selected={selectedCustomer}
-                                    setSelected={handleSelectCustomer}
-                                    placeholder="Semua pelanggan"
-                                    searchable
-                                />
+                                <InputSelect label="Kasir" data={cashiers} selected={selectedCashier} setSelected={handleSelectCashier} placeholder="Semua kasir" searchable />
+                                <InputSelect label="Pelanggan" data={customers} selected={selectedCustomer} setSelected={handleSelectCustomer} placeholder="Semua pelanggan" searchable />
                             </div>
                             <div className="flex justify-end gap-2 mt-4">
                                 {hasActiveFilters && (
-                                    <button
-                                        type="button"
-                                        onClick={resetFilters}
-                                        className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                                    >
+                                    <button type="button" onClick={resetFilters} className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                                         <IconX size={18} />
                                     </button>
                                 )}
-                                <button
-                                    type="submit"
-                                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-colors"
-                                >
-                                    <IconSearch size={18} />
-                                    Terapkan
+                                <button type="submit" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-colors">
+                                    <IconSearch size={18} /> Terapkan
                                 </button>
                             </div>
                         </form>
@@ -335,74 +300,55 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
 
                 {/* Table */}
                 {rows.length > 0 ? (
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-slate-100 dark:border-slate-800">
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            No
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Invoice
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Tanggal
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Pelanggan
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Kasir
-                                        </th>
-                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Item
-                                        </th>
-                                        <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Total
-                                        </th>
-                                        <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">
-                                            Profit
-                                        </th>
+                                    <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">No</th>
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Invoice</th>
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Platform</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Beban App</th>
+                                        <th className="px-4 py-4 text-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Item</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Transaksi</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase border-l dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-950/10">Profit Bersih</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {rows.map((trx, i) => (
-                                        <tr
-                                            key={trx.id}
-                                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-                                        >
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {i +
-                                                    1 +
-                                                    (currentPage - 1) * perPage}
+                                        <tr key={trx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
+                                            <td className="px-4 py-4 text-sm text-slate-500">
+                                                {i + 1 + (currentPage - 1) * perPage}
                                             </td>
-                                            <td className="px-4 py-4 text-sm font-semibold text-slate-900 dark:text-white">
-                                                {trx.invoice}
+                                            <td className="px-4 py-4">
+                                                <div className="text-sm font-bold text-slate-900 dark:text-white">{trx.invoice}</div>
+                                                <div className="text-[10px] text-slate-400 uppercase">{trx.created_at}</div>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.created_at}
+                                            <td className="px-4 py-4">
+                                                {trx.online_platform ? (
+                                                    <span className="flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg uppercase w-fit">
+                                                        <IconWorld size={12} /> {trx.online_platform}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-slate-300 uppercase italic">Offline</span>
+                                                )}
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.customer?.name ?? "-"}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.cashier?.name ?? "-"}
+                                            <td className="px-4 py-4 text-right text-sm font-medium text-red-500 dark:text-red-400 italic">
+                                                {formatCurrency((trx.total_markup || 0) + (trx.total_fee || 0))}
                                             </td>
                                             <td className="px-4 py-4 text-center">
-                                                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-full">
+                                                <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full">
                                                     {trx.total_items ?? 0}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-right text-sm font-semibold text-slate-900 dark:text-white">
-                                                {formatCurrency(
-                                                    trx.grand_total ?? 0
-                                                )}
+                                            <td className="px-4 py-4 text-right text-sm font-bold text-slate-900 dark:text-white">
+                                                {formatCurrency(trx.grand_total ?? 0)}
                                             </td>
-                                            <td className="px-4 py-4 text-right text-sm font-semibold text-success-600 dark:text-success-400">
-                                                {formatCurrency(
-                                                    trx.total_profit ?? 0
-                                                )}
+                                            <td className="px-4 py-4 text-right border-l dark:border-slate-800 bg-emerald-50/20 dark:bg-emerald-950/5">
+                                                <div className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+                                                    {formatCurrency(trx.total_profit ?? 0)}
+                                                </div>
+                                                <div className="text-[8px] text-slate-400 font-medium italic">Riil di Terima</div>
                                             </td>
                                         </tr>
                                     ))}
@@ -413,17 +359,10 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                         <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                            <IconDatabaseOff
-                                size={32}
-                                className="text-slate-400"
-                            />
+                            <IconDatabaseOff size={32} className="text-slate-400" />
                         </div>
-                        <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">
-                            Tidak Ada Data
-                        </h3>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Tidak ada transaksi sesuai filter.
-                        </p>
+                        <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">Tidak Ada Data</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada transaksi sesuai filter.</p>
                     </div>
                 )}
 

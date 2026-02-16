@@ -3,44 +3,29 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $user = User::create([
-            'name' => 'Arya Dwi Putra',
-            'email' => 'arya@gmail.com',
-            'password' => bcrypt('password'),
-        ]);
+        // 1. Buat atau Update User Admin
+        $user = User::updateOrCreate(
+            ['email' => 'admin@gmail.com'], // Cari berdasarkan email ini
+            [
+                'name'     => 'Super Administrator',
+                'password' => Hash::make('password'), // Password default: password
+            ]
+        );
 
-        // get admin role
+        // 2. Ambil Role super-admin (Pastikan RoleSeeder sudah dijalankan)
         $role = Role::where('name', 'super-admin')->first();
 
-        // get all permissions
-        $permissions = Permission::all();
-
-        // assign role to user
-        $user->syncPermissions($permissions);
-
-        // assign a role to user
-        $user->assignRole($role);
-
-        $cashier = User::create([
-            'name' => 'Cashier',
-            'email' => 'cashier@gmail.com',
-            'password' => bcrypt('password'),
-        ]);
-
-        $transactionsPermission = Permission::where('name', 'transactions-access')->first();
-
-        $cashier->syncPermissions($transactionsPermission);
+        if ($role) {
+            // Berikan role ke user
+            $user->assignRole($role);
+        }
     }
 }

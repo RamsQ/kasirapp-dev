@@ -26,6 +26,7 @@ class SalesReportController extends Controller
             'customer_id' => $request->input('customer_id'),
         ];
 
+        // Base query untuk daftar transaksi (mengambil semua kolom termasuk kolom online baru)
         $baseListQuery = $this->applyFilters(
             Transaction::query()
                 ->with(['cashier:id,name', 'customer:id,name'])
@@ -38,13 +39,16 @@ class SalesReportController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        // Aggregate query untuk menghitung summary
         $aggregateQuery = $this->applyFilters(Transaction::query(), $filters);
 
         $totals = (clone $aggregateQuery)
             ->selectRaw('
                 COUNT(*) as orders_count,
                 COALESCE(SUM(grand_total), 0) as revenue_total,
-                COALESCE(SUM(discount), 0) as discount_total
+                COALESCE(SUM(discount), 0) as discount_total,
+                COALESCE(SUM(total_markup), 0) as markup_total,
+                COALESCE(SUM(total_fee), 0) as fee_total
             ')
             ->first();
 
@@ -58,12 +62,15 @@ class SalesReportController extends Controller
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
 
+        // Menyusun ringkasan data untuk ditampilkan di Summary Cards
         $summary = [
             'orders_count' => (int) ($totals->orders_count ?? 0),
             'revenue_total' => (int) ($totals->revenue_total ?? 0),
             'discount_total' => (int) ($totals->discount_total ?? 0),
             'items_sold' => (int) $itemsSold,
             'profit_total' => (int) $profitTotal,
+            'markup_total' => (int) ($totals->markup_total ?? 0), // Akumulasi Markup %
+            'fee_total' => (int) ($totals->fee_total ?? 0),       // Akumulasi Biaya Flat
             'average_order' => ($totals->orders_count ?? 0) > 0
                 ? (int) round($totals->revenue_total / $totals->orders_count)
                 : 0,
@@ -81,10 +88,10 @@ class SalesReportController extends Controller
     /**
      * Apply table filters.
      */
-protected function applyFilters($query, array $filters)
+    protected function applyFilters($query, array $filters)
     {
         return $query
-            ->where('payment_status', '!=', 'refunded') // <--- TAMBAHKAN BARIS INI
+            ->where('payment_status', '!=', 'refunded')
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))

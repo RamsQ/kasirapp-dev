@@ -33,6 +33,7 @@
         "chart.js": "^4.5.1",
         "cordova-plugin-bluetooth-serial": "^0.4.7",
         "esc-pos-encoder": "^3.0.0",
+        "escpos": "^3.0.0-alpha.6",
         "face-api.js": "^0.22.2",
         "jsbarcode": "^3.11.6",
         "lodash": "^4.17.21",

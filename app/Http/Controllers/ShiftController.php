@@ -47,7 +47,7 @@ class ShiftController extends Controller
     }
 
     /**
-     * [FIXED] Fungsi Tutup Shift (Nama diganti dari 'update' ke 'close' agar sync dengan Route)
+     * Fungsi Tutup Shift (Menghitung Total Penjualan & Diskon)
      */
     public function close(Request $request)
     {
@@ -55,45 +55,55 @@ class ShiftController extends Controller
             'total_cash_physical' => 'required|numeric|min:0',
         ]);
 
-        // Ambil shift yang sedang aktif
         $shift = Shift::where('user_id', auth()->id())
             ->where('status', 'open')
             ->firstOrFail();
 
-        // 1. Hitung Penjualan TUNAI selama shift ini
+        // 1. Hitung Penjualan TUNAI & QRIS
         $totalCashSales = Transaction::where('shift_id', $shift->id)
                             ->where('payment_method', 'cash') 
                             ->where('payment_status', 'paid')
                             ->sum('grand_total');
 
-        // 2. Hitung Pengeluaran Kasir (Kas Keluar) selama shift ini
+        $totalQrisSales = Transaction::where('shift_id', $shift->id)
+                            ->where('payment_method', 'qris') 
+                            ->where('payment_status', 'paid')
+                            ->sum('grand_total');
+
+        // 2. Hitung TOTAL DISKON/PROMO selama shift ini (BARU)
+        $totalDiscounts = Transaction::where('shift_id', $shift->id)->sum('discount');
+
+        // 3. Hitung Pengeluaran Kasir (Kas Keluar)
         $totalPettyCashOut = Expense::where('user_id', auth()->id())
                             ->whereBetween('created_at', [$shift->opened_at, now()])
                             ->sum('amount');
 
-        // 3. Kalkulasi ekspektasi saldo tunai (Modal Awal + Jual Tunai - Kas Keluar)
+        // 4. Kalkulasi ekspektasi saldo tunai (Modal Awal + Jual Tunai - Kas Keluar)
+        // Catatan: grand_total di transaksi biasanya sudah dipotong diskon, 
+        // jadi kita tidak perlu mengurangi diskon lagi di sini agar tidak double cut.
         $expected = ($shift->starting_cash + $totalCashSales) - $totalPettyCashOut;
         $actual = $request->total_cash_physical;
 
-        // 4. Update data shift ke database
+        // 5. Update data shift
         $shift->update([
             'total_cash_expected' => $expected,
             'total_cash_actual'   => $actual,
+            'total_qris_sales'    => $totalQrisSales,
+            'total_discounts'     => $totalDiscounts, // Pastikan kolom ini ada di database
             'difference'          => $actual - $expected,
             'status'              => 'closed',
             'closed_at'           => now(),
         ]);
 
-        // 5. Alirkan ke halaman print dengan sinyal auto_print
         return redirect()->route('shifts.print', $shift->id)->with('auto_print', true);
     }
 
     /**
-     * Halaman Khusus Review & Cetak Laporan Shift
+     * Halaman Cetak Laporan Shift
      */
     public function print(Shift $shift)
     {
-        // Hitung ulang data untuk tampilan laporan agar rinciannya lengkap
+        // Ambil rincian transaksi untuk laporan
         $totalCashSales = Transaction::where('shift_id', $shift->id)
             ->where('payment_method', 'cash')
             ->where('payment_status', 'paid')
@@ -104,6 +114,9 @@ class ShiftController extends Controller
             ->where('payment_status', 'paid')
             ->sum('grand_total');
 
+        // Hitung total diskon khusus untuk cetakan
+        $totalDiscounts = Transaction::where('shift_id', $shift->id)->sum('discount');
+
         $pettyCashOut = Expense::where('user_id', $shift->user_id)
             ->whereBetween('created_at', [$shift->opened_at, $shift->closed_at ?? now()])
             ->get();
@@ -111,13 +124,14 @@ class ShiftController extends Controller
         $shift->load('user');
         $shift->total_qris_sales = $totalQrisSales;
         $shift->total_cash_sales = $totalCashSales;
-        $shift->petty_cash_out = $pettyCashOut->sum('amount');
-        $shift->expense_details = $pettyCashOut; 
+        $shift->total_discounts  = $totalDiscounts; // Dilempar ke ShiftReceipt.jsx
+        $shift->petty_cash_out   = $pettyCashOut->sum('amount');
+        $shift->expense_details  = $pettyCashOut; 
 
         return Inertia::render('Dashboard/Shifts/Print', [
             'shift'          => $shift,
             'receiptSetting' => ReceiptSetting::first(),
-            'auto_print'     => session('auto_print', false) // Mengirim status auto print ke React
+            'auto_print'     => session('auto_print', false)
         ]);
     }
 
@@ -133,6 +147,7 @@ class ShiftController extends Controller
             ->withSum(['transactions as total_qris_sales' => function($query) {
                 $query->where('payment_method', 'qris')->where('payment_status', 'paid');
             }], 'grand_total')
+            ->withSum('transactions as total_discounts', 'discount') // Menampilkan total diskon di tabel riwayat
             ->when($request->date, fn($q, $date) => $q->whereDate('opened_at', $date))
             ->orderBy('id', 'desc')
             ->paginate(10)

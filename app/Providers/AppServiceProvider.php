@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Gate; // <--- JANGAN LUPA IMPORT INI
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,8 +21,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // --- LOGIC SUPER ADMIN (KARTU SAKTI) ---
-        // Kode ini mengizinkan super-admin menembus semua validasi permission
+        // Kita gunakan Gate::after atau Gate::before. 
+        // Gate::before dijalankan SEBELUM pengecekan permission Spatie.
         Gate::before(function ($user, $ability) {
+            // Kita cek menggunakan method isSuperAdmin() yang sudah kita buat di Model User tadi
             return $user->hasRole('super-admin') ? true : null;
         });
     }

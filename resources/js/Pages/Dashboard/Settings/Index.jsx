@@ -55,13 +55,7 @@ const SettingIndex = ({ auth, settings }) => {
             color: 'text-orange-500',
             desc: 'Barang yang terakhir masuk dianggap terjual lebih dulu. Jarang digunakan, sesuai kebijakan akuntansi.' 
         },
-        { 
-            id: 'SPECIFIC', 
-            title: 'Specific Identification', 
-            icon: <IconBarcode size={24} />, 
-            color: 'text-purple-500',
-            desc: 'HPP dihitung berdasarkan unit spesifik yang discan (menggunakan IMEI/Serial Number).' 
-        },
+
     ];
 
     return (

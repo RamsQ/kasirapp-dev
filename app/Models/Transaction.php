@@ -19,8 +19,9 @@ class Transaction extends Model
     protected $fillable = [
         'cashier_id',
         'customer_id',
-        'shift_id', // <--- [BARU] Tambahkan ini agar shift_id bisa disimpan
+        'shift_id', 
         'invoice',
+        'reference_code', // --- TETAP DI SINI AGAR BISA DISIMPAN ---
         'customer_name',
         'cash',
         'change',
@@ -32,12 +33,22 @@ class Transaction extends Model
         'queue_number',
         'payment_reference',
         'payment_url',
+        // --- FIELD UNTUK LAPORAN ONLINE ---
+        'online_platform',
+        'total_markup',
+        'total_fee',
     ];
+
+    /**
+     * CATATAN: $appends DIHAPUS.
+     * Karena reference_code dan queue_number sudah ada di database (hasil migration),
+     * Laravel otomatis akan mengirimkannya ke Frontend tanpa perlu bantuan $appends.
+     */
 
     /**
      * shift
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function shift()
     {
@@ -47,7 +58,7 @@ class Transaction extends Model
     /**
      * details
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function details()
     {
@@ -57,7 +68,7 @@ class Transaction extends Model
     /**
      * customer
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function customer()
     {
@@ -67,7 +78,7 @@ class Transaction extends Model
     /**
      * cashier
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function cashier()
     {
@@ -77,7 +88,7 @@ class Transaction extends Model
     /**
      * profits
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function profits()
     {
@@ -95,4 +106,4 @@ class Transaction extends Model
             get: fn ($value) => Carbon::parse($value)->format('d-M-Y H:i:s'),
         );
     }
-} 
+}

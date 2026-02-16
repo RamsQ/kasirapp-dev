@@ -13,6 +13,8 @@ import {
     IconFilter,
     IconX,
     IconSearch,
+    IconWorld,
+    IconCash
 } from "@tabler/icons-react";
 
 // Summary Card with gradient
@@ -54,6 +56,9 @@ const formatCurrency = (value = 0) =>
         currency: "IDR",
         minimumFractionDigits: 0,
     }).format(value);
+
+const castFilterString = (value) =>
+    typeof value === "number" ? String(value) : value ?? "";
 
 const ProfitReport = ({
     transactions,
@@ -116,10 +121,13 @@ const ProfitReport = ({
         filterData.cashier_id ||
         filterData.customer_id;
 
+    // Perhitungan Summary Terintegrasi Akun Beban App
     const stats = {
         profit_total: summary?.profit_total ?? 0,
-        average_profit: summary?.average_profit ?? 0,
-        orders_count: summary?.orders_count ?? 0,
+        revenue_total: summary?.gross_sales ?? 0, // Omzet Bruto
+        platform_fees: summary?.app_expenses ?? 0,  // Akun: Beban Komisi App
+        net_revenue: summary?.net_revenue ?? 0,     // Uang masuk riil
+        total_hpp: summary?.total_hpp ?? 0,         // Akun: HPP
         margin: summary?.margin ?? 0,
         best_invoice: summary?.best_invoice ?? "-",
         best_profit: summary?.best_profit ?? 0,
@@ -127,38 +135,38 @@ const ProfitReport = ({
 
     const summaryCards = [
         {
-            title: "Total Profit",
+            title: "Laba Bersih Final",
             value: formatCurrency(stats.profit_total),
-            description: "Akumulasi bersih",
+            description: "Bersih potong HPP & App",
             icon: <IconCoin />,
-            gradient: "from-success-500 to-success-700",
+            gradient: "from-emerald-500 to-emerald-700",
         },
         {
-            title: "Rata-rata Profit",
-            value: formatCurrency(stats.average_profit),
-            description: `${stats.orders_count} transaksi`,
-            icon: <IconTrendingUp />,
+            title: "Omzet (Bruto)",
+            value: formatCurrency(stats.revenue_total),
+            description: "Total bayar pelanggan",
+            icon: <IconReceipt />,
             gradient: "from-primary-500 to-primary-700",
         },
         {
-            title: "Margin Kotor",
-            value: `${stats.margin}%`,
-            description: "Profit vs penjualan",
-            icon: <IconPercentage />,
-            gradient: "from-warning-500 to-warning-600",
+            title: "Beban Komisi App",
+            value: formatCurrency(stats.platform_fees),
+            description: "Markup & Komisi Platform",
+            icon: <IconWorld />,
+            gradient: "from-orange-500 to-orange-600",
         },
         {
-            title: "Transaksi Terbaik",
-            value: stats.best_invoice,
-            description: formatCurrency(stats.best_profit),
-            icon: <IconReceipt />,
-            gradient: "from-accent-500 to-accent-700",
+            title: "Margin Bersih",
+            value: `${stats.margin}%`,
+            description: "Efisiensi bisnis riil",
+            icon: <IconPercentage />,
+            gradient: "from-indigo-500 to-indigo-700",
         },
     ];
 
     return (
         <>
-            <Head title="Laporan Keuntungan" />
+            <Head title="Laporan Laba Rugi" />
 
             <div className="space-y-6">
                 {/* Header */}
@@ -166,10 +174,10 @@ const ProfitReport = ({
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <IconCoin size={28} className="text-success-500" />
-                            Laporan Keuntungan
+                            Laporan Keuntungan & Laba Rugi
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Analisis profit dan margin
+                            Analisis performa riil setelah beban platform
                         </p>
                     </div>
                     <button
@@ -195,58 +203,106 @@ const ProfitReport = ({
                     ))}
                 </div>
 
-                {/* Filters */}
+                {/* AREA RINCIAN AKUN LABA RUGI */}
+                <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+                    <div className="flex items-center gap-2 mb-8 border-b pb-4 dark:border-slate-800">
+                        <IconTrendingUp className="text-primary-500" size={20} />
+                        <h2 className="font-black uppercase text-sm tracking-widest text-slate-700 dark:text-white">Rincian Laporan Laba Rugi</h2>
+                    </div>
+
+                    <div className="space-y-6">
+                        {/* I. PENDAPATAN */}
+                        <section>
+                            <div className="flex justify-between items-end mb-2">
+                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">I. Pendapatan</span>
+                                <span className="h-px flex-1 border-b border-dashed mx-4 mb-1 dark:border-slate-800"></span>
+                            </div>
+                            <div className="flex justify-between py-2">
+                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 uppercase">Penjualan Bruto (Gross Sales)</span>
+                                <span className="font-black text-slate-900 dark:text-white tracking-tighter">{formatCurrency(stats.revenue_total)}</span>
+                            </div>
+                        </section>
+
+                        {/* II. BEBAN & BIAYA */}
+                        <section className="space-y-4">
+                            <div className="flex justify-between items-end mb-2">
+                                <span className="text-[10px] font-black uppercase text-slate-400 tracking-tighter">II. Beban Operasional & HPP</span>
+                                <span className="h-px flex-1 border-b border-dashed mx-4 mb-1 dark:border-slate-800"></span>
+                            </div>
+                            
+                            {/* Akun: HPP */}
+                            <div className="flex justify-between py-1 px-4">
+                                <span className="text-sm font-medium text-slate-600 dark:text-slate-400">Harga Pokok Penjualan (HPP)</span>
+                                <span className="font-bold text-red-500">-{formatCurrency(stats.total_hpp)}</span>
+                            </div>
+
+                            {/* AKUN KHUSUS: BEBAN KOMISI APLIKASI */}
+                            <div className="flex justify-between py-3 px-5 bg-orange-50/40 dark:bg-orange-950/10 border border-dashed border-orange-200 dark:border-orange-800 rounded-2xl">
+                                <div className="flex items-center gap-3">
+                                    <IconWorld className="text-orange-500 shrink-0" size={20} />
+                                    <div>
+                                        <span className="text-sm font-black text-orange-600 dark:text-orange-400 italic block">Beban Komisi Aplikasi Online</span>
+                                        <span className="text-[8px] text-orange-400 font-bold uppercase tracking-tighter leading-none">Markup & Fee Layanan Pihak Ketiga</span>
+                                    </div>
+                                </div>
+                                <span className="font-black text-orange-600">-{formatCurrency(stats.platform_fees)}</span>
+                            </div>
+                        </section>
+
+                        {/* HASIL AKHIR */}
+                        <div className="pt-8">
+                            <div className="flex justify-between items-center bg-emerald-600 p-6 rounded-[2.5rem] shadow-xl shadow-emerald-200 dark:shadow-none border-4 border-emerald-500">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-white/20 rounded-2xl"><IconCash className="text-white" size={28} /></div>
+                                    <div>
+                                        <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1 text-left">Keuntungan Bersih (Riil)</p>
+                                        <h3 className="text-white text-3xl font-black italic tracking-tighter leading-none">NET PROFIT</h3>
+                                    </div>
+                                </div>
+                                <div className="text-right">
+                                    <span className="text-white text-3xl font-black leading-none tracking-tighter">
+                                        {formatCurrency(stats.profit_total)}
+                                    </span>
+                                    <div className="text-[10px] font-bold text-emerald-100 mt-1 uppercase italic opacity-80 flex items-center justify-end gap-1">
+                                        Sudah Dipotong Modal & Beban Platform
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filters Panel */}
                 {showFilters && (
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 animate-slide-up">
                         <form onSubmit={applyFilters}>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Tanggal Mulai
-                                    </label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Mulai</label>
                                     <input
                                         type="date"
                                         value={filterData.start_date}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "start_date",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("start_date", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Tanggal Akhir
-                                    </label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tanggal Akhir</label>
                                     <input
                                         type="date"
                                         value={filterData.end_date}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "end_date",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("end_date", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                        Invoice
-                                    </label>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Invoice</label>
                                     <input
                                         type="text"
                                         placeholder="TRX-..."
                                         value={filterData.invoice}
-                                        onChange={(e) =>
-                                            handleChange(
-                                                "invoice",
-                                                e.target.value
-                                            )
-                                        }
-                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                                        onChange={(e) => handleChange("invoice", e.target.value)}
+                                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:ring-2 focus:ring-primary-500/20 transition-all"
                                     />
                                 </div>
                                 <InputSelect
@@ -255,10 +311,7 @@ const ProfitReport = ({
                                     selected={selectedCashier}
                                     setSelected={(v) => {
                                         setSelectedCashier(v);
-                                        handleChange(
-                                            "cashier_id",
-                                            v ? String(v.id) : ""
-                                        );
+                                        handleChange("cashier_id", v ? String(v.id) : "");
                                     }}
                                     placeholder="Semua kasir"
                                     searchable
@@ -269,10 +322,7 @@ const ProfitReport = ({
                                     selected={selectedCustomer}
                                     setSelected={(v) => {
                                         setSelectedCustomer(v);
-                                        handleChange(
-                                            "customer_id",
-                                            v ? String(v.id) : ""
-                                        );
+                                        handleChange("customer_id", v ? String(v.id) : "");
                                     }}
                                     placeholder="Semua pelanggan"
                                     searchable
@@ -300,37 +350,18 @@ const ProfitReport = ({
                     </div>
                 )}
 
-                {/* Table */}
+                {/* Table List Transaksi */}
                 {rows.length > 0 ? (
-                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-slate-100 dark:border-slate-800">
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                            No
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                            Invoice
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                            Tanggal
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                            Kasir
-                                        </th>
-                                        <th className="px-4 py-4 text-left text-xs font-semibold text-slate-500 uppercase">
-                                            Pelanggan
-                                        </th>
-                                        <th className="px-4 py-4 text-center text-xs font-semibold text-slate-500 uppercase">
-                                            Item
-                                        </th>
-                                        <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 uppercase">
-                                            Penjualan
-                                        </th>
-                                        <th className="px-4 py-4 text-right text-xs font-semibold text-slate-500 uppercase">
-                                            Profit
-                                        </th>
+                                    <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">No</th>
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Invoice</th>
+                                        <th className="px-4 py-4 text-left text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase border-l dark:border-slate-800">Platform</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Omzet Bruto</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase bg-emerald-50/30 dark:bg-emerald-950/10 border-l dark:border-slate-800">Laba Bersih</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -340,36 +371,24 @@ const ProfitReport = ({
                                             className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                         >
                                             <td className="px-4 py-4 text-sm text-slate-600">
-                                                {i +
-                                                    1 +
-                                                    (currentPage - 1) * perPage}
+                                                {i + 1 + (currentPage - 1) * perPage}
                                             </td>
-                                            <td className="px-4 py-4 text-sm font-semibold text-slate-900 dark:text-white">
-                                                {trx.invoice}
+                                            <td className="px-4 py-4">
+                                                <div className="text-sm font-bold text-slate-900 dark:text-white">{trx.invoice}</div>
+                                                <div className="text-[10px] text-slate-400 uppercase">{trx.created_at}</div>
                                             </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.created_at}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.cashier?.name ?? "-"}
-                                            </td>
-                                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">
-                                                {trx.customer?.name ?? "-"}
-                                            </td>
-                                            <td className="px-4 py-4 text-center">
-                                                <span className="px-2 py-0.5 text-xs font-medium bg-primary-100 dark:bg-primary-900/50 text-primary-700 dark:text-primary-400 rounded-full">
-                                                    {trx.total_items ?? 0}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4 text-right text-sm text-slate-900 dark:text-white">
-                                                {formatCurrency(
-                                                    trx.grand_total ?? 0
+                                            <td className="px-4 py-4 border-l dark:border-slate-800">
+                                                {trx.online_platform ? (
+                                                    <span className="flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-lg uppercase w-fit border border-emerald-100 dark:border-emerald-900">
+                                                        <IconWorld size={12} /> {trx.online_platform}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[9px] font-bold text-slate-300 uppercase italic">Offline</span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 text-right text-sm font-semibold text-success-600 dark:text-success-400">
-                                                {formatCurrency(
-                                                    trx.total_profit ?? 0
-                                                )}
+                                            <td className="px-4 py-4 text-right text-sm text-slate-900 dark:text-white font-medium">{formatCurrency(trx.grand_total ?? 0)}</td>
+                                            <td className="px-4 py-4 text-right text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50/20 dark:bg-emerald-950/5 border-l dark:border-slate-800">
+                                                {formatCurrency(trx.total_profit ?? 0)}
                                             </td>
                                         </tr>
                                     ))}

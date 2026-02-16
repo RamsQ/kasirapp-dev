@@ -28,7 +28,9 @@ import {
     IconArmchair,
     IconDatabaseImport, 
     IconScale,
-    IconToolsKitchen2 
+    IconToolsKitchen2,
+    IconWorld,
+    IconRobot
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -39,6 +41,7 @@ export default function Menu() {
 
     // define menu navigations
     const menuNavigation = [
+        // [1] OVERVIEW
         {
             title: "Overview",
             details: [
@@ -51,7 +54,7 @@ export default function Menu() {
                 },
             ],
         },
-        // [1] DATA MANAGEMENT
+        // [2] DATA MANAGEMENT
         {
             title: "Data Management",
             details: [
@@ -68,6 +71,13 @@ export default function Menu() {
                     active: url === "/dashboard/products" ? true : false,
                     icon: <IconBox size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["products-access"]),
+                },
+                {
+                    title: "Harga Online",
+                    href: route("online_settings.index"),
+                    active: url === "/dashboard/settings/online" ? true : false,
+                    icon: <IconWorld size={20} strokeWidth={1.5} className="text-blue-500" />,
+                    permissions: hasAnyPermission(["settings.index", "dashboard-access"]),
                 },
                 {
                     title: "Master Meja",
@@ -92,7 +102,7 @@ export default function Menu() {
                 },
             ],
         },
-        // [2] INVENTORY INTELLIGENCE
+        // [3] INVENTORY INTELLIGENCE
         {
             title: "Inventory Intelligence",
             details: [
@@ -126,6 +136,7 @@ export default function Menu() {
                 },
             ],
         },
+        // [4] TRANSAKSI
         {
             title: "Transaksi",
             details: [
@@ -145,6 +156,7 @@ export default function Menu() {
                 },
             ],
         },
+        // [5] LAPORAN
         {
             title: "Laporan",
             details: [
@@ -199,6 +211,7 @@ export default function Menu() {
                 },
             ],
         },
+        // [6] USER MANAGEMENT
         {
             title: "User Management",
             details: [
@@ -239,6 +252,7 @@ export default function Menu() {
                 },
             ],
         },
+        // [7] PENGATURAN
         {
             title: "Pengaturan",
             details: [

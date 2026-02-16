@@ -116,4 +116,33 @@ class User extends Authenticatable
     {
         return $this->hasRole('super-admin');
     }
+
+    /**
+     * --- BARU: Otomatis memberikan semua permission ke Super Admin ---
+     * Fungsi ini meng-override pengecekan Spatie agar jika user adalah super-admin,
+     * dia tidak perlu lagi dicek permission-nya satu per satu.
+     */
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->parentHasPermissionTo($permission, $guardName);
+    }
+
+    /**
+     * Helper untuk memanggil parent function dari Spatie HasRoles
+     */
+    protected function parentHasPermissionTo($permission, $guardName = null): bool
+    {
+        return $this->hasPermissionToSpatie($permission, $guardName);
+    }
+
+    /**
+     * Alias untuk original Spatie hasPermissionTo agar tidak bentrok (Recursion)
+     */
+    use HasRoles {
+        hasPermissionTo as hasPermissionToSpatie;
+    }
 }

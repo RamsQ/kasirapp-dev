@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Head, router, useForm } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import { 
@@ -10,7 +10,7 @@ import {
     IconTrendingUp, IconReceipt2, IconTable,
     IconReceipt, IconUser, IconClock, IconChartBar, 
     IconPhoto, IconLayoutDashboard, IconWallet, IconArrowUpRight, IconPackage,
-    IconAlertTriangle, IconFilter, IconArrowDownRight, IconGift
+    IconAlertTriangle, IconFilter, IconArrowDownRight, IconGift, IconWorld
 } from "@tabler/icons-react";
 
 const formatCurrency = (value) =>
@@ -48,26 +48,23 @@ const FinanceReport = ({ auth, report }) => {
         });
     };
 
-    const submitCapital = (e) => {
-        e.preventDefault();
-        post(route('capitals.store'), { 
-            onSuccess: () => reset('capital_amount', 'capital_source') 
-        });
-    };
-
     // --- LOGIKA FILTER RINCIAN BEBAN ---
-    // 1. Kerugian Stok (Expired / Opname)
+    // 1. Beban Komisi Aplikasi (Markup + Flat Fee dikirim dari Controller summary)
+    const appCommissionTotal = report.summary?.app_expenses || 0;
+
+    // 2. Kerugian Stok (Expired / Opname)
     const inventoryLossTotal = report.expenseList
         ?.filter(exp => exp.category === 'Kerugian Stok')
         .reduce((acc, curr) => acc + parseFloat(curr.amount), 0) || 0;
 
-    // 2. Beban Promosi (Produk Gratis dari Buy X Get Y)
+    // 3. Beban Promosi (Produk Gratis dari Buy X Get Y)
     const promotionExpenseTotal = report.expenseList
         ?.filter(exp => exp.category === 'Beban Promosi' || exp.name?.includes('PROMO:'))
         .reduce((acc, curr) => acc + parseFloat(curr.amount), 0) || 0;
 
-    // 3. Biaya Operasional Murni
-    const generalOperationalTotal = report.expenses - inventoryLossTotal - promotionExpenseTotal;
+    // 4. Biaya Operasional Murni
+    // Kita kurangi total report.expenses dengan beban yang sudah dikategorikan khusus
+    const generalOperationalTotal = report.expenses - inventoryLossTotal - promotionExpenseTotal - appCommissionTotal;
 
     return (
         <>
@@ -123,12 +120,19 @@ const FinanceReport = ({ auth, report }) => {
                 {/* --- TAB CONTENT: LABA RUGI --- */}
                 {activeTab === 'laba-rugi' && (
                     <div className="space-y-6 animate-in fade-in duration-500">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
-                                <div className="p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform"><IconTrendingUp size={28}/></div>
+                                <div className="p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform"><IconReceipt size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Laba Kotor</p>
-                                    <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(report.grossProfit)}</h3>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Omzet Bruto</p>
+                                    <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(report.revenue)}</h3>
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
+                                <div className="p-4 bg-orange-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform"><IconWorld size={28}/></div>
+                                <div>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Beban App</p>
+                                    <h3 className="text-xl font-black text-orange-600 dark:text-orange-400 tracking-tighter">{formatCurrency(appCommissionTotal)}</h3>
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
@@ -148,13 +152,37 @@ const FinanceReport = ({ auth, report }) => {
                             </div>
                         </div>
 
-                        {/* Detail Laba Rugi dengan Breakdown Beban Baru */}
+                        {/* Statement Table */}
                         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 shadow-sm relative overflow-hidden">
                             <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-8 italic">Financial Statement Analysis</h3>
+                            
                             <div className="space-y-5 text-sm font-bold relative z-10">
-                                <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Total Omzet Penjualan</span><span>{formatCurrency(report.revenue)}</span></div>
-                                <div className="flex justify-between text-rose-500 dark:text-rose-400 uppercase tracking-tighter"><span>Total HPP (Modal Barang Terjual)</span><span>({formatCurrency(report.hpp)})</span></div>
-                                <div className="pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-between font-black text-blue-600 dark:text-blue-400 text-2xl tracking-tighter"><span>LABA KOTOR (Gross)</span><span>{formatCurrency(report.grossProfit)}</span></div>
+                                <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
+                                    <span>Total Penjualan Kotor (Gross Revenue)</span>
+                                    <span>{formatCurrency(report.revenue)}</span>
+                                </div>
+
+                                <div className="flex justify-between text-rose-500 dark:text-rose-400 uppercase tracking-tighter">
+                                    <span>Total HPP (Modal Barang Terjual)</span>
+                                    <span>({formatCurrency(report.hpp)})</span>
+                                </div>
+
+                                {/* AKUN BARU: BEBAN KOMISI APLIKASI */}
+                                <div className="flex justify-between items-center py-3 px-5 bg-orange-50/40 dark:bg-orange-950/10 border border-dashed border-orange-200 dark:border-orange-900/40 rounded-2xl">
+                                    <div className="flex items-center gap-3">
+                                        <IconWorld className="text-orange-500" size={20} />
+                                        <div>
+                                            <span className="text-orange-600 dark:text-orange-400 uppercase tracking-tighter block leading-none mb-1">Beban Komisi Aplikasi Online</span>
+                                            <span className="text-[8px] text-orange-400 font-black uppercase">Markup & Fee Layanan Pihak Ketiga</span>
+                                        </div>
+                                    </div>
+                                    <span className="text-orange-600 font-black tracking-tighter">({formatCurrency(appCommissionTotal)})</span>
+                                </div>
+
+                                <div className="pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-between font-black text-blue-600 dark:text-blue-400 text-2xl tracking-tighter">
+                                    <span>LABA KOTOR (GROSS PROFIT)</span>
+                                    <span>{formatCurrency(report.grossProfit)}</span>
+                                </div>
                                 
                                 {/* Detail Biaya / Beban */}
                                 <div className="space-y-3 pl-4 border-l-2 border-slate-100 dark:border-slate-800 mt-4">
@@ -163,7 +191,7 @@ const FinanceReport = ({ auth, report }) => {
                                         <span>({formatCurrency(generalOperationalTotal)})</span>
                                     </div>
                                     <div className="flex justify-between text-orange-500 italic text-xs font-black">
-                                        <span className="flex items-center gap-1"><IconAlertTriangle size={12}/> Beban Penurunan Nilai Persediaan (Expired/Opname)</span>
+                                        <span className="flex items-center gap-1"><IconAlertTriangle size={12}/> Beban Penurunan Nilai Stok (Expired/Opname)</span>
                                         <span>({formatCurrency(inventoryLossTotal)})</span>
                                     </div>
                                     <div className="flex justify-between text-emerald-500 italic text-xs font-black">
@@ -173,7 +201,7 @@ const FinanceReport = ({ auth, report }) => {
                                 </div>
 
                                 <div className="pt-6 border-t-4 border-double border-slate-200 dark:border-slate-800 flex justify-between font-black text-emerald-600 dark:text-emerald-400 text-3xl tracking-tighter italic">
-                                    <span>LABA BERSIH (NET)</span>
+                                    <span>LABA BERSIH (NET PROFIT)</span>
                                     <span>{formatCurrency(report.netProfit)}</span>
                                 </div>
                             </div>
@@ -252,16 +280,8 @@ const FinanceReport = ({ auth, report }) => {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Sumber Dana</label>
-                                        <select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer">
-                                            <option value="Kas Laci">Kas Laci</option>
-                                            <option value="Modal Luar">Modal Luar (Bank/Owner)</option>
-                                            <option value="Hutang Dagang">Hutang Dagang (Vendor)</option>
-                                        </select>
-                                    </div>
-                                    <div>
                                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Keterangan</label>
-                                        <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Misal: Biaya Kirim / Diskon Item" />
+                                        <input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Misal: Biaya Kirim / Listrik" />
                                     </div>
                                     <div>
                                         <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Nominal Rp</label>
@@ -300,9 +320,7 @@ const FinanceReport = ({ auth, report }) => {
                                                             exp.category === 'Beban Promosi' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30' :
                                                             exp.category === 'Kerugian Stok' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30' :
                                                             'bg-slate-100 text-slate-600 dark:bg-slate-800/80'
-                                                        }`}>
-                                                            {exp.category}
-                                                        </span>
+                                                        }`}>{exp.category}</span>
                                                     </td>
                                                     <td className={`p-5 text-right px-8 font-black text-sm tracking-tighter ${exp.category === 'Beban Promosi' ? 'text-emerald-500' : 'text-rose-500'}`}>
                                                         -{formatCurrency(exp.amount)}

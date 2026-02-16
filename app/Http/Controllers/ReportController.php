@@ -19,27 +19,36 @@ class ReportController extends Controller
         $end    = $request->end_date ?? now()->format('Y-m-d');
         $userId = $request->user_id;
 
-        // 2. HITUNG OMZET (Total Penjualan)
+        // 2. HITUNG OMZET (Total Penjualan Bruto)
         $revenue = DB::table('transactions')
             ->where('payment_status', 'paid')
             ->whereDate('created_at', '>=', $start)
             ->whereDate('created_at', '<=', $end)
             ->sum('grand_total');
 
-        // 3. HITUNG LABA KOTOR (GROSS PROFIT) - SINKRONISASI TOTAL
-        // Mengambil data langsung dari tabel profits agar sama dengan laporan produk
-        $grossProfit = DB::table('profits')
+        // [BARU] 3. HITUNG AKUN BEBAN KOMISI APLIKASI (Markup + Fee)
+        $appExpenses = DB::table('transactions')
+            ->where('payment_status', 'paid')
+            ->whereDate('created_at', '>=', $start)
+            ->whereDate('created_at', '<=', $end)
+            ->sum(DB::raw('total_markup + total_fee'));
+
+        // 4. HITUNG LABA BERSIH PENJUALAN (Sudah dipotong HPP & Markup di TransactionController)
+        $netProfitFromSales = DB::table('profits')
             ->join('transactions', 'transactions.id', '=', 'profits.transaction_id')
             ->where('transactions.payment_status', 'paid')
             ->whereDate('transactions.created_at', '>=', $start)
             ->whereDate('transactions.created_at', '<=', $end)
             ->sum('profits.total');
 
-        // Hitung HPP (Modal) berdasarkan selisih Omzet dan Laba Kotor
-        // Menggunakan round() untuk menghindari selisih 1 perak akibat floating point
-        $totalHpp = (float)$revenue - (float)$grossProfit;
+        // 5. HITUNG HPP (Modal) 
+        // Rumus: Omzet Bruto - Beban Komisi App - Net Profit Penjualan
+        $totalHpp = (float)$revenue - (float)$appExpenses - (float)$netProfitFromSales;
+        
+        // Laba Kotor (Gross Profit) untuk tampilan tetap menggunakan data murni penjualan
+        $grossProfit = (float)$revenue - (float)$totalHpp;
 
-        // 4. AMBIL LIST PENGELUARAN (Expenses) & FILTER SUMBER DANA
+        // 6. AMBIL LIST PENGELUARAN (Expenses) & FILTER SUMBER DANA
         $expensesQuery = Expense::with('user:id,name')
             ->whereBetween('date', [$start, $end]);
 
@@ -59,7 +68,7 @@ class ReportController extends Controller
         // Total Biaya Operasional Riil (Tanpa pelunasan hutang)
         $operationalExpenses = $expenses->where('category', '!=', 'Pelunasan Hutang')->sum('amount');
 
-        // 5. DATA UNTUK CHART (Trend Omzet vs Pengeluaran Harian)
+        // 7. DATA UNTUK CHART (Trend Omzet vs Pengeluaran Harian)
         $chartData = [];
         $period = CarbonPeriod::create($start, $end);
         foreach ($period as $date) {
@@ -74,7 +83,7 @@ class ReportController extends Controller
             ];
         }
 
-        // 6. LOGIKA NERACA (BALANCE SHEET)
+        // 8. LOGIKA NERACA (BALANCE SHEET)
         $inventoryValue = DB::table('products')
             ->where('type', 'single')
             ->select(DB::raw('SUM(stock * buy_price) as total_value'))
@@ -102,9 +111,9 @@ class ReportController extends Controller
         $historyTotalRepayment = DB::table('expenses')->where('category', 'Pelunasan Hutang')->sum('amount');
         $remainingDebt = $historyTotalDebt - $historyTotalRepayment;
 
-        // 7. KALKULASI FINAL LABA RUGI
-        // Net Profit = Gross Profit - Operasional
-        $netProfit = (float)$grossProfit - (float)$operationalExpenses; 
+        // 9. KALKULASI FINAL LABA RUGI RIIL
+        // Laba bersih akhir = (Net Profit dari Penjualan) - (Biaya Operasional Toko)
+        $finalNetProfit = (float)$netProfitFromSales - (float)$operationalExpenses; 
         
         $staffList = User::select('id', 'name')->orderBy('name')->get();
 
@@ -113,22 +122,25 @@ class ReportController extends Controller
                 'revenue'            => (int)round($revenue),
                 'hpp'                => (int)round($totalHpp),
                 'grossProfit'        => (int)round($grossProfit),
-                'expenses'           => (int)round($operationalExpenses),
+                'expenses'           => (int)round($operationalExpenses + $appExpenses), // Gabungan beban operasional + beban app
                 'expenseFromCash'    => (int)round($expenseFromCash),
                 'expenseFromCapital' => (int)round($expenseFromCapital),
                 'expenseFromDebt'    => (int)round($expenseFromDebt),
                 'debtRepayment'      => (int)round($totalDebtRepayment),
-                'netProfit'          => (int)round($netProfit),
+                'netProfit'          => (int)round($finalNetProfit),
                 'expenseList'        => $expenses,
                 'chartData'          => $chartData,
                 'topAssets'          => $topAssets,
+                'summary' => [
+                    'app_expenses'   => (int)round($appExpenses), // Dikirim agar muncul di UI
+                ],
                 'balanceSheet' => [
                     'cash_in_drawer'   => (int)round($cashInDrawer),
                     'external_capital' => (int)round($currentExternalCapital),
                     'inventory_value'  => (int)round($inventoryValue),
                     'accounts_payable' => (int)round($remainingDebt),
                     'total_assets'     => (int)round($cashInDrawer + $currentExternalCapital + $inventoryValue),
-                    'retained_earnings'=> (int)round($netProfit),
+                    'retained_earnings'=> (int)round($finalNetProfit),
                 ],
                 'staffList'          => $staffList,
                 'filter' => [

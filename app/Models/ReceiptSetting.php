@@ -9,5 +9,6 @@ class ReceiptSetting extends Model
 {
     use HasFactory;
 
+    // Menggunakan guarded empty array berarti semua field (termasuk show_logo) bisa disimpan
     protected $guarded = [];
 }

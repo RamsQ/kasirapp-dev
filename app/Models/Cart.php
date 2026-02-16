@@ -17,13 +17,13 @@ class Cart extends Model
     protected $fillable = [
         'cashier_id', 
         'product_id', 
+        'product_unit_id', // Pastikan ini dapat diisi untuk menyimpan pilihan satuan
         'qty', 
-        'price',
+        'price',           // Menyimpan harga final (setelah markup & diskon dashboard)
         'notes', 
         'hold_id', 
         'hold_label', 
         'held_at',
-        'product_unit_id', // Tambahkan ini agar bisa menyimpan pilihan satuan
         'table_id',
     ];
 
@@ -34,7 +34,8 @@ class Cart extends Model
      */
     protected $casts = [
         'held_at' => 'datetime',
-        'qty'     => 'float', // Cast ke float agar mendukung angka desimal (0.5 dll)
+        'qty'     => 'float', // Mendukung angka desimal untuk berat/satuan tertentu
+        'price'   => 'float', // Cast ke float agar sinkron dengan tipe decimal di database
     ];
 
     /**
@@ -57,7 +58,7 @@ class Cart extends Model
     }
 
     /**
-     * Scope for active (not held) carts
+     * Scope untuk mengambil keranjang yang aktif (bukan pesanan yang ditunda)
      */
     public function scopeActive($query)
     {
@@ -65,7 +66,7 @@ class Cart extends Model
     }
 
     /**
-     * Scope for held carts
+     * Scope untuk pesanan yang sedang ditunda (held)
      */
     public function scopeHeld($query)
     {
@@ -73,7 +74,7 @@ class Cart extends Model
     }
 
     /**
-     * Scope for specific hold group
+     * Scope untuk grup penundaan (hold) spesifik
      */
     public function scopeForHold($query, $holdId)
     {

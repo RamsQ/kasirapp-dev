@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Spatie\Permission\Models\Permission;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -16,9 +17,11 @@ class HandleInertiaRequests extends Middleware
         $lowStock = 0;
         $expired = 0;
         $permissions = []; // Default kosong
+        $isSuperAdmin = false;
+        $user = $request->user();
 
-        if ($request->user()) {
-            // 1. Notifikasi Stok & Expired
+        if ($user) {
+            // 1. Notifikasi Stok & Expired (Fitur Fix)
             $lowStock = DB::table('products')->where('stock', '<=', 5)->count();
             
             if (Schema::hasColumn('products', 'expired_date')) {
@@ -28,18 +31,30 @@ class HandleInertiaRequests extends Middleware
                     ->count();
             }
 
-            // 2. AMBIL PERMISSIONS DAN UBAH KE FORMAT KEY-VALUE
-            // Format yang diharapkan Utils/Permission.jsx: { 'name.permission': true }
-            $permissions = $request->user()->getAllPermissions()->pluck('name')->mapWithKeys(function ($name) {
-                return [$name => true];
-            })->toArray();
+            // 2. CEK STATUS SUPER ADMIN
+            // Memastikan method isSuperAdmin() ada di Model User
+            $isSuperAdmin = method_exists($user, 'isSuperAdmin') ? $user->isSuperAdmin() : $user->hasRole('super-admin');
+
+            // 3. AMBIL PERMISSIONS DAN UBAH KE FORMAT KEY-VALUE
+            if ($isSuperAdmin) {
+                $permissions = Permission::all()->pluck('name')->mapWithKeys(function ($name) {
+                    return [$name => true];
+                })->toArray();
+            } else {
+                $permissions = $user->getAllPermissions()->pluck('name')->mapWithKeys(function ($name) {
+                    return [$name => true];
+                })->toArray();
+            }
+
+            // 4. Eager Load Roles untuk menghindari error undefined di Layout
+            $user->load('roles');
         }
 
         return array_merge(parent::share($request), [
             'auth' => [
-                'user' => $request->user(),
-                'permissions' => $permissions, // Data sudah dalam format { 'key': true }
-                'super' => $request->user() ? $request->user()->isSuperAdmin() : false,
+                'user' => $user,
+                'permissions' => $permissions, 
+                'super' => $isSuperAdmin,
             ],
 
             'notifications' => [

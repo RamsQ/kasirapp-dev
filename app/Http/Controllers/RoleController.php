@@ -16,13 +16,17 @@ class RoleController extends Controller
      */
     public function index(Request $request)
     {
+        // [MODIFIKASI] Mengambil jumlah baris dari request, default adalah 10
+        $per_page = $request->per_page ?: 10;
+
         // get all role data
         $roles = Role::query()
             ->with('permissions')
-            ->when(request()->search, fn($query) => $query->where('name', 'like', '%' . request()->search . '%'))
+            ->when($request->search, fn($query) => $query->where('name', 'like', '%' . $request->search . '%'))
             ->select('id', 'name')
             ->latest()
-            ->paginate(7)
+            // [MODIFIKASI] Menggunakan variabel dinamis $per_page
+            ->paginate($per_page)
             ->withQueryString();
 
         // get all permission data
@@ -34,7 +38,9 @@ class RoleController extends Controller
         // render view
         return Inertia::render('Dashboard/Roles/Index', [
             'roles' => $roles,
-            'permissions' => $permissions
+            'permissions' => $permissions,
+            // [TAMBAHAN] Kirim filter aktif kembali ke view untuk sinkronisasi dropdown
+            'filters' => $request->all(['search', 'per_page']),
         ]);
     }
 

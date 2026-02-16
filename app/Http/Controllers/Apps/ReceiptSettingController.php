@@ -28,6 +28,7 @@ class ReceiptSettingController extends Controller
             'store_phone'   => 'nullable|string|max:20',
             'store_footer'  => 'nullable|string',
             'store_logo'    => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'show_logo'     => 'nullable|in:0,1,true,false', // Validasi field baru
         ]);
 
         $setting = ReceiptSetting::firstOrNew(['id' => 1]);
@@ -44,11 +45,16 @@ class ReceiptSettingController extends Controller
             $setting->store_logo = $image->hashName();
         }
 
-        // 2. Simpan Text
+        // 2. Simpan Data
         $setting->store_name    = $request->store_name;
         $setting->store_address = $request->store_address;
         $setting->store_phone   = $request->store_phone;
         $setting->store_footer  = $request->store_footer;
+        
+        // Logika simpan status logo (konversi ke boolean/integer 0-1)
+        // Kita gunakan casting sederhana agar kompatibel dengan input checkbox maupun select
+        $setting->show_logo     = filter_var($request->show_logo, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        
         $setting->save();
 
         return back()->with('success', 'Pengaturan Struk berhasil disimpan!');

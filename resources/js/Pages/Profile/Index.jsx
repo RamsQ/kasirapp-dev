@@ -1,6 +1,6 @@
 import React from 'react';
 import DashboardLayout from "@/Layouts/DashboardLayout";
-import { Head, router } from '@inertiajs/react'; // Tambahkan router untuk aksi delete
+import { Head, router } from '@inertiajs/react';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm';
 import FaceRegistration from "@/Components/FaceRegistration";
@@ -43,20 +43,26 @@ export default function Index({ auth, mustVerifyEmail, status }) {
             allowOutsideClick: () => !Swal.isLoading()
         }).then((result) => {
             if (result.isConfirmed) {
-                router.delete(route('system.reset'), { // Pastikan route name sesuai di web.php
-                    data: { password: result.value },
+                // MENGGUNAKAN POST untuk mengirim payload password ke backend
+                router.post(route('system.reset'), { 
+                    password: result.value 
+                }, {
                     onSuccess: () => {
                         Swal.fire({
                             title: 'Sistem Dibersihkan!',
                             text: 'Semua data telah berhasil dihapus.',
                             icon: 'success',
                             confirmButtonColor: '#3b82f6'
+                        }).then(() => {
+                            // PAKSA RELOAD HALAMAN (Penting untuk membersihkan cache state Inertia)
+                            window.location.reload();
                         });
                     },
                     onError: (errors) => {
+                        // Menampilkan error spesifik dari Laravel (misal: password salah)
                         Swal.fire({
-                            title: 'Gagal!',
-                            text: errors.error || 'Terjadi kesalahan atau password salah.',
+                            title: 'Gagal Reset!',
+                            text: errors.password || errors.error || 'Terjadi kesalahan pada sistem.',
                             icon: 'error',
                             confirmButtonColor: '#ef4444'
                         });

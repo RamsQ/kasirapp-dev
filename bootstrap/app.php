@@ -20,45 +20,53 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // [BARU] Mengecualikan route Face ID dari verifikasi CSRF (Solusi Error 419)
+        
+        // 1. [FIXED] Mengecualikan route Face ID & QR Menu dari verifikasi CSRF
+        // Menambahkan 'menu/order' agar pelanggan guest bisa melakukan POST pesanan
         $middleware->validateCsrfTokens(except: [
             '/face-auth/login',
             '/face-auth/fetch-user',
+            'menu/order', 
         ]);
 
-        // Mendaftarkan middleware HandleInertiaRequests ke dalam grup 'web'
+        // 2. [FIXED] Append Middleware default untuk grup 'web'
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // Menambahkan alias untuk Spatie Permission
+        // 3. [NEW] Alias Middleware Spatie untuk proteksi halaman/route
         $middleware->alias([
             'role'               => RoleMiddleware::class,
             'permission'         => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
         
-        // Memastikan session stateful agar auth user terbaca di middleware
+        // Memastikan session stateful agar auth user terbaca sempurna
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         
-        // --- 1. Handle Error Permission Spatie (403) ---
+        /**
+         * Custom Error Handling
+         * Mengalihkan response error ke halaman Error.jsx milik Inertia
+         */
+
+        // --- Handle Error Permission Spatie (403) ---
         $exceptions->render(function (UnauthorizedException $e, Request $request) {
             return Inertia::render('Error', ['status' => 403])
                 ->toResponse($request)
                 ->setStatusCode(403);
         });
 
-        // --- 2. Handle Error Akses Ditolak Umum (403) ---
+        // --- Handle Error Akses Ditolak Umum (403) ---
         $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
             return Inertia::render('Error', ['status' => 403])
                 ->toResponse($request)
                 ->setStatusCode(403);
         });
 
-        // --- 3. Handle Halaman Tidak Ditemukan (404) ---
+        // --- Handle Halaman Tidak Ditemukan (404) ---
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
             return Inertia::render('Error', ['status' => 404])
                 ->toResponse($request)

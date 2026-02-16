@@ -41,8 +41,30 @@ class Product extends Model
      */
     protected $appends = [
         'days_until_expired',
-        'final_hpp' // Menambahkan atribut HPP Final
+        'final_hpp',
+        'online_price' // Menambahkan atribut harga online
     ];
+
+    /**
+     * Accessor: Mendapatkan Harga Online secara otomatis berdasarkan pengaturan platform
+     * Rumus: (Harga Jual + Markup %) + Biaya Tambahan
+     */
+    protected function onlinePrice(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                // Mengambil pengaturan online aktif pertama (ID 1)
+                $setting = \App\Models\OnlineSetting::where('is_active', true)->first();
+                
+                if (!$setting) {
+                    return $this->sell_price;
+                }
+
+                $markupValue = ($this->sell_price * $setting->markup_percent) / 100;
+                return (float) ($this->sell_price + $markupValue + $setting->additional_fee);
+            }
+        );
+    }
 
     /**
      * Accessor: Mendapatkan Nilai Modal (HPP) Final

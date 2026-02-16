@@ -32,7 +32,7 @@ export default function Sidebar({ sidebarOpen }) {
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center">
                             <span className="text-white font-bold text-sm">K</span>
                         </div>
-                        <span className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tighter">
+                        <span className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tighter font-sans">
                             Kasir
                         </span>
                     </div>
@@ -62,10 +62,10 @@ export default function Sidebar({ sidebarOpen }) {
                 />
                 {sidebarOpen && (
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate">
+                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate font-sans">
                             {auth.user.name}
                         </p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate uppercase font-bold">
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate uppercase font-bold tracking-tight">
                             {auth.user.roles[0]?.name || 'Staff'}
                         </p>
                     </div>
@@ -73,11 +73,13 @@ export default function Sidebar({ sidebarOpen }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 overflow-y-auto py-3 scrollbar-none">
+            <nav className="flex-1 overflow-y-auto py-3 scrollbar-none font-sans">
                 {menuNavigation.map((section, index) => {
+                    // Perbaikan: Gunakan loose comparison (== true) agar permission dinamis terbaca
                     const hasPermission = section.details.some(
-                        (detail) => detail.permissions === true
+                        (detail) => detail.permissions == true
                     );
+                    
                     if (!hasPermission) return null;
 
                     return (
@@ -94,7 +96,8 @@ export default function Sidebar({ sidebarOpen }) {
                             {/* Menu Items */}
                             <div className={sidebarOpen ? "px-3" : "flex flex-col items-center px-2"}>
                                 {section.details.map((detail, idx) => {
-                                    if (!detail.permissions) return null;
+                                    // Filter menu berdasarkan permission (loose comparison)
+                                    if (detail.permissions != true) return null;
 
                                     if (Object.prototype.hasOwnProperty.call(detail, "subdetails")) {
                                         return (

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class PermissionSeeder extends Seeder
 {
@@ -13,57 +13,66 @@ class PermissionSeeder extends Seeder
      */
     public function run(): void
     {
-        // dashboard permissions
-        Permission::create(['name' => 'dashboard-access']);
+        // Guard default
+        $guard = 'web';
 
-        // users permissions
-        Permission::create(['name' => 'users-access']);
-        Permission::create(['name' => 'users-create']);
-        Permission::create(['name' => 'users-update']);
-        Permission::create(['name' => 'users-delete']);
+        // Daftar Permission Lengkap (Index, Create, Update, Delete)
+        $permissions = [
+            // --- DASHBOARD & SISTEM ---
+            'dashboard.index',
+            'dashboard-access',
 
-        // roles permissions
-        Permission::create(['name' => 'roles-access']);
-        Permission::create(['name' => 'roles-create']);
-        Permission::create(['name' => 'roles-update']);
-        Permission::create(['name' => 'roles-delete']);
+            // --- MANAJEMEN USER & AKSES ---
+            'users.index', 'users-access', 'users-create', 'users-update', 'users-delete',
+            'roles-access', 'roles-create', 'roles-update', 'roles-delete',
+            'permissions.index', 'permissions-access', 'permissions-create', 'permissions-update', 'permissions-delete',
 
-        // permissions permissions
-        Permission::create(['name' => 'permissions-access']);
-        Permission::create(['name' => 'permissions-create']);
-        Permission::create(['name' => 'permissions-update']);
-        Permission::create(['name' => 'permissions-delete']);
+            // --- MASTER DATA: KATALOG & PELANGGAN ---
+            'categories-access', 'categories-create', 'categories-edit', 'categories-delete',
+            'products.index', 'products-access', 'products-create', 'products-edit', 'products-delete',
+            'customers-access', 'customers-create', 'customers-edit', 'customers-delete',
+            'tables-access', 'tables-create', 'tables-edit', 'tables-delete',
 
-        //permission categories
-        Permission::create(['name' => 'categories-access']);
-        Permission::create(['name' => 'categories-create']);
-        Permission::create(['name' => 'categories-edit']);
-        Permission::create(['name' => 'categories-delete']);
+            // --- OPERASIONAL KASIR, SHIFT & DISKON ---
+            'transactions.index', 'transactions-access', 'transactions-create', 'transactions-delete',
+            'transactions.history', 
+            'shifts.index', 'shifts-access',
+            'discounts.index', 'discounts-access', 'discounts-create', 'discounts-edit', 'discounts-delete',
 
-        //permission products
-        Permission::create(['name' => 'products-access']);
-        Permission::create(['name' => 'products-create']);
-        Permission::create(['name' => 'products-edit']);
-        Permission::create(['name' => 'products-delete']);
+            // --- INVENTORY: BAHAN, RESEP & STOK ---
+            'ingredients.index', 'ingredients.create', 'ingredients.edit', 'ingredients.delete',
+            'recipes.index', 'recipes.create', 'recipes.edit', 'recipes.delete',
+            'stock-access', 'stock_in.index', 'stock_in.create', 'stock_in.delete',
+            'stock_opnames.index', 'stock_opnames.create', 'stock_opnames.delete',
 
-        //permission customers
-        Permission::create(['name' => 'customers-access']);
-        Permission::create(['name' => 'customers-create']);
-        Permission::create(['name' => 'customers-edit']);
-        Permission::create(['name' => 'customers-delete']);
+            // --- LAPORAN & FINANCE ---
+            'reports.index', 'reports-access', 
+            'reports.sales.index', 'reports.products.index', 'reports.expired.index', 'reports.profits.index', 'reports.refund',
+            'expired-access', 
+            'finance-access', 'report.finance',
+            'profits-access',
 
-        //permission transactions
-        Permission::create(['name' => 'transactions-access']);
+            // --- PENGATURAN SISTEM ---
+            'settings.index', 'settings.update',
+            'online_settings.index',
+            'payment-settings-access', 'payment_settings.index', 'payment-settings-update',
+            'receipt_settings.index', 'receipt_settings.update',
+            'settings.bluetooth',
+        ];
 
-        // permission reports
-        Permission::create(['name' => 'reports-access']);
-        Permission::create(['name' => 'profits-access']);
+        // Looping untuk Insert atau Update data
+        foreach ($permissions as $permission) {
+            Permission::updateOrCreate(
+                ['name' => $permission, 'guard_name' => $guard],
+                ['name' => $permission, 'guard_name' => $guard]
+            );
+        }
 
-        // discount settings
-        Permission::create(['name' => 'payment-settings-access']);
-
-        Permission::create(['name' => 'discounts-access']);
-        Permission::create(['name' => 'discounts-create']);
-        Permission::create(['name' => 'discounts-delete']);
+        // --- AUTOMATISASI: SYNC KE SUPER-ADMIN ---
+        // Mencari role super-admin dan memberikan semua permission yang baru saja dibuat
+        $superAdmin = Role::where('name', 'super-admin')->first();
+        if ($superAdmin) {
+            $superAdmin->syncPermissions(Permission::all());
+        }
     }
 }

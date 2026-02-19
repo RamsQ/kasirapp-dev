@@ -8,8 +8,9 @@ use App\Models\Profit;
 use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
+use App\Models\Expense; // Import Model Expense
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB; // Tambahkan import DB
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ProfitReportController extends Controller
@@ -27,7 +28,7 @@ class ProfitReportController extends Controller
             'customer_id'=> $request->input('customer_id'),
         ];
 
-        // Query dasar transaksi (Menjaga fitur filter dan sum yang sudah fix)
+        // Query dasar transaksi
         $baseQuery = $this->applyFilters(
             Transaction::query(),
             $filters
@@ -47,19 +48,29 @@ class ProfitReportController extends Controller
         // 2. PENJUALAN BRUTO (Omzet Kotor)
         $revenueTotal = (clone $baseQuery)->sum('grand_total');
 
-        // 3. BEBAN KOMISI APLIKASI (PERBAIKAN ERROR SQL)
-        // Menggunakan sum(DB::raw(...)) agar MySQL hanya mengeksekusi agregasi tanpa kolom non-agregat
+        // 3. BEBAN KOMISI APLIKASI
         $appExpenseAccount = (clone $baseQuery)->sum(DB::raw('total_markup + total_fee'));
 
-        // 4. LABA BERSIH FINAL
-        $profitTotal = $transactionIds->isNotEmpty()
+        // 4. MARGIN KOTOR (Profit dari Penjualan Produk sebelum dipotong beban operasional)
+        $grossMargin = $transactionIds->isNotEmpty()
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
 
         // 5. HARGA POKOK PENJUALAN (HPP / Modal Produk)
-        $totalHpp = $revenueTotal - $appExpenseAccount - $profitTotal;
+        $totalHpp = $revenueTotal - $appExpenseAccount - $grossMargin;
 
-        // 6. PENDAPATAN BERSIH TOKO (Uang masuk riil)
+        // 6. TOTAL BEBAN OPERASIONAL (Expenses / Kas Keluar)
+        // Kita hitung beban berdasarkan filter tanggal yang sama dengan laporan
+        $totalOperatingExpenses = Expense::query()
+            ->when($filters['start_date'], fn ($q, $start) => $q->whereDate('date', '>=', $start))
+            ->when($filters['end_date'], fn ($q, $end) => $q->whereDate('date', '<=', $end))
+            ->when(!$filters['start_date'] && !$filters['end_date'], fn ($q) => $q->whereDate('date', now()->format('Y-m-d')))
+            ->sum('amount');
+
+        // 7. LABA BERSIH FINAL (Margin Kotor - Beban Operasional)
+        $netProfitFinal = $grossMargin - $totalOperatingExpenses;
+
+        // 8. PENDAPATAN BERSIH TOKO (Uang masuk riil setelah dipotong komisi aplikasi)
         $netRevenue = $revenueTotal - $appExpenseAccount;
 
         $ordersCount = (clone $baseQuery)->count();
@@ -77,17 +88,19 @@ class ProfitReportController extends Controller
 
         // Menyusun summary untuk dikirim ke UI React (Profit.jsx)
         $summary = [
-            'gross_sales'    => (int) $revenueTotal,
-            'app_expenses'   => (int) $appExpenseAccount,
-            'total_hpp'      => (int) $totalHpp,
-            'net_revenue'    => (int) $netRevenue,
-            'profit_total'   => (int) $profitTotal,
-            'orders_count'   => (int) $ordersCount,
-            'items_sold'     => (int) $itemsSold,
-            'average_profit' => $ordersCount > 0 ? (int) round($profitTotal / $ordersCount) : 0,
-            'margin'         => $netRevenue > 0 ? round(($profitTotal / $netRevenue) * 100, 2) : 0,
-            'best_invoice'   => $bestTransaction?->invoice,
-            'best_profit'    => (int) ($bestTransaction?->total_profit ?? 0),
+            'gross_sales'      => (int) $revenueTotal,
+            'app_expenses'     => (int) $appExpenseAccount,
+            'total_hpp'        => (int) $totalHpp,
+            'net_revenue'      => (int) $netRevenue,
+            'operating_expense'=> (int) $totalOperatingExpenses, // Data baru untuk UI
+            'profit_total'     => (int) $netProfitFinal,      // Sekarang sudah dipotong beban
+            'gross_margin'     => (int) $grossMargin,         // Margin sebelum beban
+            'orders_count'     => (int) $ordersCount,
+            'items_sold'       => (int) $itemsSold,
+            'average_profit'   => $ordersCount > 0 ? (int) round($netProfitFinal / $ordersCount) : 0,
+            'margin_percentage'=> $netRevenue > 0 ? round(($netProfitFinal / $netRevenue) * 100, 2) : 0,
+            'best_invoice'     => $bestTransaction?->invoice,
+            'best_profit'      => (int) ($bestTransaction?->total_profit ?? 0),
         ];
 
         return Inertia::render('Dashboard/Reports/Profit', [
@@ -100,7 +113,7 @@ class ProfitReportController extends Controller
     }
 
     /**
-     * Apply table filters (Menjaga fitur anti-refund tetap jalan).
+     * Apply table filters
      */
     protected function applyFilters($query, array $filters)
     {

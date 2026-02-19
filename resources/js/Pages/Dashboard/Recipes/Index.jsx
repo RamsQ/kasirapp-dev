@@ -7,7 +7,7 @@ import {
     IconEdit, IconArrowBackUp, IconInfoCircle,
     IconDownload, IconFileTypeXls, IconRefresh, IconX,
     IconTrendingUp, IconChartPie, IconReceipt2, IconCategory, IconSearch,
-    IconChevronDown
+    IconChevronDown, IconLoader2
 } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import Pagination from "@/Components/Dashboard/Pagination";
@@ -97,13 +97,35 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
         });
     };
 
+    // PERBAIKAN: Fungsi Download Template yang lebih handal
+    const handleDownloadTemplate = () => {
+        window.open(route('recipes.template'), '_blank');
+    };
+
     return (
         <DashboardLayout auth={auth}>
             <Head title="Manajemen Resep" />
+            
+            {/* OVERLAY LOADING SAAT IMPORT/SYNC */}
+            {processing && (
+                <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-200 dark:border-slate-800">
+                        <IconLoader2 size={40} className="text-primary-500 animate-spin" />
+                        <span className="font-bold text-xs uppercase tracking-widest dark:text-white">Memproses Data...</span>
+                    </div>
+                </div>
+            )}
+
             <input type="file" ref={fileInputRef} onChange={(e) => {
                 const formData = new FormData();
                 formData.append("file", e.target.files[0]);
-                router.post(route("recipes.import"), formData);
+                router.post(route("recipes.import"), formData, {
+                    onSuccess: () => {
+                        Swal.fire('Berhasil', 'Data resep berhasil diimport.', 'success');
+                        if(fileInputRef.current) fileInputRef.current.value = null;
+                    },
+                    onError: () => Swal.fire('Gagal', 'Periksa format file Anda.', 'error')
+                });
             }} className="hidden" accept=".xlsx, .xls" />
 
             <div className="p-2 md:p-6 max-w-7xl mx-auto space-y-6">
@@ -123,9 +145,38 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
 
                         <div className="flex flex-wrap items-center gap-3">
                             <div className="flex items-center gap-2 border-r dark:border-slate-800 pr-4">
-                                <button onClick={() => router.get(route('recipes.template'))} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-emerald-50 hover:text-emerald-600 transition-all"><IconDownload size={20}/></button>
-                                <button onClick={() => fileInputRef.current.click()} className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase hover:bg-emerald-700 transition-all"><IconFileTypeXls size={18}/> Import</button>
-                                <button onClick={() => router.post(route('recipes.sync_all'))} className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-amber-50 hover:text-amber-600 transition-all"><IconRefresh size={20}/></button>
+                                {/* PERBAIKAN: Tombol download template menggunakan fungsi baru */}
+                                <button 
+                                    onClick={handleDownloadTemplate} 
+                                    title="Download Template Excel"
+                                    className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-emerald-50 hover:text-emerald-600 transition-all"
+                                >
+                                    <IconDownload size={20}/>
+                                </button>
+                                
+                                <button 
+                                    onClick={() => fileInputRef.current.click()} 
+                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase hover:bg-emerald-700 transition-all"
+                                >
+                                    <IconFileTypeXls size={18}/> Import
+                                </button>
+                                
+                                <button 
+                                    onClick={() => {
+                                        Swal.fire({
+                                            title: 'Sync Ulang HPP?',
+                                            text: 'Sistem akan menghitung ulang HPP semua produk berdasarkan harga bahan baku terbaru.',
+                                            icon: 'info',
+                                            showCancelButton: true,
+                                            confirmButtonText: 'Mulai Sync'
+                                        }).then(res => {
+                                            if(res.isConfirmed) router.post(route('recipes.sync_all'));
+                                        });
+                                    }} 
+                                    className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg hover:bg-amber-50 hover:text-amber-600 transition-all"
+                                >
+                                    <IconRefresh size={20}/>
+                                </button>
                             </div>
                             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
                                 <button onClick={() => setActiveTab("input")} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all ${activeTab === 'input' ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm' : 'text-slate-500'}`}>Konfigurasi</button>
@@ -288,7 +339,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                         <form onSubmit={submit} className="max-w-3xl mx-auto space-y-8">
                             <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
                                 <h2 className="font-bold text-sm uppercase dark:text-white tracking-widest flex items-center gap-3"><div className="w-2 h-6 bg-primary-500 rounded-full"></div> Susun Bahan Baku</h2>
-                                {data.product_id && <button type="button" onClick={() => reset()} className="text-[10px] font-bold text-rose-500 uppercase flex items-center gap-1 hover:underline"><IconArrowBackUp size={14}/> Reset Form</button>}
+                                {data.product_id && <button type="button" onClick={() => { reset(); setExpandedProduct(null); }} className="text-[10px] font-bold text-rose-500 uppercase flex items-center gap-1 hover:underline"><IconArrowBackUp size={14}/> Reset Form</button>}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                                 <div>
@@ -321,11 +372,20 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                 </div>
                                 <button type="button" onClick={handleAddRow} className="flex items-center gap-2 text-[10px] font-bold uppercase text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-4 py-2 rounded-lg transition-all border border-dashed border-primary-200 dark:border-primary-800"><IconPlus size={14} /> Tambah Bahan</button>
                             </div>
-                            <button type="submit" disabled={processing} className="w-full bg-slate-900 dark:bg-primary-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-xl shadow-primary-500/10 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"><IconDeviceFloppy size={20} /> Simpan Struktur Resep</button>
+                            <button type="submit" disabled={processing} className="w-full bg-slate-900 dark:bg-primary-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-xl shadow-primary-500/10 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                                {processing ? <IconLoader2 size={20} className="animate-spin" /> : <IconDeviceFloppy size={20} />} 
+                                Simpan Struktur Resep
+                            </button>
                         </form>
                     </div>
                 )}
             </div>
+            
+            <style>{`
+                .scrollbar-hide::-webkit-scrollbar { display: none; }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+            `}</style>
         </DashboardLayout>
     );
 }

@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class IngredientController extends Controller
 {
@@ -43,20 +44,23 @@ class IngredientController extends Controller
             'stock'     => 'nullable|numeric|min:0',
         ]);
 
-        // Pastikan kita HANYA mengirim field yang ada di migration baru (tanpa unit_id)
-        Ingredient::create([
-            'name'      => $request->name,
-            'unit'      => $request->unit,
-            'buy_price' => $request->buy_price,
-            'min_stock' => $request->min_stock,
-            'stock'     => $request->stock ?? 0,
-        ]);
+        // Gunakan Transaction untuk memastikan integritas data
+        DB::transaction(function () use ($request) {
+            Ingredient::create([
+                'name'      => $request->name,
+                'unit'      => $request->unit,
+                'buy_price' => $request->buy_price,
+                'min_stock' => $request->min_stock,
+                'stock'     => $request->stock ?? 0,
+            ]);
+        });
 
         return redirect()->route('ingredients.index')->with('success', 'Bahan baku berhasil ditambahkan!');
     }
 
     /**
      * Update data bahan baku (Modal Edit & Inline Edit)
+     * PERBAIKAN: Mencegah stok tertimpa menjadi 0 saat update field lain.
      */
     public function update(Request $request, Ingredient $ingredient)
     {
@@ -68,8 +72,17 @@ class IngredientController extends Controller
             'stock'     => 'nullable|numeric|min:0',
         ]);
 
-        // Mengambil hanya input yang dikirim untuk mendukung update parsial (onBlur)
-        $data = $request->only(['name', 'unit', 'min_stock', 'buy_price', 'stock']);
+        // PROTEKSI STOK: Ambil data hanya yang memiliki nilai (bukan null atau empty string)
+        $data = array_filter($request->only(['name', 'unit', 'min_stock', 'buy_price', 'stock']), function($value) {
+            return $value !== null && $value !== '';
+        });
+
+        // Jika request berasal dari proses update detail (bukan stock in),
+        // dan parameter stock tidak dikirim secara eksplisit oleh user, 
+        // hapus dari array update agar tidak menimpa nilai database.
+        if (!$request->has('stock')) {
+            unset($data['stock']);
+        }
         
         $ingredient->update($data);
 

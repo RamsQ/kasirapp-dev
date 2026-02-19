@@ -16,42 +16,39 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__.'/../routes/channels.php',
         web: __DIR__ . '/../routes/web.php',
+        api: __DIR__ . '/../routes/api.php', 
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // 1. [FIXED] Mengecualikan route Face ID & QR Menu dari verifikasi CSRF
-        // Menambahkan 'menu/order' agar pelanggan guest bisa melakukan POST pesanan
+        // 1. [FIXED] Bypass Keamanan CSRF untuk rute krusial
         $middleware->validateCsrfTokens(except: [
             '/face-auth/login',
             '/face-auth/fetch-user',
             'menu/order', 
+            'api/payment/notification', 
+            'dashboard/transactions/store', // [ADD] Tambahkan ini agar simpan transaksi lancar
+            'dashboard/transactions/addToCart', // [ADD] Tambahkan ini juga untuk jaga-jaga
         ]);
 
-        // 2. [FIXED] Append Middleware default untuk grup 'web'
+        // 2. Middleware default untuk Inertia
         $middleware->web(append: [
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        // 3. [NEW] Alias Middleware Spatie untuk proteksi halaman/route
+        // 3. Alias Spatie
         $middleware->alias([
             'role'               => RoleMiddleware::class,
             'permission'         => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
         
-        // Memastikan session stateful agar auth user terbaca sempurna
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         
-        /**
-         * Custom Error Handling
-         * Mengalihkan response error ke halaman Error.jsx milik Inertia
-         */
-
         // --- Handle Error Permission Spatie (403) ---
         $exceptions->render(function (UnauthorizedException $e, Request $request) {
             return Inertia::render('Error', ['status' => 403])

@@ -57,7 +57,7 @@ class TransactionController extends Controller
     }
 
     /**
-     * SOURCE OF TRUTH: Menghitung Harga Satuan setelah Diskon Dashboard (Diskon per Produk)
+     * SOURCE OF TRUTH: Menghitung Harga Satuan setelah Diskon Dashboard
      */
     private function getDiscountedUnitPrice($productId, $basePrice)
     {
@@ -89,19 +89,18 @@ class TransactionController extends Controller
 
         $cartsTotalAmount = (int) $carts->sum('price');
 
-        if ($user->hasRole('super-admin') || $user->hasPermissionTo('permissions-access')) {
-            $holds = Hold::with('table')->latest()->get();
-        } else {
-            $holds = Hold::with('table')->where('user_id', $userId)->latest()->get();
-        }
-
+        $holds = Hold::with('table')->latest()->get();
         $tables = Table::orderBy('name')->get();
 
         $productsQuery = Product::with(['category:id,name', 'bundle_items', 'units', 'recipes'])
             ->select('id', 'barcode', 'title', 'description', 'image', 'buy_price', 'sell_price', 'stock', 'category_id', 'type', 'unit')
             ->where(function ($query) {
                 $query->where(function($q) {
-                    $q->where('type', '!=', 'bundle')->where('stock', '>', 0);
+                    $q->where('type', '!=', 'bundle')
+                      ->where(function($sub) {
+                          $sub->where('stock', '>', 0)
+                              ->orHas('recipes'); 
+                      });
                 })
                 ->orWhere(function($q) {
                     $q->where('type', 'bundle')
@@ -144,17 +143,18 @@ class TransactionController extends Controller
         ]);
     }
 
-    /**
-     * ADD TO CART
-     */
     public function addToCart(Request $request)
     {
         $userId = auth()->id();
         $product = Product::findOrFail($request->product_id);
         $unitId = $request->product_unit_id ?? null;
         
-        $basePrice = $unitId ? (ProductUnit::find($unitId)->sell_price ?? $product->sell_price) : $product->sell_price;
-        $unitPrice = $this->getDiscountedUnitPrice($product->id, $basePrice);
+        if ($request->has('price')) {
+            $unitPrice = (float) $request->price;
+        } else {
+            $basePrice = $unitId ? (ProductUnit::find($unitId)->sell_price ?? $product->sell_price) : $product->sell_price;
+            $unitPrice = $this->getDiscountedUnitPrice($product->id, $basePrice);
+        }
 
         DB::transaction(function () use ($userId, $product, $unitId, $unitPrice, $request) {
             $cart = Cart::where(['product_id' => $product->id, 'product_unit_id' => $unitId, 'cashier_id' => $userId, 'notes' => $request->notes ?? null])->first();
@@ -162,7 +162,14 @@ class TransactionController extends Controller
                 $cart->increment('qty', 1); 
                 $cart->update(['price' => $unitPrice * $cart->fresh()->qty]); 
             } else { 
-                $cart = Cart::create(['cashier_id' => $userId, 'product_id' => $product->id, 'product_unit_id' => $unitId, 'qty' => 1, 'price' => $unitPrice, 'notes' => $request->notes ?? null]); 
+                $cart = Cart::create([
+                    'cashier_id' => $userId, 
+                    'product_id' => $product->id, 
+                    'product_unit_id' => $unitId, 
+                    'qty' => 1, 
+                    'price' => $unitPrice, 
+                    'notes' => $request->notes ?? null
+                ]); 
             }
 
             $bonusPromo = Discount::active()->where('product_id', $product->id)->whereNotNull('bonus_product_id')->first();
@@ -178,9 +185,6 @@ class TransactionController extends Controller
         return back();
     }
 
-    /**
-     * UPDATE CART
-     */
     public function updateCart(Request $request, $cart_id)
     {
         $userId = auth()->id();
@@ -189,10 +193,21 @@ class TransactionController extends Controller
 
         DB::transaction(function () use ($request, $cart, $userId) {
             $unitId = $request->product_unit_id ?? $cart->product_unit_id;
-            $basePrice = $unitId ? (ProductUnit::find($unitId)->sell_price ?? $cart->product->sell_price) : $cart->product->sell_price;
-            $unitPrice = $this->getDiscountedUnitPrice($cart->product_id, $basePrice);
+            $unitPriceAtCart = $cart->qty > 0 ? ($cart->price / $cart->qty) : $cart->price;
+            
+            if($request->product_unit_id && $request->product_unit_id != $cart->product_unit_id) {
+                $basePrice = ProductUnit::find($unitId)->sell_price ?? $cart->product->sell_price;
+                $unitPrice = $this->getDiscountedUnitPrice($cart->product_id, $basePrice);
+            } else {
+                $unitPrice = $unitPriceAtCart;
+            }
 
-            $cart->update(['qty' => $request->qty, 'product_unit_id' => $unitId, 'price' => $unitPrice * $request->qty, 'notes' => $request->notes]);
+            $cart->update([
+                'qty' => $request->qty, 
+                'product_unit_id' => $unitId, 
+                'price' => $unitPrice * $request->qty, 
+                'notes' => $request->notes
+            ]);
             
             $bonusPromo = Discount::active()->where('product_id', $cart->product_id)->whereNotNull('bonus_product_id')->first();
             if ($bonusPromo) {
@@ -226,7 +241,15 @@ class TransactionController extends Controller
     public function store(Request $request, PaymentGatewayManager $paymentGatewayManager)
     {
         $activeShift = Shift::where('user_id', auth()->id())->where('status', 'open')->first();
-        if (!$activeShift) return back()->withErrors(['error' => 'Shift belum dibuka!']);
+        if (!$activeShift) {
+            return response()->json(['message' => 'Shift belum dibuka!'], 403);
+        }
+
+        $paymentSetting = PaymentSetting::first();
+        $method         = strtolower($request->payment_gateway ?? 'cash');
+        
+        $isGateway = in_array($method, [PaymentSetting::GATEWAY_MIDTRANS, PaymentSetting::GATEWAY_XENDIT]);
+        $paymentStatus = $isGateway ? 'pending' : 'paid';
 
         $cash   = (float) str_replace(',', '', $request->cash ?? 0);
         $change = (float) str_replace(',', '', $request->change ?? 0);
@@ -235,13 +258,18 @@ class TransactionController extends Controller
         $invoice = 'TRX-' . Str::upper(Str::random(10));
         
         try {
-            $transaction = DB::transaction(function () use ($request, $invoice, $activeShift, $cogsMethod, $cash, $change) {
+            $transaction = DB::transaction(function () use ($request, $invoice, $activeShift, $cogsMethod, $cash, $change, $paymentStatus, $method, $isGateway) {
                 
                 $cartItems = Cart::with(['product.bundle_items', 'product.units', 'product.recipes'])->where('cashier_id', auth()->id())->get();
                 if ($cartItems->isEmpty()) { throw new \Exception('Keranjang kosong'); }
 
-                $subtotalKeranjang = (float) $cartItems->sum('price');
+                $finalQueueNumber = $request->queue_number;
+                if (!$finalQueueNumber) {
+                    $todayCount = Transaction::whereDate('created_at', now())->count() + Hold::whereDate('created_at', now())->count();
+                    $finalQueueNumber = 'Q-' . str_pad($todayCount + 1, 3, '0', STR_PAD_LEFT);
+                }
 
+                $subtotalKeranjang = (float) $cartItems->sum('price');
                 $diskonOtomatisGlobal = 0;
                 $promoGlobal = Discount::active()
                     ->whereNull('product_id') 
@@ -259,44 +287,21 @@ class TransactionController extends Controller
 
                 $grandTotalFinal = $subtotalKeranjang - $diskonOtomatisGlobal;
 
-                $customerNameRaw = $request->customer_name;
-                $customerId = $request->customer_id;
-                $queueNumber = $request->queue_number;
-                $referenceCode = null;
-
-                if ($request->hold_id) {
-                    $holdData = DB::table('holds')->where('id', $request->hold_id)->first();
-                    if ($holdData) {
-                        $queueNumber = $holdData->queue_number; 
-                        $referenceCode = $holdData->reference_code;
-                        $customerNameRaw = $holdData->customer_name;
-                    }
-                } 
-
-                $customerNameRaw = $customerNameRaw ?? 'Pelanggan';
-
-                if (!$queueNumber) {
-                    $todayDate = now()->toDateString();
-                    $todayTransactionCount = Transaction::whereDate('created_at', $todayDate)->count();
-                    $todayHoldCount = Hold::whereDate('created_at', $todayDate)->count();
-                    $queueNumber = 'Q-' . str_pad($todayTransactionCount + $todayHoldCount + 1, 3, '0', STR_PAD_LEFT);
-                }
-
                 $transaction = Transaction::create([
                     'cashier_id'      => auth()->id(),
-                    'customer_id'     => $customerId,
+                    'customer_id'     => $request->customer_id,
                     'shift_id'        => $activeShift->id,
                     'invoice'         => $invoice,
-                    'reference_code'  => $referenceCode, 
-                    'customer_name'   => $customerNameRaw, 
+                    'reference_code'  => $request->reference_code ?? Str::random(4), 
+                    'customer_name'   => $request->customer_name ?? 'Pelanggan', 
                     'cash'            => $cash,
                     'change'          => $change,
                     'discount'        => $diskonOtomatisGlobal, 
                     'grand_total'     => $grandTotalFinal,
-                    'payment_method'  => strtolower($request->payment_gateway ?? 'cash'),
-                    'payment_status'  => 'paid',
+                    'payment_method'  => $method,
+                    'payment_status'  => $paymentStatus,
                     'table_name'      => $request->table_name ?: 'BAWA PULANG', 
-                    'queue_number'    => $queueNumber, 
+                    'queue_number'    => $finalQueueNumber, 
                     'online_platform' => $request->online_platform,
                     'total_markup'    => (float)$request->total_markup,
                     'total_fee'       => (float)$request->total_fee,
@@ -323,9 +328,22 @@ class TransactionController extends Controller
                     
                     $realNetProfit = $totalItemSellingPrice - $itemDiscountAllocation - $appCommissionJatah - $totalItemCost;
 
-                    if ($product->recipes->count() > 0) {
-                        foreach ($product->recipes as $recipe) {
-                            Ingredient::where('id', $recipe->ingredient_id)->decrement('stock', (float)$recipe->qty_needed * (float)$cart->qty);
+                    // --- FIX: POTONG STOK HANYA JIKA BAYAR TUNAI (CASH) ---
+                    // Jika QRIS/Midtrans, stok dipotong nanti lewat Webhook setelah dibayar lunas
+                    if (!$isGateway) {
+                        if ($product->recipes->count() > 0) {
+                            foreach ($product->recipes as $recipe) {
+                                DB::table('ingredients')->where('id', $recipe->ingredient_id)
+                                    ->decrement('stock', (float)$recipe->qty_needed * (float)$cart->qty);
+                            }
+                        } 
+                        else if ($product->type !== 'bundle') {
+                            $conversion = 1;
+                            if ($cart->product_unit_id) {
+                                $unit = ProductUnit::find($cart->product_unit_id);
+                                $conversion = $unit ? $unit->conversion : 1;
+                            }
+                            DB::table('products')->where('id', $cart->product_id)->decrement('stock', $cart->qty * $conversion);
                         }
                     }
 
@@ -338,28 +356,54 @@ class TransactionController extends Controller
                         'product_unit_id' => $cart->product_unit_id,
                         'notes'           => $cart->notes,
                     ]);
+
                     $transaction->profits()->create(['total' => (float)$realNetProfit]);
-                    
-                    if ($product->type !== 'bundle') {
-                        $product->decrement('stock', $cart->qty * ($cart->product_unit_id ? (ProductUnit::find($cart->product_unit_id)->conversion ?? 1) : 1));
-                    }
                 }
 
                 if ($request->hold_id) {
                     $hold = Hold::find($request->hold_id);
-                    if ($hold && $hold->table_id) { Table::where('id', $hold->table_id)->update(['status' => 'available']); }
-                    if ($hold) $hold->delete();
-                    
-                    $staffs = User::role(['super-admin', 'cashier'])->get();
-                    foreach ($staffs as $staff) { event(new OrderDeleted($staff->id)); }
+                    if ($hold) {
+                        if ($hold->table_id) { Table::where('id', $hold->table_id)->update(['status' => 'available']); }
+                        $hold->delete();
+                        $staffs = User::role(['super-admin', 'cashier'])->get();
+                        foreach ($staffs as $staff) { event(new OrderDeleted($staff->id)); }
+                    }
                 }
 
-                Cart::where('cashier_id', auth()->id())->delete();
+                // --- FIX: JANGAN HAPUS CART JIKA PAKAI GATEWAY (MIDTRANS) ---
+                // Cart baru dihapus jika Tunai atau saat Webhook menyatakan 'settlement'
+                if (!$isGateway) {
+                    Cart::where('cashier_id', auth()->id())->delete();
+                }
+                
                 return $transaction;
             });
 
-            return to_route('transactions.print', $transaction->invoice)->with('auto_print', true)->with('print_invoice', $transaction->load(['details.product.bundle_items', 'cashier', 'customer']));
-        } catch (\Exception $e) { return back()->with('error', 'Transaksi Gagal: ' . $e->getMessage()); }
+            // HANDLE RESPONSE BERDASARKAN METODE
+            if ($isGateway) {
+                try {
+                    $paymentResponse = $paymentGatewayManager->createPayment($transaction, $method, $paymentSetting);
+                    return response()->json([
+                        'success'     => true,
+                        'payment_url' => $paymentResponse['payment_url'],
+                        'token'       => $paymentResponse['token'] ?? null,
+                        'invoice'     => $transaction->invoice
+                    ]);
+                } catch (PaymentGatewayException $e) {
+                    DB::rollBack(); 
+                    return response()->json(['message' => 'Gagal koneksi ke Gateway: ' . $e->getMessage()], 500);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'invoice' => $transaction->invoice,
+                'message' => 'Transaksi Berhasil'
+            ]);
+
+        } catch (\Exception $e) { 
+            return response()->json(['message' => 'Transaksi Gagal: ' . $e->getMessage()], 500); 
+        }
     }
 
     public function holdCart(Request $request)
@@ -388,13 +432,24 @@ class TransactionController extends Controller
                     if ($hold->table_id && $hold->table_id != $request->table_id) { Table::where('id', $hold->table_id)->update(['status' => 'available']); }
                     $hold->update(['cart_data' => $processedCart, 'total' => $finalTotal, 'table_id' => $tableId, 'customer_name' => $request->customer_name]);
                 } else {
-                    Hold::create(['ref_number' => 'ORD-'.$uniqueCode, 'reference_code' => $uniqueCode, 'queue_number' => $newQueueNumber, 'customer_name' => $request->customer_name, 'table_id' => $tableId, 'cart_data' => $processedCart, 'total' => $finalTotal, 'user_id' => auth()->id()]);
+                    Hold::create([
+                        'ref_number' => 'ORD-'.$uniqueCode, 
+                        'reference_code' => $uniqueCode, 
+                        'queue_number' => $newQueueNumber, 
+                        'customer_name' => $request->customer_name, 
+                        'table_id' => $tableId, 
+                        'cart_data' => $processedCart, 
+                        'total' => $finalTotal, 
+                        'user_id' => auth()->id()
+                    ]);
                 }
                 if ($tableId) { Table::where('id', $tableId)->update(['status' => 'occupied']); }
                 Cart::where('cashier_id', auth()->id())->delete();
                 
                 $staffs = User::role(['super-admin', 'cashier'])->get();
-                foreach ($staffs as $staff) { event(new OrderPlaced($staff->id)); }
+                foreach ($staffs as $staff) { 
+                    event(new OrderPlaced($staff->id)); 
+                }
             });
             return back()->with('success', 'Diproses.');
         } catch (\Exception $e) { return back()->with('error', $e->getMessage()); }
@@ -426,11 +481,24 @@ class TransactionController extends Controller
                 if ($existingHold) {
                     $existingHold->update(['cart_data' => array_merge($existingHold->cart_data, $processedCart), 'total' => $existingHold->total + $finalTotal, 'queue_number' => $newQueueNumber, 'customer_name' => $finalNameWithCode]);
                 } else {
-                    Hold::create(['ref_number' => 'QR-'.$uniqueCode, 'reference_code' => $uniqueCode, 'queue_number' => $newQueueNumber, 'customer_name' => $finalNameWithCode, 'table_id' => $tableId, 'cart_data' => $processedCart, 'total' => $finalTotal, 'user_id' => $targetUserId]);
+                    Hold::create([
+                        'ref_number' => 'QR-'.$uniqueCode, 
+                        'reference_code' => $uniqueCode, 
+                        'queue_number' => $newQueueNumber, 
+                        'customer_name' => $finalNameWithCode, 
+                        'table_id' => $tableId, 
+                        'cart_data' => $processedCart, 
+                        'total' => $finalTotal, 
+                        'user_id' => $targetUserId
+                    ]);
                     if ($tableId) { Table::where('id', $tableId)->update(['status' => 'occupied']); }
                 }
+                
                 $staffs = User::role(['super-admin', 'cashier'])->get();
-                foreach ($staffs as $staff) { event(new OrderPlaced($staff->id)); }
+                foreach ($staffs as $staff) { 
+                    event(new OrderPlaced($staff->id)); 
+                }
+
                 return response()->json(['success' => true, 'unique_code' => $uniqueCode, 'queue_number' => $newQueueNumber, 'message' => 'Pesanan Berhasil Dikirim!'], 200);
             });
         } catch (\Exception $e) { return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()], 500); }
@@ -454,67 +522,86 @@ class TransactionController extends Controller
     { 
         $request->validate(['name' => 'required|string|max:255', 'amount' => 'required|numeric|min:0']);
         $activeShift = Shift::where('user_id', auth()->id())->where('status', 'open')->first(); 
-        Expense::create(['user_id' => auth()->id(), 'name' => '[KASIR] ' . $request->name, 'amount' => (float)$request->amount, 'date' => now()->format('Y-m-d'), 'category' => 'Kas Kecil', 'source' => 'Kas Laci', 'note' => 'Shift #' . ($activeShift->id ?? '0')]); 
+
+        Expense::create([
+            'user_id'  => auth()->id(), 
+            'name'     => '[KASIR] ' . $request->name, 
+            'amount'   => (float)$request->amount, 
+            'date'     => now()->format('Y-m-d'), 
+            'category' => 'Operasional', 
+            'source'   => 'Kas Laci', 
+            'note'     => 'Shift #' . ($activeShift->id ?? '0')
+        ]); 
+
         return back()->with('success', 'Kas keluar berhasil dicatat'); 
     }
 
-    public function print($invoice) { $transaction = Transaction::with(['details.product.bundle_items.units', 'details.product_unit', 'cashier', 'customer'])->where('invoice', $invoice)->firstOrFail(); return Inertia::render('Dashboard/Transactions/Print', ['transaction' => $transaction, 'receiptSetting' => ReceiptSetting::first(), 'isPublic' => false, 'autoPrint' => session('auto_print', false)]); }
-    public function resumeCart($holdId) { $hold = Hold::findOrFail($holdId); Cart::where('cashier_id', auth()->id())->delete(); foreach ($hold->cart_data as $item) { Cart::create(['cashier_id' => auth()->id(), 'product_id' => $item['product_id'], 'product_unit_id' => $item['product_unit_id'] ?? null, 'qty' => $item['qty'], 'price' => $item['price'], 'notes' => $item['notes'] ?? null]); } return back(); }
-    public function destroyHold($id) { $hold = Hold::findOrFail($id); if ($hold->table_id) { Table::where('id', $hold->table_id)->update(['status' => 'available']); } $hold->delete(); $staffs = User::role(['super-admin', 'cashier'])->get(); foreach ($staffs as $staff) { event(new OrderDeleted($staff->id)); } return back(); }
+    public function print($invoice) { 
+        $transaction = Transaction::with(['details.product.bundle_items.units', 'details.product_unit', 'cashier', 'customer'])->where('invoice', $invoice)->firstOrFail(); 
+        return Inertia::render('Dashboard/Transactions/Print', [
+            'transaction' => $transaction, 
+            'receiptSetting' => ReceiptSetting::first(), 
+            'isPublic' => false, 
+            'autoPrint' => session('auto_print', false)
+        ]); 
+    }
+    
+    public function resumeCart($holdId) { 
+        $hold = Hold::findOrFail($holdId); 
+        Cart::where('cashier_id', auth()->id())->delete(); 
+        foreach ($hold->cart_data as $item) { 
+            Cart::create([
+                'cashier_id' => auth()->id(), 
+                'product_id' => $item['product_id'], 
+                'product_unit_id' => $item['product_unit_id'] ?? null, 
+                'qty' => $item['qty'], 
+                'price' => $item['price'], 
+                'notes' => $item['notes'] ?? null
+            ]); 
+        } 
+        return back(); 
+    }
+    
+    public function destroyHold($id) { 
+        $hold = Hold::findOrFail($id); 
+        if ($hold->table_id) { Table::where('id', $hold->table_id)->update(['status' => 'available']); } 
+        $hold->delete(); 
+        $staffs = User::role(['super-admin', 'cashier'])->get(); 
+        foreach ($staffs as $staff) { 
+            event(new OrderDeleted($staff->id)); 
+        } 
+        return back(); 
+    }
 
-    /**
-     * RESET SYSTEM: Menghapus seluruh data operasional dan keuangan.
-     */
     public function destroyAll(Request $request)
     {
         $request->validate(['password' => 'required']);
-        
         if (!Hash::check($request->password, auth()->user()->password)) {
             return back()->withErrors(['password' => 'Password yang Anda masukkan salah!']);
         }
-
         try {
             DB::statement('SET FOREIGN_KEY_CHECKS=0');
-
-            $tables = [
-                'transaction_details',
-                'transaction_profits', 
-                'transactions',        
-                'profits',             
-                'expenses',            
-                'shifts',              
-                'carts',               
-                'holds',               
-            ];
-
+            $tables = ['transaction_details', 'transaction_profits', 'transactions', 'profits', 'expenses', 'shifts', 'carts', 'holds'];
             foreach ($tables as $table) {
                 if (Schema::hasTable($table)) {
                     DB::table($table)->delete();
                     DB::statement("ALTER TABLE $table AUTO_INCREMENT = 1");
                 }
             }
-
             DB::table('products')->update(['stock' => 0]);
             DB::table('ingredients')->update(['stock' => 0]);
             DB::table('tables')->update(['status' => 'available']);
-
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
-
             \Illuminate\Support\Facades\Artisan::call('cache:clear');
             \Illuminate\Support\Facades\Artisan::call('optimize:clear');
             \Illuminate\Support\Facades\Artisan::call('view:clear');
-
             return redirect()->route('profile.edit')->with('success', 'Sistem berhasil direset total ke nol!');
-            
         } catch (\Exception $e) {
             DB::statement('SET FOREIGN_KEY_CHECKS=1');
             return back()->with('error', 'Gagal reset sistem: ' . $e->getMessage());
         }
     }
 
-    /**
-     * Menampilkan struk untuk publik (tanpa login)
-     */
     public function showPublic($invoice)
     {
         $transaction = Transaction::with(['details.product', 'cashier', 'customer'])

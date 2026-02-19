@@ -5,7 +5,7 @@ import Pagination from "@/Components/Dashboard/Pagination";
 import { 
     IconDeviceFloppy, IconSearch, IconRefresh, 
     IconHistory, IconPackageImport, IconFileImport, 
-    IconDownload, IconDatabase, IconX
+    IconDownload, IconDatabase, IconX, IconLoader2
 } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -50,6 +50,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
 
     const handleSearch = (e) => {
         e.preventDefault();
+        // PERBAIKAN: Hapus prefix apps. agar sesuai dengan web.php
         router.get(route("stock_in.index"), { ...filters, search: searchQuery }, { preserveState: true });
     };
 
@@ -64,6 +65,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
      */
     const fetchBatchDetail = (id, type) => {
         setLoadingBatch(true);
+        // PERBAIKAN: Hapus prefix apps.
         axios.get(route('stock_in.batch_detail', { id, type }))
             .then(res => {
                 setBatchInfo(res.data);
@@ -87,10 +89,11 @@ export default function StockIn({ auth, products, ingredients, history, filters 
             didOpen: () => { Swal.showLoading(); }
         });
 
+        // PERBAIKAN: Gunakan rute stock_in.parse_excel (tanpa apps.)
         router.post(route('stock_in.parse_excel'), { file: file }, {
             forceFormData: true,
             onSuccess: () => { 
-                e.target.value = null; 
+                if(fileInputRef.current) fileInputRef.current.value = null; 
                 Swal.fire({
                     icon: 'success',
                     title: 'IMPORT BERHASIL',
@@ -125,6 +128,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
             return;
         }
 
+        // PERBAIKAN: Hapus prefix apps.
         router.post(route("stock_in.store"), { entries: filledData }, {
             preserveScroll: true,
             onSuccess: () => {
@@ -137,6 +141,16 @@ export default function StockIn({ auth, products, ingredients, history, filters 
     return (
         <DashboardLayout auth={auth}> 
             <Head title="Stock In - Inventory" />
+
+            {/* OVERLAY LOADING SAAT PROSES */}
+            {processing && (
+                <div className="fixed inset-0 z-[200] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4">
+                        <IconLoader2 size={40} className="text-rose-500 animate-spin" />
+                        <span className="font-black text-[10px] uppercase tracking-widest dark:text-white">Sinkronisasi Database...</span>
+                    </div>
+                </div>
+            )}
 
             <div className="min-h-screen bg-transparent text-slate-900 dark:text-white font-sans p-2 md:p-6">
                 
@@ -167,7 +181,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                         </button>
 
                         <button onClick={submitBulkStockIn} disabled={processing} className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-6 py-3 rounded-xl font-black shadow-lg shadow-rose-200 dark:shadow-none uppercase text-xs transition-all active:scale-95 disabled:opacity-50">
-                            <IconDeviceFloppy size={20} /> {processing ? "Proses..." : "Simpan Masuk Manual"}
+                            {processing ? <IconLoader2 size={20} className="animate-spin" /> : <IconDeviceFloppy size={20} />} {processing ? "Proses..." : "Simpan Masuk Manual"}
                         </button>
                     </div>
                 </div>
@@ -204,7 +218,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                     </div>
                 </div>
 
-                {/* --- TABEL INPUT MASTER (TOMBOL DETAIL PINDAH KE SINI) --- */}
+                {/* --- TABEL INPUT MASTER --- */}
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm mb-12">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left border-collapse">
@@ -233,7 +247,6 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                         </td>
                                         <td className="px-6 py-4 text-center font-black text-slate-900 dark:text-white italic text-base">{item.stock_current}</td>
                                         
-                                        {/* TOMBOL CEK BATCH DI TABEL MASTER */}
                                         <td className="px-6 py-4 text-center">
                                             <button 
                                                 type="button"
@@ -306,12 +319,10 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                     </div>
                 </div>
 
-                {/* --- MODAL RINCIAN BATCH & ANALISIS HPP --- */}
+                {/* --- MODAL RINCIAN BATCH --- */}
                 {showBatchModal && (
-                    <div className="fixed inset-0 z-[99] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
                         <div className="bg-white dark:bg-slate-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
-                            
-                            {/* Header Modal */}
                             <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-start">
                                 <div>
                                     <h3 className="font-black uppercase text-lg text-slate-900 dark:text-white leading-none">
@@ -325,7 +336,6 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                             </div>
                             
                             <div className="p-6 max-h-[40vh] overflow-y-auto">
-                                
                                 <table className="w-full text-sm">
                                     <thead className="sticky top-0 bg-white dark:bg-slate-900 shadow-sm">
                                         <tr className="text-[10px] uppercase font-black text-slate-400 border-b border-slate-100 dark:border-slate-800">
@@ -370,28 +380,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                 </table>
                             </div>
 
-                            {/* --- SEKSI ANALISIS RUMUS REAL --- */}
                             <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800">
-                                <div className="flex items-center gap-2 mb-4">
-                                    <IconRefresh size={16} className="text-blue-500" />
-                                    <h4 className="text-[10px] font-black uppercase text-slate-900 dark:text-white tracking-widest">Logika Perhitungan Moving Average</h4>
-                                </div>
-                                
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-[11px] mb-4">
-                                    <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <span className="text-slate-400 block text-[9px] uppercase font-bold mb-1">Σ Total Nilai Aset</span>
-                                        <span className="font-black text-slate-900 dark:text-white text-sm">
-                                            Rp {new Intl.NumberFormat('id-ID').format(batchInfo.total_asset_value)}
-                                        </span>
-                                    </div>
-                                    <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                        <span className="text-slate-400 block text-[9px] uppercase font-bold mb-1">Total Stok Fisik</span>
-                                        <span className="font-black text-slate-900 dark:text-white text-sm">
-                                            {batchInfo.total_stock} Unit
-                                        </span>
-                                    </div>
-                                </div>
-
                                 <div className="bg-blue-600 p-5 rounded-2xl text-white shadow-xl shadow-blue-200 dark:shadow-none">
                                     <p className="text-[9px] font-black uppercase tracking-widest opacity-80 mb-2 italic">Persamaan Matematika HPP (Average):</p>
                                     <p className="text-xs font-black tracking-tight leading-relaxed">
@@ -413,6 +402,12 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                     </div>
                 )}
             </div>
+            {/* INLINE STYLES */}
+            <style>{`
+                .scrollbar-hide::-webkit-scrollbar { display: none; }
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+            `}</style>
         </DashboardLayout>
     );
 }

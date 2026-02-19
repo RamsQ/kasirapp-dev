@@ -4,6 +4,8 @@ import { Head, router, usePage } from "@inertiajs/react";
 import Table from "@/Components/Dashboard/Table";
 import Pagination from "@/Components/Dashboard/Pagination";
 import ShiftReceipt from "@/Components/Receipt/ShiftReceipt";
+import { smartPrint } from "@/Utils/BluetoothHybridService"; // INTEGRASI BLUETOOTH
+import toast from "react-hot-toast";
 import { 
     IconCash, 
     IconUser, 
@@ -13,7 +15,8 @@ import {
     IconSearch,
     IconRefresh,
     IconPrinter,
-    IconQrcode
+    IconQrcode,
+    IconLoader
 } from "@tabler/icons-react";
 
 const formatPrice = (value) =>
@@ -23,10 +26,11 @@ const formatPrice = (value) =>
         minimumFractionDigits: 0 
     }).format(value || 0);
 
-export default function Index({ shifts, filters }) {
-    const { receiptSetting } = usePage().props;
+export default function Index({ shifts, filters, receiptSetting }) {
+    const { auth } = usePage().props;
     const [date, setDate] = useState(filters.date || "");
     const [selectedShiftPrint, setSelectedShiftPrint] = useState(null);
+    const [isPrinting, setIsPrinting] = useState(false);
 
     // Fungsi untuk memfilter berdasarkan tanggal
     const handleFilter = (e) => {
@@ -45,14 +49,37 @@ export default function Index({ shifts, filters }) {
         router.get(route('shifts.index'));
     };
 
-    // Fungsi Cetak Struk Shift
-    const handlePrint = (shift) => {
-        setSelectedShiftPrint(shift);
-        // Berikan jeda sedikit agar state ter-update sebelum print dialog muncul
-        setTimeout(() => {
-            window.print();
-            setSelectedShiftPrint(null);
-        }, 500);
+    /**
+     * FUNGSI CETAK ULANG (HYBRID)
+     * - Jika di APK: Langsung cetak via Bluetooth.
+     * - Jika di WEB: Redirect ke halaman Preview (Print Terminal).
+     */
+    const handleReprint = async (shift) => {
+        const isAPK = typeof window !== 'undefined' && !!window.bluetoothSerial;
+        
+        if (isAPK) {
+            // Mapping data agar konsisten dengan format printer untuk Bluetooth
+            const dataForPrinter = {
+                ...shift,
+                total_cash_sales: parseFloat(shift.total_cash_sales || 0),
+                total_qris_sales: parseFloat(shift.total_qris_sales || 0),
+                total_discounts: parseFloat(shift.total_discounts || 0),
+                petty_cash_out: parseFloat(shift.total_cash_expected - shift.starting_cash - shift.total_cash_sales),
+            };
+
+            toast.promise(smartPrint(dataForPrinter, receiptSetting, 'shift'), {
+                loading: 'Menghubungkan ke Printer Bluetooth...',
+                success: 'Laporan Shift Dicetak!',
+                error: (err) => `Gagal cetak: ${err}`
+            });
+        } else {
+            /**
+             * JIKA DI WINDOWS/WEB: 
+             * Arahkan ke rute print agar muncul halaman preview terminal
+             * (Sama seperti alur saat baru saja menutup kasir)
+             */
+            router.get(route('shifts.print', shift.id));
+        }
     };
 
     return (
@@ -166,11 +193,12 @@ export default function Index({ shifts, filters }) {
                                     <Table.Td className="text-center">
                                         {shift.status === 'closed' && (
                                             <button 
-                                                onClick={() => handlePrint(shift)}
+                                                onClick={() => handleReprint(shift)}
                                                 className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 hover:bg-primary-500 hover:text-white rounded-xl transition-all"
-                                                title="Cetak Struk Shift"
+                                                title="Cetak Ulang Laporan Shift"
+                                                disabled={isPrinting}
                                             >
-                                                <IconPrinter size={18} />
+                                                {isPrinting && selectedShiftPrint?.id === shift.id ? <IconLoader className="animate-spin" size={18} /> : <IconPrinter size={18} />}
                                             </button>
                                         )}
                                     </Table.Td>
@@ -191,7 +219,7 @@ export default function Index({ shifts, filters }) {
                 <Pagination links={shifts.links} />
             </div>
 
-            {/* Panel Ringkasan Singkat */}
+            {/* Panel Ringkasan Singkat Audit */}
             {shifts.data.length > 0 && (
                 <div className="mt-8 p-6 bg-slate-900 rounded-3xl text-white flex flex-col md:flex-row justify-between items-center gap-6 print:hidden shadow-xl">
                     <div>
@@ -204,19 +232,25 @@ export default function Index({ shifts, filters }) {
                 </div>
             )}
 
-            {/* AREA CETAK (HANYA MUNCUL SAAT PRINT) */}
+            {/* AREA CETAK (HANYA AKTIF SAAT WINDOW.PRINT JIKA DIBUTUHKAN) */}
             <div id="print-shift-section" className="hidden print:block">
-                <ShiftReceipt 
-                    shift={selectedShiftPrint} 
-                    storeName={receiptSetting?.store_name} 
-                />
+                {selectedShiftPrint && (
+                    <ShiftReceipt 
+                        shift={{
+                            ...selectedShiftPrint,
+                            total_cash_sales: parseFloat(selectedShiftPrint.total_cash_sales || 0),
+                            total_qris_sales: parseFloat(selectedShiftPrint.total_qris_sales || 0),
+                            total_discounts: parseFloat(selectedShiftPrint.total_discounts || 0),
+                        }} 
+                        storeName={receiptSetting?.store_name} 
+                    />
+                )}
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `
                 @media print {
-                    /* Sembunyikan semua elemen kecuali area print */
-                    body * { visibility: hidden; }
-                    #print-shift-section, #print-shift-section * { visibility: visible; }
+                    body * { visibility: hidden !important; }
+                    #print-shift-section, #print-shift-section * { visibility: visible !important; }
                     #print-shift-section { 
                         position: absolute; 
                         left: 0; 
@@ -224,6 +258,7 @@ export default function Index({ shifts, filters }) {
                         width: 100%; 
                         display: flex !important; 
                         justify-content: center;
+                        background: white;
                     }
                     @page { size: auto; margin: 0mm; }
                 }
@@ -232,5 +267,4 @@ export default function Index({ shifts, filters }) {
     );
 }
 
-// Layout Persist
 Index.layout = (page) => page;

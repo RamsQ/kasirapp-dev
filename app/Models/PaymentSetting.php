@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentSetting extends Model
 {
@@ -11,7 +12,7 @@ class PaymentSetting extends Model
 
     public const GATEWAY_MIDTRANS = 'midtrans';
     public const GATEWAY_XENDIT = 'xendit';
-    public const GATEWAY_QRIS = 'qris'; // Tambahkan konstanta QRIS
+    public const GATEWAY_QRIS = 'qris'; 
 
     protected $fillable = [
         'default_gateway',
@@ -23,7 +24,6 @@ class PaymentSetting extends Model
         'xendit_secret_key',
         'xendit_public_key',
         'xendit_production',
-        // --- FIELD BARU QRIS MANUAL ---
         'qris_manual_enabled',
         'qris_manual_image',
     ];
@@ -33,7 +33,6 @@ class PaymentSetting extends Model
         'midtrans_production' => 'boolean',
         'xendit_enabled' => 'boolean',
         'xendit_production' => 'boolean',
-        // --- CAST BARU ---
         'qris_manual_enabled' => 'boolean',
     ];
 
@@ -62,7 +61,7 @@ class PaymentSetting extends Model
             ];
         }
 
-        // QRIS Manual (BARU)
+        // QRIS Manual
         if ($this->isGatewayReady(self::GATEWAY_QRIS)) {
             $gateways[] = [
                 'value' => self::GATEWAY_QRIS,
@@ -85,10 +84,8 @@ class PaymentSetting extends Model
                 && filled($this->midtrans_client_key),
                 
             self::GATEWAY_XENDIT => $this->xendit_enabled
-                && filled($this->xendit_secret_key)
-                && filled($this->xendit_public_key),
+                && filled($this->xendit_secret_key),
 
-            // QRIS Ready jika diaktifkan dan gambar sudah diunggah
             self::GATEWAY_QRIS => $this->qris_manual_enabled
                 && filled($this->qris_manual_image),
 
@@ -117,13 +114,15 @@ class PaymentSetting extends Model
     }
 
     /**
-     * Konfigurasi QRIS Manual
+     * Konfigurasi QRIS Manual dengan Helper Storage
      */
     public function qrisConfig(): array
     {
         return [
             'enabled' => $this->isGatewayReady(self::GATEWAY_QRIS),
-            'image_url' => $this->qris_manual_image ? asset('storage/payments/' . $this->qris_manual_image) : null,
+            'image_url' => $this->qris_manual_image 
+                ? Storage::url('payments/' . $this->qris_manual_image) 
+                : null,
         ];
     }
 }

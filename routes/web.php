@@ -5,7 +5,8 @@ use App\Http\Controllers\Apps\{
     ProductController, TransactionController, ProductReportController,
     ProfileController, StockOpnameController, StockInController, 
     ExpiredProductController, ReceiptSettingController, DiscountController,
-    SettingController, TableController, IngredientController, UnitController,
+    SettingController, TableController, IngredientController, 
+    // UnitController, // Dinonaktifkan sementara karena file tidak ditemukan
     RecipeController, PublicMenuController, OnlineSettingController
 };
 use App\Http\Controllers\{
@@ -18,6 +19,12 @@ use App\Http\Controllers\Auth\FaceAuthController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes - Mangkujagad PWA
+|--------------------------------------------------------------------------
+*/
 
 // =============================================================
 // 1. RUTE PUBLIK & SELF-ORDERING (Tanpa Login / Guest)
@@ -60,7 +67,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     Route::post('/profile/face-update', [ProfileController::class, 'updateFace'])->name('profile.face.update');
     Route::post('/face-registration-alt', [ProfileController::class, 'updateFace'])->name('face.register');
 
-    // [0.2] AI BUSINESS COACH (Fitur Baru)
+    // [0.2] AI BUSINESS COACH
     Route::get('/ai-coach', [AiController::class, 'index'])->name('ai.index');
     Route::post('/ai-coach/chat', [AiController::class, 'chat'])->name('ai.chat');
 
@@ -95,10 +102,12 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     // 5. MODUL WAREHOUSE & INVENTORY
     // =============================================================
     Route::group(['middleware' => ['permission:ingredients.index']], function () {
+        // --- INGREDIENTS ---
         Route::resource('/ingredients', IngredientController::class)->except(['create', 'edit', 'show']);
-        Route::get('/ingredients/template', [IngredientController::class, 'template'])->name('ingredients.template');
-        Route::post('/ingredients/import', [IngredientController::class, 'import'])->name('ingredients.import');
+        Route::get('/ingredients-template', [IngredientController::class, 'template'])->name('ingredients.template');
+        Route::post('/ingredients-import', [IngredientController::class, 'import'])->name('ingredients.import');
 
+        // --- RECIPES (PENGATURAN HPP) ---
         Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
         Route::post('/recipes', [RecipeController::class, 'store'])->name('recipes.store');
         Route::get('/recipes/template', [RecipeController::class, 'template'])->name('recipes.template');
@@ -106,17 +115,18 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::post('/recipes/sync-all', [RecipeController::class, 'syncAll'])->name('recipes.sync_all');
         Route::delete('/recipes/{id}', [RecipeController::class, 'destroy'])->name('recipes.destroy');
 
-        // Stock-In Module dengan Perbaikan Rute Batch Detail
+        // --- STOCK-IN MODULE ---
         Route::prefix('stock-in')->group(function() {
             Route::get('/', [StockInController::class, 'index'])->name('stock_in.index');
-            Route::post('/', [StockInController::class, 'store'])->name('stock_in.store');
-            // PERBAIKAN: Hapus '/stock-in' dari path karena sudah ada di prefix
+            Route::post('/store', [StockInController::class, 'store'])->name('stock_in.store');
             Route::get('/batch/{id}/{type}', [StockInController::class, 'getBatchDetail'])->name('stock_in.batch_detail');
             Route::get('/export', [StockInController::class, 'export'])->name('stock_in.export');
             Route::get('/template-product', [StockInController::class, 'exportProductTemplate'])->name('stock_in.template_product');
             Route::get('/template-ingredient', [StockInController::class, 'exportIngredientTemplate'])->name('stock_in.template_ingredient');
+            Route::post('/parse-excel', [StockInController::class, 'parseExcel'])->name('stock_in.parse_excel');
         });
 
+        // --- STOCK OPNAMES ---
         Route::get('/stock-opnames', [StockOpnameController::class, 'index'])->name('stock_opnames.index');
         Route::post('/stock-opnames', [StockOpnameController::class, 'store'])->name('stock_opnames.store');
         Route::get('/stock-opnames/template-product', [StockOpnameController::class, 'exportProductTemplate'])->name('stock_opnames.template_product');
@@ -142,7 +152,10 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::post('/transactions/resume/{holdId}', [TransactionController::class, 'resumeCart'])->name('transactions.resume');
         Route::post('/transactions/move-table/{holdId}', [TransactionController::class, 'moveTable'])->name('transactions.move_table');
         Route::post('/transactions/merge-table', [TransactionController::class, 'mergeTable'])->name('transactions.merge_table');
-        Route::delete('/holds/{id}', [TransactionController::class, 'destroyHold'])->name('holds.destroy');
+        
+        Route::delete('/holds/{id}', [TransactionController::class, 'destroyHold'])->name('transactions.destroyHold');
+        Route::delete('/holds-legacy/{id}', [TransactionController::class, 'destroyHold'])->name('holds.destroy');
+            
         Route::get('/transactions/bill/{id}', [TransactionController::class, 'printBill'])->name('transactions.bill');
     });
 
@@ -177,7 +190,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::get('/settings/bluetooth', fn() => Inertia::render('Dashboard/Settings/BluetoothPairing'))->name('settings.bluetooth');
         
         Route::resource('/discounts', DiscountController::class)->except(['show', 'edit', 'update']);
-        Route::resource('/units', UnitController::class)->except(['show', 'create', 'edit']);
+        
+        // Dinonaktifkan karena menyebabkan ReflectionException (File tidak ada)
+        // Route::resource('/units', UnitController::class)->except(['show', 'create', 'edit']);
     });
 
     // =============================================================

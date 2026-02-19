@@ -1,51 +1,100 @@
 import EscPosEncoder from 'esc-pos-encoder';
 
-// --- KONFIGURASI BLUETOOTH & PRESISI ---
+// --- KONFIGURASI ---
 const C_WIDTH = 32; 
-const SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
-const CHAR_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
 
-// --- HELPER STRUKTUR ---
-const clean = (text) => text ? text.toString().trim() : "";
+// --- HELPER FORMATTING ---
+const clean = (text) => {
+    if (!text) return "";
+    return text.toString()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Hilangkan aksen
+        .replace(/[^\x20-\x7E]/g, "") // Hanya ASCII standar
+        .trim();
+};
 
 const formatRow = (left, right) => {
     const lStr = clean(left);
     const rStr = clean(right);
     const spaceCount = C_WIDTH - (lStr.length + rStr.length);
-    // Memastikan minimal ada 1 spasi jika teks terlalu panjang
     return lStr + " ".repeat(spaceCount > 0 ? spaceCount : 1) + rStr;
 };
 
 const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
+    const d = dateStr ? new Date(dateStr) : new Date();
     if (isNaN(d.getTime())) return "00-00-0000 00:00";
     return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
 
-// --- LOGIKA KONEKSI ---
-let cachedDevice = null;
+// --- LOGIKA KONEKSI NATIVE (APK) DENGAN CHUNKING ---
+const sendToNativeBluetooth = (data) => {
+    return new Promise((resolve, reject) => {
+        const btSerial = window.bluetoothSerial;
+        const savedPrinter = JSON.parse(localStorage.getItem("selected_printer"));
 
-const getBluetoothDevice = async () => {
-    if (cachedDevice && cachedDevice.gatt.connected) return cachedDevice;
+        if (!btSerial) return reject("Plugin Bluetooth Serial tidak terdeteksi.");
+        if (!savedPrinter?.address) return reject("Printer belum dipilih di menu Pairing.");
+
+        const connectionTimeout = setTimeout(() => reject("Koneksi ke printer timeout."), 10000);
+
+        btSerial.connect(savedPrinter.address, async () => {
+            clearTimeout(connectionTimeout);
+            try {
+                // CHUNKING: Kirim 128 byte per potongan agar printer tidak "hang"
+                const chunkSize = 128;
+                for (let i = 0; i < data.length; i += chunkSize) {
+                    const chunk = data.slice(i, i + chunkSize);
+                    await new Promise((res, rej) => {
+                        btSerial.write(chunk, res, rej);
+                    });
+                    await new Promise(res => setTimeout(res, 35)); // Jeda antar potongan
+                }
+                
+                // Jeda sebelum disconnect agar buffer selesai
+                setTimeout(() => {
+                    btSerial.disconnect();
+                    resolve({ success: true });
+                }, 1000);
+            } catch (err) {
+                btSerial.disconnect();
+                reject("Gagal kirim data: " + err);
+            }
+        }, (err) => {
+            clearTimeout(connectionTimeout);
+            reject("Printer tidak terdeteksi: " + err);
+        });
+    });
+};
+
+// --- LOGIKA KONEKSI WEB (BROWSER) ---
+const sendToWebBluetooth = async (data) => {
+    const SERVICE_UUID = '000018f0-0000-1000-8000-00805f9b34fb';
+    const CHAR_UUID = '00002af1-0000-1000-8000-00805f9b34fb';
+    
+    if (typeof navigator === 'undefined' || !navigator.bluetooth) {
+        throw new Error("Browser ini tidak mendukung Web Bluetooth.");
+    }
+
     const device = await navigator.bluetooth.requestDevice({
         filters: [{ services: [SERVICE_UUID] }],
         optionalServices: [SERVICE_UUID]
     });
-    cachedDevice = device;
-    device.addEventListener('gattserverdisconnected', () => { cachedDevice = null; });
-    return device;
-};
-
-const sendToBluetooth = async (data) => {
-    const device = await getBluetoothDevice();
+    
     const server = await device.gatt.connect();
     const service = await server.getPrimaryService(SERVICE_UUID);
     const characteristic = await service.getCharacteristic(CHAR_UUID);
 
     const chunkSize = 512;
     for (let i = 0; i < data.length; i += chunkSize) {
-        const chunk = data.slice(i, i + chunkSize);
-        await characteristic.writeValue(chunk);
+        await characteristic.writeValue(data.slice(i, i + chunkSize));
+    }
+};
+
+// --- SWITCHER ---
+const sendToBluetooth = async (data) => {
+    if (typeof window !== 'undefined' && window.bluetoothSerial) {
+        return await sendToNativeBluetooth(data);
+    } else {
+        return await sendToWebBluetooth(data);
     }
 };
 
@@ -56,104 +105,78 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         let result = encoder.initialize().codepage('windows1252');
         const details = Array.isArray(transaction.details) ? transaction.details : [];
 
-        // 1. LOGIKA EKSTRAKSI NOMOR ANTREAN (QUEUE)
-        const getQueue = () => {
-            if (transaction.queue_number) return transaction.queue_number;
-            if (details[0]?.queue_number) return details[0].queue_number;
-            const match = transaction.customer_name?.match(/Q-\d+/);
-            return match ? match[0] : "----";
-        };
+        const queueNum = transaction.queue_number || "----";
+        const orderCode = (transaction.invoice || "").toString().replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
+        
+        const grandTotal = parseFloat(transaction.grand_total || 0);
+        const discount = parseFloat(transaction.discount || 0);
+        const subtotalGross = grandTotal + discount;
 
-        // 2. LOGIKA EKSTRAKSI KODE ORDER (4 DIGIT ANGKA UNIK)
-        const getOrderCode = () => {
-            let val = "";
-            if (transaction.reference_code) val = transaction.reference_code.toString().replace(/[^0-9]/g, '');
-            if (!val && transaction.customer_name?.includes('#')) {
-                val = transaction.customer_name.split('#').pop().replace(/[^0-9]/g, '');
-            }
-            if (!val) {
-                val = (transaction.invoice || "").toString().replace(/[^0-9]/g, '');
-            }
-            return val.slice(-4).padStart(4, '0') || "0000";
-        };
-
-        const queueNum = getQueue();
-        const orderCode = getOrderCode();
-
-        // --- START ENCODING ---
-        // HEADER (CENTER)
-        result.raw([0x1b, 0x61, 0x01])
+        // HEADER
+        result.raw([0x1b, 0x61, 0x01]) // Center
               .bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
               .line(clean(receiptSetting?.store_address || ""))
-              .line("TELP: " + clean(receiptSetting?.store_phone || "000"))
+              .line("-".repeat(C_WIDTH))
+              .size('large').bold(true).line(queueNum).size('normal').bold(false)
               .line("-".repeat(C_WIDTH));
 
-        // ANTREAN BESAR
-        result.size('large').bold(true).line(queueNum).size('normal').bold(false)
-              .line("-".repeat(C_WIDTH));
+        // METADATA
+        result.raw([0x1b, 0x61, 0x00]) // Left
+              .line(formatRow("No. Trx:", clean(transaction.invoice)))
+              .line(formatRow("Kode Pesan:", "#" + orderCode));
 
-        // METADATA (LEFT)
-        result.raw([0x1b, 0x61, 0x00])
-              .line(formatRow("Invoice:", clean(transaction.invoice)))
-              .line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)))
-              .line(formatRow("order:", "#" + orderCode))
+        // PLATFORM ONLINE
+        if (transaction.online_platform) {
+            result.line(formatRow("Platform:", clean(transaction.online_platform).toUpperCase()));
+        }
+
+        result.line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)))
               .line(formatRow("Tgl:", formatDate(transaction.created_at)))
-              .line(formatRow("Meja:", clean(transaction.table_name || "TAKE AWAY").toUpperCase()))
               .line(formatRow("Kasir:", clean(transaction.cashier?.name || "KASIR").split(' ')[0].toUpperCase()))
               .line("-".repeat(C_WIDTH));
 
         // ITEMS
-        let calculatedSubtotal = 0;
         details.forEach(item => {
-            const isFree = item.notes?.includes('BONUS PROMO') || parseFloat(item.price) === 0;
             const title = clean(item.product?.title || item.product_title || "PRODUK").toUpperCase();
             const price = parseFloat(item.price || 0);
             const qty = parseFloat(item.qty || 1);
-            if (!isFree) calculatedSubtotal += price;
-
-            // Judul Produk
             result.bold(true).line(title).bold(false);
-            
-            // Rincian Qty x Harga (Menggunakan baris baru agar tidak menabrak judul)
-            result.line(formatRow(
-                `${qty.toFixed(0)} x ${isFree ? '0' : Math.round(price/qty).toLocaleString('id-ID')}`, 
-                isFree ? 'FREE' : Math.round(price).toLocaleString('id-ID')
-            ));
-
-            // --- LOGIKA BUNDLING ---
-            const bundleItems = item.product?.bundle_items || item.bundle_items;
-            if (bundleItems && Array.isArray(bundleItems)) {
-                bundleItems.forEach(bi => {
-                    const biTitle = clean(bi.title || bi.product_title).toUpperCase();
-                    const biQty = (parseFloat(bi.pivot?.qty || 1) * qty).toFixed(0);
-                    result.line(` - ${biTitle} x${biQty}`);
-                });
+            result.line(formatRow(`${qty.toFixed(0)} x ${Math.round(price/qty).toLocaleString('id-ID')}`, Math.round(price).toLocaleString('id-ID')));
+            if (item.notes && !item.notes.includes('BONUS PROMO')) {
+                result.italic(true).line("*" + clean(item.notes).toLowerCase()).italic(false);
             }
         });
 
-        const grandTotal = parseFloat(transaction.grand_total || 0);
-        const actualDiscount = Math.max(0, calculatedSubtotal - grandTotal);
-        const cashReceived = parseFloat(transaction.cash || grandTotal);
-        const changeAmount = Math.max(0, cashReceived - grandTotal);
-
+        // TOTALS
         result.line("-".repeat(C_WIDTH));
-        if (actualDiscount > 0) {
-            result.line(formatRow("SUBTOTAL", Math.round(calculatedSubtotal).toLocaleString('id-ID')))
-                  .line(formatRow("DISKON", `-${Math.round(actualDiscount).toLocaleString('id-ID')}`));
+        
+        if (discount > 0) {
+            result.line(formatRow("SUBTOTAL", Math.round(subtotalGross).toLocaleString('id-ID')));
+            result.line(formatRow("DISKON", "-" + Math.round(discount).toLocaleString('id-ID')));
         }
 
         result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false)
-              .line(formatRow("BAYAR", Math.round(cashReceived).toLocaleString('id-ID')))
-              .line(formatRow("KEMBALI", Math.round(changeAmount).toLocaleString('id-ID')))
-              .line(formatRow("METODE", clean(transaction.payment_method || 'CASH').toUpperCase()));
-        
-        if (transaction.online_platform) {
-            result.line(formatRow("PLATFORM", clean(transaction.online_platform).toUpperCase()));
+              .line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
+              .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')))
+              .line(formatRow("METODE", clean(transaction.payment_method || 'CASH').toUpperCase()))
+              .line("-".repeat(C_WIDTH));
+
+        // --- FITUR BARU: QRIS DYNAMIC QRCODE ---
+        if (transaction.payment_url) {
+            result.raw([0x1b, 0x61, 0x01]) // Center
+                  .newline()
+                  .line("SCAN UNTUK BAYAR")
+                  .newline()
+                  .qrcode(transaction.payment_url, 1, 6, 'm') // Model 1, Size 6, EC level M
+                  .newline()
+                  .line("GOPAY/QRIS/M-BANKING")
+                  .newline();
         }
 
-        result.line("-".repeat(C_WIDTH))
-              .raw([0x1b, 0x61, 0x01])
-              .line(clean(receiptSetting?.store_footer || "Terima Kasih")).newline().newline().cut();
+        // FOOTER
+        result.raw([0x1b, 0x61, 0x01]) // Center
+              .line(clean(receiptSetting?.store_footer || "Terima Kasih"))
+              .newline().newline().newline().newline();
 
         await sendToBluetooth(result.encode());
         return { success: true };
@@ -165,37 +188,44 @@ export const printShiftBluetooth = async (shift, receiptSetting) => {
     try {
         const encoder = new EscPosEncoder();
         let result = encoder.initialize().codepage('windows1252');
-        const formatPrice = (p) => Math.round(parseFloat(p || 0)).toLocaleString('id-ID');
+        const fPrice = (p) => Math.round(parseFloat(p || 0)).toLocaleString('id-ID');
 
-        result.raw([0x1b, 0x61, 0x01])
-              .bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
-              .line(clean(receiptSetting?.store_address || ""))
-              .line("-".repeat(C_WIDTH))
-              .bold(true).line("LAPORAN TUTUP SHIFT").bold(false)
-              .line("-".repeat(C_WIDTH))
-              .raw([0x1b, 0x61, 0x00])
-              .line(formatRow("KASIR:", clean(shift.user?.name).toUpperCase().split(' ')[0]))
+        const cashSales = parseFloat(shift.total_cash_sales || 0);
+        const pettyCash = parseFloat(shift.petty_cash_out || shift.total_expense || 0);
+        const startCash = parseFloat(shift.starting_cash || 0);
+        const systemSaldo = (startCash + cashSales) - pettyCash;
+
+        result.raw([0x1b, 0x61, 0x01]).bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
+              .line("LAPORAN TUTUP SHIFT")
+              .line("-".repeat(C_WIDTH));
+
+        result.raw([0x1b, 0x61, 0x00]) // Left
+              .line(formatRow("KASIR:", clean(shift.user?.name || "KASIR").toUpperCase()))
               .line(formatRow("MULAI:", formatDate(shift.opened_at)))
               .line(formatRow("TUTUP:", formatDate(shift.closed_at)))
               .line("-".repeat(C_WIDTH));
 
-        const systemCash = parseFloat(shift.starting_cash) + parseFloat(shift.total_cash_expected) - parseFloat(shift.total_expense || 0);
-        
-        result.line(formatRow("MODAL AWAL", formatPrice(shift.starting_cash)))
-              .line(formatRow("SALES TUNAI", formatPrice(shift.total_cash_expected)))
-              .line(formatRow("KAS KELUAR", "-" + formatPrice(shift.total_expense)))
+        result.line(formatRow("MODAL AWAL", fPrice(startCash)))
+              .line(formatRow("SALES TUNAI", fPrice(cashSales)))
+              .line(formatRow("KAS KELUAR", "-" + fPrice(pettyCash)))
               .line(".".repeat(C_WIDTH))
-              .bold(true).line(formatRow("TOTAL SISTEM", formatPrice(systemCash)))
-              .line(formatRow("FISIK LACI", formatPrice(shift.total_physical_cash || shift.total_cash_actual))).bold(false)
+              .line(formatRow("TOTAL SISTEM", fPrice(systemSaldo)))
+              .bold(true).line(formatRow("FISIK LACI", fPrice(shift.total_cash_actual || shift.total_physical_cash))).bold(false)
               .line("-".repeat(C_WIDTH))
-              .bold(true).line(formatRow("SELISIH", formatPrice(shift.difference))).bold(false)
-              .line(formatRow("TOTAL QRIS", formatPrice(shift.total_qris_sales)))
-              .line("-".repeat(C_WIDTH))
-              .raw([0x1b, 0x61, 0x01])
+              .bold(true).line(formatRow("SELISIH", fPrice(shift.difference))).bold(false)
+              .line(formatRow("TOTAL QRIS", fPrice(shift.total_qris_sales)));
+              
+        if (parseFloat(shift.total_discounts) > 0) {
+            result.line(formatRow("TOT. DISKON", fPrice(shift.total_discounts)));
+        }
+
+        result.line("-".repeat(C_WIDTH));
+
+        result.raw([0x1b, 0x61, 0x01]) // Center
               .line("TANDA TANGAN").newline().newline()
-              .line("( KASIR )").newline()
+              .line("(...........)")
               .line("WAKTU CETAK:").line(formatDate(new Date()))
-              .newline().newline().cut();
+              .newline().newline().newline().newline().newline();
 
         await sendToBluetooth(result.encode());
         return { success: true };

@@ -70,7 +70,7 @@ class ShiftController extends Controller
                             ->where('payment_status', 'paid')
                             ->sum('grand_total');
 
-        // 2. Hitung TOTAL DISKON/PROMO selama shift ini (BARU)
+        // 2. Hitung TOTAL DISKON/PROMO selama shift ini
         $totalDiscounts = Transaction::where('shift_id', $shift->id)->sum('discount');
 
         // 3. Hitung Pengeluaran Kasir (Kas Keluar)
@@ -79,8 +79,6 @@ class ShiftController extends Controller
                             ->sum('amount');
 
         // 4. Kalkulasi ekspektasi saldo tunai (Modal Awal + Jual Tunai - Kas Keluar)
-        // Catatan: grand_total di transaksi biasanya sudah dipotong diskon, 
-        // jadi kita tidak perlu mengurangi diskon lagi di sini agar tidak double cut.
         $expected = ($shift->starting_cash + $totalCashSales) - $totalPettyCashOut;
         $actual = $request->total_cash_physical;
 
@@ -89,7 +87,7 @@ class ShiftController extends Controller
             'total_cash_expected' => $expected,
             'total_cash_actual'   => $actual,
             'total_qris_sales'    => $totalQrisSales,
-            'total_discounts'     => $totalDiscounts, // Pastikan kolom ini ada di database
+            'total_discounts'     => $totalDiscounts, 
             'difference'          => $actual - $expected,
             'status'              => 'closed',
             'closed_at'           => now(),
@@ -124,7 +122,7 @@ class ShiftController extends Controller
         $shift->load('user');
         $shift->total_qris_sales = $totalQrisSales;
         $shift->total_cash_sales = $totalCashSales;
-        $shift->total_discounts  = $totalDiscounts; // Dilempar ke ShiftReceipt.jsx
+        $shift->total_discounts  = $totalDiscounts; 
         $shift->petty_cash_out   = $pettyCashOut->sum('amount');
         $shift->expense_details  = $pettyCashOut; 
 
@@ -137,25 +135,31 @@ class ShiftController extends Controller
 
     /**
      * Riwayat Shift (Laporan Shift)
+     * Penyesuaian agar Riwayat memiliki data lengkap untuk CETAK ULANG
      */
     public function index(Request $request)
     {
-        $shifts = Shift::with('user:id,name')
+        $shifts = Shift::with(['user:id,name'])
             ->withSum(['transactions as total_cash_sales' => function($query) {
                 $query->where('payment_method', 'cash')->where('payment_status', 'paid');
             }], 'grand_total')
             ->withSum(['transactions as total_qris_sales' => function($query) {
                 $query->where('payment_method', 'qris')->where('payment_status', 'paid');
             }], 'grand_total')
-            ->withSum('transactions as total_discounts', 'discount') // Menampilkan total diskon di tabel riwayat
+            ->withSum('transactions as total_discounts', 'discount')
             ->when($request->date, fn($q, $date) => $q->whereDate('opened_at', $date))
             ->orderBy('id', 'desc')
             ->paginate(10)
             ->withQueryString();
 
+        // Agar riwayat bisa dicetak ulang dengan detail pengeluaran, kita perlu melampirkan 
+        // detail pengeluaran pada setiap shift di halaman riwayat (Opsional/Lazy Loading di Frontend)
+        // Namun untuk performa cetak ulang langsung, kita kirimkan ReceiptSetting juga.
+        
         return Inertia::render('Dashboard/Shifts/Index', [
-            'shifts'  => $shifts,
-            'filters' => $request->all(['date'])
+            'shifts'         => $shifts,
+            'receiptSetting' => ReceiptSetting::first(), // Penting untuk nama toko di cetakan ulang
+            'filters'        => $request->all(['date'])
         ]);
     }
 }

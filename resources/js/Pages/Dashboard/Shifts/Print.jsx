@@ -6,7 +6,8 @@ import {
     IconBluetooth, IconLoader2
 } from "@tabler/icons-react";
 import { printShiftUsbRaw } from "@/Utils/UsbRawPrinter"; 
-import { printShiftBluetooth } from "@/Utils/BluetoothRawPrinter"; 
+import { smartPrint } from "@/Utils/BluetoothHybridService"; // Menggunakan Service Hybrid yang lebih stabil
+import toast from "react-hot-toast";
 
 export default function Print({ shift, receiptSetting, auto_print = false }) {
     if (!shift) return <div className="p-10 text-center text-white">Data Shift tidak ditemukan...</div>;
@@ -26,15 +27,26 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
         new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 })
             .format(price).replace("Rp", "").trim();
 
-    const systemSaldo = parseFloat(shift.starting_cash) + parseFloat(shift.total_cash_expected) - parseFloat(shift.total_expense || 0);
+    // Mapping data agar sesuai dengan perhitungan controller
+    const cashSales = parseFloat(shift.total_cash_sales || 0);
+    const pettyCash = parseFloat(shift.petty_cash_out || 0);
+    const startCash = parseFloat(shift.starting_cash || 0);
+    
+    // Saldo seharusnya di sistem (Modal + Penjualan Tunai - Pengeluaran)
+    const systemSaldo = (startCash + cashSales) - pettyCash;
 
-    // --- FUNGSI PRINT BLUETOOTH ---
+    // --- FUNGSI PRINT BLUETOOTH (HYBRID) ---
     const handleBluetoothPrint = async () => {
         setIsBtPrinting(true);
         try {
-            await printShiftBluetooth(shift, receiptSetting);
+            // Menggunakan smartPrint agar logic parsing struk shift terpusat dan stabil
+            await toast.promise(smartPrint(shift, receiptSetting, 'shift'), {
+                loading: 'Menghubungkan ke Printer...',
+                success: 'Laporan Berhasil Dicetak!',
+                error: (err) => `Gagal: ${err}`
+            });
         } catch (error) {
-            alert("Bluetooth Error: " + error.message);
+            console.error(error);
         } finally {
             setIsBtPrinting(false);
         }
@@ -43,7 +55,14 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
     // --- AUTO PRINT EFFECT ---
     useEffect(() => {
         if (auto_print) {
-            const timer = setTimeout(() => window.print(), 1000);
+            const timer = setTimeout(() => {
+                const isAPK = typeof window !== 'undefined' && !!window.bluetoothSerial;
+                if (isAPK) {
+                    handleBluetoothPrint();
+                } else {
+                    window.print();
+                }
+            }, 1000);
             return () => clearTimeout(timer);
         }
     }, [auto_print]);
@@ -84,7 +103,6 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
                                 <IconCpu size={14} /> Metode Cetak
                             </p>
                             
-                            {/* Tombol Bluetooth Baru */}
                             <button 
                                 onClick={handleBluetoothPrint}
                                 disabled={isBtPrinting}
@@ -161,9 +179,9 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
 
                             {/* RINCIAN SALDO */}
                             <div className="py-1">
-                                {formatRow("MODAL AWAL", formatPrice(shift.starting_cash)) + "\n"}
-                                {formatRow("SALES TUNAI", formatPrice(shift.total_cash_expected)) + "\n"}
-                                {formatRow("PENGELUARAN", "-" + formatPrice(shift.total_expense || 0)) + "\n"}
+                                {formatRow("MODAL AWAL", formatPrice(startCash)) + "\n"}
+                                {formatRow("SALES TUNAI", formatPrice(cashSales)) + "\n"}
+                                {formatRow("PENGELUARAN", "-" + formatPrice(pettyCash)) + "\n"}
                             </div>
                             <span className="opacity-30">{".".repeat(C_WIDTH) + "\n"}</span>
                             

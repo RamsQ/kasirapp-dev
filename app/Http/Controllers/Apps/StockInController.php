@@ -57,12 +57,10 @@ class StockInController extends Controller
     }
 
     /**
-     * [UPDATE] Mengambil detail batch & integrasi analisis HPP Average.
-     * Mengembalikan data real total aset dan kontribusi tiap batch.
+     * Mengambil detail batch & kalkulasi aset.
      */
     public function getBatchDetail($id, $type)
     {
-        // 1. Identifikasi Master Data & Total Stok
         if ($type === 'products') {
             $master = Product::select('id', 'buy_price', 'title as name', 'stock')->findOrFail($id);
             $batchQuery = StockBatch::where('product_id', $id);
@@ -71,26 +69,15 @@ class StockInController extends Controller
             $batchQuery = StockBatch::where('ingredient_id', $id);
         }
 
-        // 2. Ambil Semua Batch yang masih memiliki sisa stok (FIFO Order)
-        $batches = $batchQuery->where('qty_remaining', '>', 0)
-            ->orderBy('created_at', 'asc') 
-            ->get();
-
+        $batches = $batchQuery->where('qty_remaining', '>', 0)->orderBy('created_at', 'asc')->get();
         $totalStock = (float) $master->stock;
+        $totalAssetValue = $batches->sum(fn($b) => (float)$b->qty_remaining * (float)$b->buy_price);
 
-        // 3. Hitung Total Nilai Aset Real (Σ Sisa Stok Batch * Harga Beli Batch)
-        $totalAssetValue = $batches->sum(function($batch) {
-            return (float)$batch->qty_remaining * (float)$batch->buy_price;
-        });
-
-        // 4. Kalkulasi Kontribusi HPP per Batch untuk Narasi Rumus
         $mappedBatches = $batches->map(function ($batch) use ($totalStock) {
             $subtotalValue = (float)$batch->qty_remaining * (float)$batch->buy_price;
-            $weight = $totalStock > 0 ? ($batch->qty_remaining / $totalStock) : 0;
-
             return array_merge($batch->toArray(), [
                 'subtotal' => $subtotalValue,
-                'weight' => round($weight * 100, 2), // Persentase kontribusi sisa stok
+                'weight' => $totalStock > 0 ? round(($batch->qty_remaining / $totalStock) * 100, 2) : 0,
                 'hpp_contribution' => $totalStock > 0 ? ($subtotalValue / $totalStock) : 0
             ]);
         });
@@ -120,66 +107,50 @@ class StockInController extends Controller
         try {
             DB::beginTransaction();
             foreach ($request->entries as $entry) {
-                $this->processStockUpdate($entry['id'], $entry['type'], $entry['qty_in'], $entry['buy_price']);
+                $this->processStockUpdate($entry['id'], $entry['type'], (float)$entry['qty_in'], (float)$entry['buy_price']);
             }
             DB::commit();
+            
             return redirect()->route('stock_in.index')->with('success', 'Stok Berhasil Diperbarui!');
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Manual Stock In Error: " . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
     /**
-     * Import Excel dengan Dual-Search & Deteksi Tipe Otomatis.
+     * Import via Excel.
      */
     public function parseExcel(Request $request)
     {
         $request->validate(['file' => 'required|mimes:xlsx,xls,csv|max:2048']);
-
         try {
             $data = Excel::toArray([], $request->file('file'));
             if (empty($data[0])) return redirect()->back()->with('error', 'File kosong.');
-
+            
             DB::beginTransaction();
             $rows = collect($data[0])->skip(1); 
             $processedCount = 0;
-
+            
             foreach ($rows as $row) {
                 $rawIdentifier = $row[0] ?? null;
                 if (!$rawIdentifier) continue;
-
-                $identifier = is_numeric($rawIdentifier) ? number_format((float)$rawIdentifier, 0, '', '') : trim((string)$rawIdentifier);
                 
+                $identifier = is_numeric($rawIdentifier) ? number_format((float)$rawIdentifier, 0, '', '') : trim((string)$rawIdentifier);
                 $price = isset($row[4]) ? (float)$row[4] : 0;
                 $qty   = isset($row[5]) ? (float)$row[5] : 0;
-
+                
                 if ($qty <= 0) continue;
-
-                $id = null;
-                $type = null;
-
+                
+                $id = null; $type = null;
                 if (str_starts_with($identifier, 'ING-')) {
                     $cleanId = str_replace('ING-', '', $identifier);
-                    if (Ingredient::where('id', $cleanId)->exists()) {
-                        $id = $cleanId;
-                        $type = 'ingredients';
-                    }
+                    if (Ingredient::where('id', $cleanId)->exists()) { $id = $cleanId; $type = 'ingredients'; }
                 } else {
-                    $product = Product::where('barcode', $identifier)->first();
-                    if ($product) {
-                        $id = $product->id;
-                        $type = 'products';
-                    } else {
-                        $productById = Product::find($identifier);
-                        if ($productById) {
-                            $id = $productById->id;
-                            $type = 'products';
-                        }
-                    }
+                    $product = Product::where('barcode', $identifier)->first() ?: Product::find($identifier);
+                    if ($product) { $id = $product->id; $type = 'products'; }
                 }
-
+                
                 if ($id && $type) {
                     $this->processStockUpdate($id, $type, $qty, $price);
                     $processedCount++;
@@ -189,13 +160,12 @@ class StockInController extends Controller
             return redirect()->route('stock_in.index')->with('success', "$processedCount data berhasil diperbarui.");
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error("Excel Import Error: " . $e->getMessage());
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
     /**
-     * Logika Core: Update Master, Movement, dan Batch.
+     * Logika Core: Atomic Increment & Bypass Constraints.
      */
     private function processStockUpdate($id, $type, $qtyIn, $priceIn)
     {
@@ -203,49 +173,68 @@ class StockInController extends Controller
         $userId = auth()->id();
 
         if ($type === 'products') {
-            $model = Product::findOrFail($id);
             $tableName = 'products';
-            $dataKeys = ['product_id' => $id, 'ingredient_id' => null];
+            $master = DB::table('products')->where('id', $id)->first();
+            $logPayload = ['product_id' => $id, 'ingredient_id' => null]; 
         } else {
-            $model = Ingredient::findOrFail($id);
             $tableName = 'ingredients';
-            $dataKeys = ['product_id' => null, 'ingredient_id' => $id];
+            $master = DB::table('ingredients')->where('id', $id)->first();
+            $logPayload = ['product_id' => null, 'ingredient_id' => $id];
         }
 
-        $qtyIn = (float)$qtyIn;
-        $priceIn = (float)$priceIn;
-        $currentStock = (float)$model->stock;
-        $currentPrice = (float)$model->buy_price;
+        if (!$master) {
+            throw new \Exception("Item dengan ID $id tidak ditemukan.");
+        }
 
-        // Hitung Moving Average (HPP Rata-rata tertimbang)
-        $newStock = $currentStock + $qtyIn;
-        $newPrice = ($newStock > 0) 
-            ? (($currentStock * $currentPrice) + ($qtyIn * $priceIn)) / $newStock 
-            : $priceIn;
+        $oldStock = (float) $master->stock;
+        $oldPrice = (float) $master->buy_price;
+        $newStock = $oldStock + $qtyIn;
+        $newPrice = ($newStock > 0) ? (($oldStock * $oldPrice) + ($qtyIn * $priceIn)) / $newStock : $priceIn;
 
-        StockMovement::create(array_merge($dataKeys, [
-            'user_id'   => $userId,
-            'type'      => 'in',
-            'qty'       => $qtyIn,
-            'price'     => $priceIn,
-            'reference' => $reference,
+        // 1. UPDATE STOK UTAMA (Atomic via DB::raw)
+        DB::table($tableName)->where('id', $id)->update([
+            'stock'      => DB::raw("stock + $qtyIn"),
+            'buy_price'  => $newPrice,
+            'updated_at' => now()
+        ]);
+
+        // 2. SIMPAN RIWAYAT (Manual insert untuk bypass constraint NOT NULL)
+        DB::table('stock_movements')->insert(array_merge($logPayload, [
+            'user_id'    => $userId,
+            'type'       => 'in',
+            'qty'        => $qtyIn,
+            'price'      => $priceIn,
+            'reference'  => $reference,
+            'created_at' => now(),
+            'updated_at' => now()
         ]));
 
-        StockBatch::create(array_merge($dataKeys, [
+        // 3. SIMPAN BATCH
+        DB::table('stock_batches')->insert(array_merge($logPayload, [
             'serial_number' => $reference,
             'qty_in'        => $qtyIn,
             'qty_remaining' => $qtyIn,
             'buy_price'     => $priceIn,
+            'created_at'    => now(),
+            'updated_at'    => now()
         ]));
-
-        DB::table($tableName)->where('id', $id)->update([
-            'stock'      => $newStock,
-            'buy_price'  => $newPrice,
-            'updated_at' => now()
-        ]);
     }
 
-    public function export() { return Excel::download(new StockInHistoryExport, 'Riwayat_Stock_In.xlsx'); }
-    public function exportProductTemplate() { return Excel::download(new ProductTemplateExport, 'Template_Stock_In_Produk.xlsx'); }
-    public function exportIngredientTemplate() { return Excel::download(new IngredientTemplateExport, 'Template_Stock_In_Bahan.xlsx'); }
+    /**
+     * FUNGSI EXPORT & TEMPLATE (Sinkron dengan web.php)
+     */
+    public function export() 
+    { 
+        return Excel::download(new StockInHistoryExport, 'Riwayat_Stock_In.xlsx'); 
+    }
+
+    public function exportProductTemplate() 
+    { 
+        return Excel::download(new ProductTemplateExport, 'Template_Stock_In_Produk.xlsx'); 
+    }
+
+    public function exportIngredientTemplate() 
+    { 
+        return Excel::download(new IngredientTemplateExport, 'Template_Stock_In_Bahan.xlsx'); 
+    }
 }

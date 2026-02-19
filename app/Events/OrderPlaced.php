@@ -14,28 +14,44 @@ class OrderPlaced implements ShouldBroadcast
 
     public $userId;
 
+    /**
+     * Create a new event instance.
+     */
     public function __construct($userId)
     {
+        // Tetap simpan userId untuk kebutuhan data broadcast jika diperlukan
         $this->userId = (int) $userId;
     }
 
+    /**
+     * Get the channels the event should broadcast on.
+     */
     public function broadcastOn()
     {
-        // SAMAKAN: Gunakan Channel (Public) bukan PrivateChannel
-        return new Channel('public-order.' . $this->userId);
+        /**
+         * Gunakan channel global 'orders' agar Kasir A dan Kasir B 
+         * bisa saling mendengarkan event satu sama lain.
+         */
+        return new Channel('orders');
     }
 
+    /**
+     * Nama event yang akan didengarkan oleh Laravel Echo
+     */
     public function broadcastAs()
     {
-        // SAMAKAN: Gunakan order.placed agar sesuai dengan listener di frontend
         return 'order.placed';
     }
 
+    /**
+     * Data yang akan dikirimkan ke frontend
+     */
     public function broadcastWith()
     {
         return [
-            'userId' => $this->userId,
+            'userId'  => $this->userId,
             'message' => 'Ada pesanan masuk baru!',
+            'time'    => now()->toDateTimeString(),
         ];
     }
 }

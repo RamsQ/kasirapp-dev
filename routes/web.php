@@ -88,14 +88,19 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     // 4. MODUL KATALOG & MASTER DATA
     // =============================================================
     Route::group(['middleware' => ['permission:products.index']], function () {
-        Route::resource('categories', CategoryController::class);
-        Route::resource('products', ProductController::class);
-        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-        Route::post('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulk_destroy');
-        Route::get('/products/template', [ProductController::class, 'template'])->name('products.template');
-        
-        Route::resource('/tables', TableController::class)->except(['create', 'edit', 'show']);
-        Route::get('/tables/print-qr', [TableController::class, 'printQr'])->name('tables.printQr');
+    Route::resource('categories', CategoryController::class);
+
+    // PINDAHKAN RUTE TEMPLATE KE SINI (DI ATAS RESOURCE)
+    Route::get('/products/template', [ProductController::class, 'template'])->name('products.template');
+    
+    // BARU KEMUDIAN RESOURCE
+    Route::resource('products', ProductController::class);
+
+    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+    Route::post('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulk_destroy');
+    
+    Route::resource('/tables', TableController::class)->except(['create', 'edit', 'show']);
+    Route::get('/tables/print-qr', [TableController::class, 'printQr'])->name('tables.printQr');
     });
 
     // =============================================================

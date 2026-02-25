@@ -330,13 +330,13 @@ export default function Login({ status, canResetPassword }) {
                             )}
                         </form>
                     )}
-                    
-                    <div className="mt-8 text-center">
+                 {/*   
+                   <div className="mt-8 text-center">
                         <p className="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">
                             Belum memiliki akun? {" "}
                             <Link href={route("register")} className="text-primary-600 hover:text-primary-700 font-black decoration-primary-600/30 hover:decoration-primary-600 underline underline-offset-4 transition-all">Daftar Sekarang</Link>
                         </p>
-                    </div>
+                       </div> */}
                 </div>
             </div>
 

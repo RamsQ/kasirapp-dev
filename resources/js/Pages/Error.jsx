@@ -51,13 +51,7 @@ export default function Error({ status }) {
 
                     {/* Button Section */}
                     <div className="flex justify-center gap-4">
-                        <Link
-                            href="/"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-600 font-medium transition-all"
-                        >
-                            <IconArrowLeft size={20} />
-                            Kembali
-                        </Link>
+ 
                         
                         {/* Jika 403/Login, tawarkan ke Dashboard yang aman */}
                         <Link

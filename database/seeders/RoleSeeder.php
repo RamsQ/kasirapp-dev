@@ -16,7 +16,7 @@ class RoleSeeder extends Seeder
         // Guard default
         $guard = 'web';
 
-        // Membuat Role akses departemen berdasarkan pola nama permission (Fitur Fix Anda)
+        // 1. Membuat Role akses departemen berdasarkan pola nama permission
         $this->createRoleWithPermissions('users-access', '%users%', $guard);
         $this->createRoleWithPermissions('roles-access', '%roles%', $guard);
         $this->createRoleWithPermissions('permission-access', '%permissions%', $guard);
@@ -28,19 +28,24 @@ class RoleSeeder extends Seeder
         $this->createRoleWithPermissions('profits-access', '%profits%', $guard);
         $this->createRoleWithPermissions('payment-settings-access', '%payment-settings%', $guard);
 
-        // Create super-admin role
+        // 2. Create/Update super-admin role
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => $guard]);
+        
+        // --- UPDATE PENTING ---
+        // Memberikan SEMUA permission ke super-admin agar sidebar muncul semua
+        $allPermissions = Permission::all();
+        $superAdmin->syncPermissions($allPermissions);
 
-        // Create cashier role with basic permissions for public registration
+        // 3. Create/Update cashier role
         $cashierRole = Role::firstOrCreate(['name' => 'cashier', 'guard_name' => $guard]);
         
-        // Daftar Permission untuk Kasir (Disesuaikan dengan kunci baru di web.php)
+        // Daftar Permission untuk Kasir
         $cashierPermissions = Permission::whereIn('name', [
             'dashboard.index',      // Akses masuk dashboard
             'dashboard-access',     // Legacy support
             'transactions.index',   // Akses menu kasir
             'transactions-access',  // Legacy support
-            'shifts.index',         // Buka/Tutup shift (Penting untuk operasional)
+            'shifts.index',         // Buka/Tutup shift
             'customers-access',
             'customers-create',
         ])->get();

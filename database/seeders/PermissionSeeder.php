@@ -16,7 +16,7 @@ class PermissionSeeder extends Seeder
         // Guard default
         $guard = 'web';
 
-        // Daftar Permission Lengkap (Index, Create, Update, Delete)
+        // Daftar Permission Lengkap (Disesuaikan untuk fitur POS, Stok, dan Resep)
         $permissions = [
             // --- DASHBOARD & SISTEM ---
             'dashboard.index',
@@ -40,8 +40,8 @@ class PermissionSeeder extends Seeder
             'discounts.index', 'discounts-access', 'discounts-create', 'discounts-edit', 'discounts-delete',
 
             // --- INVENTORY: BAHAN, RESEP & STOK ---
-            'ingredients.index', 'ingredients.create', 'ingredients.edit', 'ingredients.delete',
-            'recipes.index', 'recipes.create', 'recipes.edit', 'recipes.delete',
+            'ingredients.index', 'ingredients-access', 'ingredients.create', 'ingredients.edit', 'ingredients.delete',
+            'recipes.index', 'recipes-access', 'recipes.create', 'recipes.edit', 'recipes.delete',
             'stock-access', 'stock_in.index', 'stock_in.create', 'stock_in.delete',
             'stock_opnames.index', 'stock_opnames.create', 'stock_opnames.delete',
 
@@ -69,7 +69,8 @@ class PermissionSeeder extends Seeder
         }
 
         // --- AUTOMATISASI: SYNC KE SUPER-ADMIN ---
-        // Mencari role super-admin dan memberikan semua permission yang baru saja dibuat
+        // Mencari role super-admin dan memberikan semua permission yang baru saja dibuat.
+        // Ini memastikan admin tidak terkunci aksesnya saat ada permission baru.
         $superAdmin = Role::where('name', 'super-admin')->first();
         if ($superAdmin) {
             $superAdmin->syncPermissions(Permission::all());

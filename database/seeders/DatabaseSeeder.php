@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,            // 2. Buat grup/peran (Gantungan Kunci)
             UserSeeder::class,            // 3. Buat pengguna & tempelkan role (Pemegang Kunci)
             PaymentSettingSeeder::class,  // 4. Konfigurasi pembayaran (Fix)
-            SampleDataSeeder::class,      // 5. Data dummy untuk testing (Fix)
+            //SampleDataSeeder::class,      // 5. Data dummy untuk testing (Fix)
         ]);
 
         $this->command->info('Database seeding completed and permission cache cleared!');

@@ -3,13 +3,27 @@
 namespace App\Http\Controllers\Apps;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Product, Table, Category};
+use App\Models\{Product, Table, Category, Discount}; // Menambahkan Discount ke daftar model
 use Inertia\Inertia;
 
 class PublicMenuController extends Controller 
 {
     public function index($table_id = null) 
     {
+        // 1. AMBIL SEMUA PROMO YANG AKTIF SAAT INI
+        $activePromos = Discount::with(['product', 'bonusProduct'])
+            ->where('is_active', true)
+            ->where(function($q) {
+                $q->whereNull('start_date')
+                  ->orWhere('start_date', '<=', now());
+            })
+            ->where(function($q) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '>=', now());
+            })
+            ->get();
+
+        // 2. AMBIL DATA PRODUK DENGAN LOGIKA KETERSEDIAAN STOK/RESEP (FITUR FIX)
         $products = Product::with(['recipes.ingredient'])
             ->where(function ($query) {
                 // Produk muncul jika stok fisik > 0 ATAU punya resep
@@ -47,10 +61,12 @@ class PublicMenuController extends Controller
                 return $product;
             });
 
+        // 3. RENDER KE FRONTEND
         return Inertia::render('Public/CustomerMenu', [
-            'products'   => $products,
-            'table'      => $table_id ? Table::find($table_id) : null,
-            'categories' => Category::orderBy('name')->get(),
+            'products'     => $products,
+            'activePromos' => $activePromos, // Data promo dikirim ke Frontend
+            'table'        => $table_id ? Table::find($table_id) : null,
+            'categories'   => Category::orderBy('name')->get(),
         ]);
     }
 }

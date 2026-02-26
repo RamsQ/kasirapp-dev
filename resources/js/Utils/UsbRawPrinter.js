@@ -55,6 +55,16 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
         const details = Array.isArray(transaction.details) ? transaction.details : [];
         const noAntrean = transaction.queue_number || details[0]?.queue_number || (transaction.customer_name?.match(/Q-\d+/)?.[0]) || "----";
 
+        // Helper Label Metode
+        const getPaymentLabel = (method) => {
+            const m = method?.toLowerCase();
+            if (m === 'cash') return "TUNAI";
+            if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
+            if (m === 'qris_manual') return "QRIS STATIS"; 
+            if (m === 'transfer') return "TRANSFER";
+            return (method || "CASH").toUpperCase();
+        };
+
         // HEADER (CENTER)
         result.raw([0x1b, 0x61, 0x01]); 
         result.bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
@@ -73,31 +83,37 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
             if (transaction.customer_name && transaction.customer_name.includes('#')) {
                 return transaction.customer_name.split('#').pop().trim();
             }
-            return (transaction.invoice || "").replace(/[^0-9]/g, '').slice(-4);
+            return (transaction.invoice || "").replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
         };
         const displayCode = getDisplayCode();
         
-        result.line(formatRow("Kode Pesan:", "#" + displayCode));
+        result.line(formatRow("Order:", "#" + displayCode));
         result.line(formatRow("Tgl:", formatDate(transaction.created_at)));
         result.line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)));
-        result.line(formatRow("Meja:", clean(transaction.table_name || "TAKE AWAY").toUpperCase()));
         result.line(formatRow("Kasir:", clean(transaction.cashier?.name?.split(' ')[0] || "KASIR").toUpperCase()));
         result.line("-".repeat(C_WIDTH));
 
-        // LIST ITEMS
+        // LIST ITEMS & HITUNG DISKON OTOMATIS
         let calculatedSubtotal = 0;
         details.forEach(item => {
-            const isPromo = item.notes?.includes('BONUS PROMO') || parseFloat(item.price) === 0;
+            const isFree = item.notes?.includes('BONUS PROMO') || parseFloat(item.price) === 0;
             const title = clean(item.product?.title || item.product_title || "PRODUK").toUpperCase();
-            const price = parseFloat(item.price || 0);
+            
+            // Logika COGS/Price
+            const normalPricePerItem = parseFloat(item.product?.sell_price || 0);
+            const actualPriceTotal = parseFloat(item.price || 0);
             const qty = parseFloat(item.qty || 0);
 
-            if (!isPromo) calculatedSubtotal += price;
+            // Jika harga jual di database lebih mahal dari harga deal di item, anggap selisihnya diskon grosir
+            if (!isFree) {
+                const normalTotal = normalPricePerItem * qty;
+                calculatedSubtotal += (normalTotal > 0) ? normalTotal : actualPriceTotal;
+            }
 
             result.bold(true).line(title).bold(false);
             result.line(formatRow(
-                `${qty.toFixed(0)} x ${isPromo ? '0' : Math.round(price/qty).toLocaleString('id-ID')}`, 
-                isPromo ? 'FREE' : Math.round(price).toLocaleString('id-ID')
+                `${qty.toFixed(0)} x ${isFree ? '0' : Math.round(actualPriceTotal/qty).toLocaleString('id-ID')}`, 
+                isFree ? 'FREE' : Math.round(actualPriceTotal).toLocaleString('id-ID')
             ));
             
             // LOGIKA BUNDLING
@@ -119,13 +135,13 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
         result.line("-".repeat(C_WIDTH));
         if (actualDiscount > 0) {
             result.line(formatRow("SUBTOTAL", Math.round(calculatedSubtotal).toLocaleString('id-ID')));
-            result.line(formatRow("DISKON", `-${Math.round(actualDiscount).toLocaleString('id-ID')}`));
+            result.line(formatRow("DISKON TOTAL", `-${Math.round(actualDiscount).toLocaleString('id-ID')}`));
         }
 
         result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
         result.line(formatRow("BAYAR", Math.round(cashReceived).toLocaleString('id-ID')));
         result.line(formatRow("KEMBALI", Math.round(changeAmount).toLocaleString('id-ID')));
-        result.line(formatRow("METODE", clean(transaction.payment_method || 'CASH').toUpperCase()));
+        result.line(formatRow("METODE", getPaymentLabel(transaction.payment_method)));
         
         if (transaction.online_platform) {
             result.line(formatRow("PLATFORM", clean(transaction.online_platform).toUpperCase()));
@@ -155,7 +171,7 @@ export const printBillUsb = async (transaction, receiptSetting) => {
 
         const qNum = transaction.queue_number || (transaction.cart_data && transaction.cart_data[0]?.queue_number) || (transaction.customer_name?.match(/Q-\d+/)?.[0]) || "----";
         const rawCode = transaction.reference_code || transaction.ref_number || transaction.invoice || "0000";
-        const displayCode = rawCode.toString().replace(/[^0-9]/g, '').slice(-4);
+        const displayCode = rawCode.toString().replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
 
         result.raw([0x1b, 0x61, 0x01]);
         result.bold(true).line("BILL / TAGIHAN").bold(false)
@@ -178,7 +194,8 @@ export const printBillUsb = async (transaction, receiptSetting) => {
             const title = clean(item.product_title || item.product?.title || "PRODUK").toUpperCase();
             const p = parseFloat(item.price || 0);
             const q = parseFloat(item.qty || 0);
-            subtotalBill += p;
+            const normalPrice = parseFloat(item.product?.sell_price || (p/q));
+            subtotalBill += (normalPrice * q);
 
             result.bold(true).line(title).bold(false);
             result.line(formatRow(`${q.toFixed(0)} x ${Math.round(p/q).toLocaleString('id-ID')}`, Math.round(p).toLocaleString('id-ID')));
@@ -213,7 +230,7 @@ export const printBillUsb = async (transaction, receiptSetting) => {
     } catch (error) { throw error; }
 };
 
-// --- FUNGSI 3: PRINT LAPORAN SHIFT ---
+// --- FUNGSI 3: PRINT LAPORAN SHIFT (SINKRON TUNAI VS DIGITAL) ---
 export const printShiftUsbRaw = async (shift, receiptSetting) => {
     try {
         const device = await navigator.usb.requestDevice({ filters: [] });
@@ -239,20 +256,28 @@ export const printShiftUsbRaw = async (shift, receiptSetting) => {
         result.line(formatRow("TUTUP:", formatDate(shift.closed_at)));
         result.line("-".repeat(C_WIDTH));
 
-        result.line(formatRow("MODAL AWAL", formatPrice(shift.starting_cash)));
-        result.line(formatRow("SALES TUNAI", formatPrice(shift.total_cash_expected)));
-        result.line(formatRow("KAS KELUAR", "-" + formatPrice(shift.total_expense)));
+        const cashSales = parseFloat(shift.total_cash_sales || 0);
+        const pettyCash = parseFloat(shift.total_expense || 0);
+        const startCash = parseFloat(shift.starting_cash || 0);
+        const systemSaldo = (startCash + cashSales) - pettyCash;
+
+        result.line(formatRow("MODAL AWAL", formatPrice(startCash)));
+        result.line(formatRow("SALES TUNAI", formatPrice(cashSales)));
+        result.line(formatRow("KAS KELUAR", "-" + formatPrice(pettyCash)));
         
         result.line(".".repeat(C_WIDTH));
         
-        const systemCash = parseFloat(shift.starting_cash) + parseFloat(shift.total_cash_expected) - parseFloat(shift.total_expense);
-        result.line(formatRow("TOTAL SISTEM", formatPrice(systemCash)));
+        result.line(formatRow("SISTEM LACI", formatPrice(systemSaldo)));
         result.bold(true).line(formatRow("FISIK LACI", formatPrice(shift.total_cash_actual))).bold(false);
         
         result.line("-".repeat(C_WIDTH));
 
         result.bold(true).line(formatRow("SELISIH", formatPrice(shift.difference))).bold(false);
-        result.line(formatRow("TOTAL QRIS", formatPrice(shift.total_qris_sales)));
+
+        // INFO DIGITAL (Bank)
+        result.newline().raw([0x1b, 0x61, 0x01]).line("INFO PENDAPATAN DIGITAL").raw([0x1b, 0x61, 0x00]);
+        result.line(formatRow("QRIS STATIS/AUTO", formatPrice(shift.total_qris_sales)));
+        result.line(formatRow("TRANSFER BANK", formatPrice(shift.total_transfer_sales || 0)));
         
         result.line("-".repeat(C_WIDTH));
 

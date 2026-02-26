@@ -105,12 +105,24 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         let result = encoder.initialize().codepage('windows1252');
         const details = Array.isArray(transaction.details) ? transaction.details : [];
 
+        const getPaymentLabel = (method) => {
+            const m = method?.toLowerCase();
+            if (m === 'cash') return "TUNAI";
+            if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
+            if (m === 'qris_manual') return "QRIS STATIS";
+            if (m === 'transfer') return "TRANSFER";
+            return (method || "CASH").toUpperCase();
+        };
+
         const queueNum = transaction.queue_number || "----";
-        const orderCode = (transaction.invoice || "").toString().replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
+        const orderCode = transaction.reference_code 
+            ? transaction.reference_code.toString().replace("#", "") 
+            : (transaction.invoice ? transaction.invoice.slice(-4) : "0000");
         
         const grandTotal = parseFloat(transaction.grand_total || 0);
-        const discount = parseFloat(transaction.discount || 0);
-        const subtotalGross = grandTotal + discount;
+        // FIX: Mendukung tampilan diskon total yang dihitung dari Print.jsx
+        const totalDiscount = parseFloat(transaction.discount || 0);
+        const subtotalGross = grandTotal + totalDiscount;
 
         // HEADER
         result.raw([0x1b, 0x61, 0x01]) // Center
@@ -122,18 +134,17 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
 
         // METADATA
         result.raw([0x1b, 0x61, 0x00]) // Left
+              .line(formatRow("Order:", "#" + orderCode))
               .line(formatRow("No. Trx:", clean(transaction.invoice)))
-              .line(formatRow("Kode Pesan:", "#" + orderCode));
+              .line(formatRow("Tgl:", formatDate(transaction.created_at)))
+              .line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)))
+              .line(formatRow("Kasir:", clean(transaction.cashier?.name || "KASIR").split(' ')[0].toUpperCase()));
 
-        // PLATFORM ONLINE
         if (transaction.online_platform) {
             result.line(formatRow("Platform:", clean(transaction.online_platform).toUpperCase()));
         }
 
-        result.line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)))
-              .line(formatRow("Tgl:", formatDate(transaction.created_at)))
-              .line(formatRow("Kasir:", clean(transaction.cashier?.name || "KASIR").split(' ')[0].toUpperCase()))
-              .line("-".repeat(C_WIDTH));
+        result.line("-".repeat(C_WIDTH));
 
         // ITEMS
         details.forEach(item => {
@@ -150,31 +161,27 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         // TOTALS
         result.line("-".repeat(C_WIDTH));
         
-        if (discount > 0) {
+        if (totalDiscount > 0) {
             result.line(formatRow("SUBTOTAL", Math.round(subtotalGross).toLocaleString('id-ID')));
-            result.line(formatRow("DISKON", "-" + Math.round(discount).toLocaleString('id-ID')));
+            result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
         }
 
         result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false)
               .line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
               .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')))
-              .line(formatRow("METODE", clean(transaction.payment_method || 'CASH').toUpperCase()))
+              .line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
               .line("-".repeat(C_WIDTH));
 
-        // --- FITUR BARU: QRIS DYNAMIC QRCODE ---
+        // QRCODE PEMBAYARAN (JIKA ADA)
         if (transaction.payment_url) {
-            result.raw([0x1b, 0x61, 0x01]) // Center
-                  .newline()
-                  .line("SCAN UNTUK BAYAR")
-                  .newline()
-                  .qrcode(transaction.payment_url, 1, 6, 'm') // Model 1, Size 6, EC level M
-                  .newline()
-                  .line("GOPAY/QRIS/M-BANKING")
-                  .newline();
+            result.raw([0x1b, 0x61, 0x01])
+                  .newline().line("SCAN UNTUK BAYAR").newline()
+                  .qrcode(transaction.payment_url, 1, 6, 'm')
+                  .newline().line("GOPAY/QRIS/M-BANKING").newline();
         }
 
         // FOOTER
-        result.raw([0x1b, 0x61, 0x01]) // Center
+        result.raw([0x1b, 0x61, 0x01])
               .line(clean(receiptSetting?.store_footer || "Terima Kasih"))
               .newline().newline().newline().newline();
 
@@ -183,7 +190,7 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
     } catch (error) { throw error; }
 };
 
-// --- FUNGSI LAPORAN SHIFT ---
+// --- FUNGSI LAPORAN SHIFT (SINKRON AUDIT LACI) ---
 export const printShiftBluetooth = async (shift, receiptSetting) => {
     try {
         const encoder = new EscPosEncoder();
@@ -191,13 +198,12 @@ export const printShiftBluetooth = async (shift, receiptSetting) => {
         const fPrice = (p) => Math.round(parseFloat(p || 0)).toLocaleString('id-ID');
 
         const cashSales = parseFloat(shift.total_cash_sales || 0);
-        const pettyCash = parseFloat(shift.petty_cash_out || shift.total_expense || 0);
+        const pettyCash = parseFloat(shift.total_expense || shift.petty_cash_out || 0);
         const startCash = parseFloat(shift.starting_cash || 0);
         const systemSaldo = (startCash + cashSales) - pettyCash;
 
         result.raw([0x1b, 0x61, 0x01]).bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
-              .line("LAPORAN TUTUP SHIFT")
-              .line("-".repeat(C_WIDTH));
+              .line("LAPORAN TUTUP SHIFT").line("-".repeat(C_WIDTH));
 
         result.raw([0x1b, 0x61, 0x00]) // Left
               .line(formatRow("KASIR:", clean(shift.user?.name || "KASIR").toUpperCase()))
@@ -209,20 +215,22 @@ export const printShiftBluetooth = async (shift, receiptSetting) => {
               .line(formatRow("SALES TUNAI", fPrice(cashSales)))
               .line(formatRow("KAS KELUAR", "-" + fPrice(pettyCash)))
               .line(".".repeat(C_WIDTH))
-              .line(formatRow("TOTAL SISTEM", fPrice(systemSaldo)))
+              .line(formatRow("SISTEM LACI", fPrice(systemSaldo)))
               .bold(true).line(formatRow("FISIK LACI", fPrice(shift.total_cash_actual || shift.total_physical_cash))).bold(false)
               .line("-".repeat(C_WIDTH))
-              .bold(true).line(formatRow("SELISIH", fPrice(shift.difference))).bold(false)
-              .line(formatRow("TOTAL QRIS", fPrice(shift.total_qris_sales)));
+              .bold(true).line(formatRow("SELISIH", fPrice(shift.difference))).bold(false);
+
+        // INFO DIGITAL (Tidak dihitung ke selisih laci)
+        result.newline().line("INFO PENDAPATAN DIGITAL:")
+              .line(formatRow("QRIS/BANK", fPrice(shift.total_qris_sales + (shift.total_transfer_sales || 0))))
+              .line("-".repeat(C_WIDTH));
               
         if (parseFloat(shift.total_discounts) > 0) {
             result.line(formatRow("TOT. DISKON", fPrice(shift.total_discounts)));
         }
 
-        result.line("-".repeat(C_WIDTH));
-
         result.raw([0x1b, 0x61, 0x01]) // Center
-              .line("TANDA TANGAN").newline().newline()
+              .newline().line("TANDA TANGAN").newline().newline()
               .line("(...........)")
               .line("WAKTU CETAK:").line(formatDate(new Date()))
               .newline().newline().newline().newline().newline();

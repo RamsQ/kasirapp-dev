@@ -31,6 +31,7 @@
         "@capacitor/cli": "^8.0.1",
         "@capacitor/core": "^8.0.1",
         "@tabler/icons-react": "^3.5.0",
+        "canvas-confetti": "^1.9.4",
         "chart.js": "^4.5.1",
         "cordova-plugin-bluetooth-serial": "^0.4.7",
         "esc-pos-encoder": "^3.0.0",

@@ -11,7 +11,8 @@ export default function Create({ products }) {
         value: "",
         product_id: "",       // Jika kosong = Global/Semua Produk
         bonus_product_id: "", 
-        min_transaction: 0,   // Digunakan untuk Minimal Belanja (Rp)
+        min_transaction: 0,   // Digunakan untuk Minimal Belanja (Rp) - Khusus Tipe Fixed
+        minimum_item: 1,      // Digunakan untuk Minimal Barang (Qty) - Khusus Tipe Percentage & Buy_Get
         start_date: new Date().toISOString().split("T")[0],
         end_date: "",
         description: ""
@@ -25,6 +26,9 @@ export default function Create({ products }) {
             }
         });
     };
+
+    // Helper untuk mengecek apakah tipe promo menggunakan syarat Qty
+    const isQtyBased = ['percentage', 'buy_get'].includes(data.type);
 
     return (
         <>
@@ -43,7 +47,7 @@ export default function Create({ products }) {
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-slate-900 dark:text-white">Buat Promo Baru</h1>
-                            <p className="text-sm text-slate-500">Buat diskon produk atau diskon total belanja.</p>
+                            <p className="text-sm text-slate-500">Buat diskon produk, potongan invoice, atau hadiah produk.</p>
                         </div>
                     </div>
                     
@@ -55,7 +59,7 @@ export default function Create({ products }) {
                                 type="text" 
                                 value={data.name} 
                                 onChange={e => setData('name', e.target.value)} 
-                                placeholder="Contoh: Diskon Gajian 50rb / Promo Member" 
+                                placeholder="Contoh: Diskon Kuantitas / Beli 3 Diskon 10%" 
                                 className="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-primary-500 focus:border-primary-500 transition-all" 
                             />
                             {errors.name && <div className="text-red-500 text-xs mt-1 font-medium">{errors.name}</div>}
@@ -115,21 +119,21 @@ export default function Create({ products }) {
                             {/* Produk Utama (Target) */}
                             <div className={data.type === 'buy_get' ? 'md:col-span-1' : 'md:col-span-2'}>
                                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                                    <IconPackage size={18} className="text-slate-400"/> {data.type === 'buy_get' ? 'Produk yang Dibeli' : 'Berlaku Untuk'}
+                                    <IconPackage size={18} className="text-slate-400"/> {data.type === 'fixed' ? 'Berlaku Untuk' : 'Produk Syarat (Trigger)'}
                                 </label>
                                 <select 
                                     value={data.product_id} 
                                     onChange={e => setData('product_id', e.target.value)} 
                                     className="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-primary-500 cursor-pointer"
                                 >
-                                    <option value="">{data.type === 'buy_get' ? '-- Pilih Produk --' : 'Semua Produk (Total Belanja)'}</option>
+                                    <option value="">{data.type === 'fixed' ? 'Semua Produk (Total Belanja)' : '-- Pilih Produk --'}</option>
                                     {products && products.map((p) => (
                                         <option key={p.id} value={p.id}>{p.title}</option>
                                     ))}
                                 </select>
-                                {data.product_id === "" && data.type !== 'buy_get' && (
-                                    <p className="text-[10px] text-primary-500 mt-2 flex items-center gap-1 italic">
-                                        <IconInfoCircle size={12}/> Pilih "Semua Produk" jika ingin membuat diskon berdasarkan Total Belanja (Contoh: Belanja 50rb potong 5rb).
+                                {data.product_id === "" && data.type !== 'fixed' && (
+                                    <p className="text-[10px] text-red-500 mt-2 flex items-center gap-1 italic">
+                                        <IconInfoCircle size={12}/> Promo berbasis Qty wajib memilih produk spesifik.
                                     </p>
                                 )}
                             </div>
@@ -155,29 +159,42 @@ export default function Create({ products }) {
                             )}
                         </div>
 
-                        {/* Minimal Belanja / Qty */}
-                        <div className="p-5 bg-primary-50/30 dark:bg-primary-900/10 rounded-2xl border border-primary-100 dark:border-primary-900/30">
-                            <label className="block text-sm font-bold text-primary-700 dark:text-primary-400 mb-2">
-                                {data.type === 'buy_get' ? 'Syarat Minimal Pembelian (Qty)' : 'Syarat Minimal Belanja (Rp)'}
+                        {/* Minimal Belanja / Qty - DIPERBAIKI: Percentage & Buy_Get menggunakan Qty */}
+                        <div className={`p-5 rounded-2xl border ${isQtyBased ? 'bg-emerald-50/30 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-900/30' : 'bg-primary-50/30 dark:bg-primary-900/10 border-primary-100 dark:border-primary-900/30'}`}>
+                            <label className={`block text-sm font-bold mb-2 ${isQtyBased ? 'text-emerald-700 dark:text-emerald-400' : 'text-primary-700 dark:text-primary-400'}`}>
+                                {isQtyBased ? 'Syarat Minimal Pembelian (Qty)' : 'Syarat Minimal Belanja (Rp)'}
                             </label>
                             <div className="relative">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-primary-600 font-bold text-sm">
-                                    {data.type === 'buy_get' ? 'Qty' : 'Rp'}
+                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm ${isQtyBased ? 'text-emerald-600' : 'text-primary-600'}`}>
+                                    {isQtyBased ? 'Qty' : 'Rp'}
                                 </span>
-                                <input 
-                                    type="number" 
-                                    value={data.min_transaction} 
-                                    onChange={e => setData('min_transaction', e.target.value)} 
-                                    placeholder={data.type === 'buy_get' ? 'Contoh: 2' : 'Contoh: 50000'} 
-                                    className="w-full pl-12 pr-4 py-3 rounded-xl border-primary-200 dark:border-primary-900/50 dark:bg-slate-800 dark:text-white focus:ring-primary-500" 
-                                />
+                                {isQtyBased ? (
+                                    /* INPUT UNTUK KUANTITAS (Tipe Persentase & Buy_Get) */
+                                    <input 
+                                        type="number" 
+                                        value={data.minimum_item} 
+                                        onChange={e => setData('minimum_item', e.target.value)} 
+                                        placeholder="Contoh: 3 (Minimal beli 3 item)" 
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-emerald-200 dark:border-emerald-900/50 dark:bg-slate-800 dark:text-white focus:ring-emerald-500" 
+                                    />
+                                ) : (
+                                    /* INPUT UNTUK NOMINAL UANG (Tipe Fixed) */
+                                    <input 
+                                        type="number" 
+                                        value={data.min_transaction} 
+                                        onChange={e => setData('min_transaction', e.target.value)} 
+                                        placeholder="Contoh: 50000" 
+                                        className="w-full pl-12 pr-4 py-3 rounded-xl border-primary-200 dark:border-primary-900/50 dark:bg-slate-800 dark:text-white focus:ring-primary-500" 
+                                    />
+                                )}
                             </div>
-                            <p className="text-[11px] text-slate-500 mt-2">
-                                {data.type === 'buy_get' 
-                                    ? `*Contoh: Jika diisi 2, maka beli 2 produk target akan mendapatkan gratis 1 produk bonus.`
-                                    : `*Promo akan aktif otomatis di kasir jika total belanja mencapai nominal ini.`}
+                            <p className="text-[11px] text-slate-500 mt-2 italic">
+                                {data.type === 'percentage' && `*Diskon % baru akan aktif jika jumlah produk yang dibeli mencapai Qty ini.`}
+                                {data.type === 'buy_get' && `*Beli minimal ${data.minimum_item} Qty untuk mendapatkan produk bonus.`}
+                                {data.type === 'fixed' && `*Potongan nominal aktif jika total belanja mencapai Rp ${Number(data.min_transaction).toLocaleString('id-ID')}.`}
                             </p>
                             {errors.min_transaction && <div className="text-red-500 text-xs mt-1 font-medium">{errors.min_transaction}</div>}
+                            {errors.minimum_item && <div className="text-red-500 text-xs mt-1 font-medium">{errors.minimum_item}</div>}
                         </div>
 
                         {/* Periode */}
@@ -201,6 +218,17 @@ export default function Create({ products }) {
                                 />
                                 {errors.end_date && <div className="text-red-500 text-xs mt-1 font-medium">{errors.end_date}</div>}
                             </div>
+                        </div>
+
+                        {/* Deskripsi */}
+                        <div>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Deskripsi Promo (Opsional)</label>
+                            <textarea 
+                                value={data.description} 
+                                onChange={e => setData('description', e.target.value)} 
+                                placeholder="Jelaskan detail promo ini..."
+                                className="w-full px-4 py-3 rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-primary-500 h-24"
+                            />
                         </div>
 
                         <div className="pt-6 flex justify-end">

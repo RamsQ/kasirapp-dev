@@ -28,7 +28,7 @@ class ProfitReportController extends Controller
             'customer_id'=> $request->input('customer_id'),
         ];
 
-        // Query dasar transaksi
+        // Query dasar transaksi (Sudah difilter agar mengecualikan status 'refunded')
         $baseQuery = $this->applyFilters(
             Transaction::query(),
             $filters
@@ -45,13 +45,14 @@ class ProfitReportController extends Controller
 
         $transactionIds = (clone $baseQuery)->pluck('id');
 
-        // 2. PENJUALAN BRUTO (Omzet Kotor)
+        // 2. PENJUALAN BRUTO (Omzet Kotor dari transaksi yang valid)
         $revenueTotal = (clone $baseQuery)->sum('grand_total');
 
         // 3. BEBAN KOMISI APLIKASI
         $appExpenseAccount = (clone $baseQuery)->sum(DB::raw('total_markup + total_fee'));
 
         // 4. MARGIN KOTOR (Profit dari Penjualan Produk sebelum dipotong beban operasional)
+        // Kita hanya mengambil profit dari ID transaksi yang statusnya bukan refunded
         $grossMargin = $transactionIds->isNotEmpty()
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
@@ -60,7 +61,6 @@ class ProfitReportController extends Controller
         $totalHpp = $revenueTotal - $appExpenseAccount - $grossMargin;
 
         // 6. TOTAL BEBAN OPERASIONAL (Expenses / Kas Keluar)
-        // Kita hitung beban berdasarkan filter tanggal yang sama dengan laporan
         $totalOperatingExpenses = Expense::query()
             ->when($filters['start_date'], fn ($q, $start) => $q->whereDate('date', '>=', $start))
             ->when($filters['end_date'], fn ($q, $end) => $q->whereDate('date', '<=', $end))
@@ -79,7 +79,7 @@ class ProfitReportController extends Controller
             ? TransactionDetail::whereIn('transaction_id', $transactionIds)->sum('qty')
             : 0;
 
-        // Ambil transaksi terbaik berdasarkan profit terbesar
+        // Ambil transaksi terbaik berdasarkan profit terbesar (hanya transaksi valid)
         $bestTransaction = (clone $baseQuery)
             ->withSum('profits as total_profit', 'total')
             ->get()
@@ -92,9 +92,9 @@ class ProfitReportController extends Controller
             'app_expenses'     => (int) $appExpenseAccount,
             'total_hpp'        => (int) $totalHpp,
             'net_revenue'      => (int) $netRevenue,
-            'operating_expense'=> (int) $totalOperatingExpenses, // Data baru untuk UI
-            'profit_total'     => (int) $netProfitFinal,      // Sekarang sudah dipotong beban
-            'gross_margin'     => (int) $grossMargin,         // Margin sebelum beban
+            'operating_expense'=> (int) $totalOperatingExpenses, 
+            'profit_total'     => (int) $netProfitFinal, 
+            'gross_margin'     => (int) $grossMargin, 
             'orders_count'     => (int) $ordersCount,
             'items_sold'       => (int) $itemsSold,
             'average_profit'   => $ordersCount > 0 ? (int) round($netProfitFinal / $ordersCount) : 0,
@@ -114,11 +114,13 @@ class ProfitReportController extends Controller
 
     /**
      * Apply table filters
+     * Diperbarui untuk menggunakan kolom 'status' demi akurasi Laporan Keuntungan.
      */
     protected function applyFilters($query, array $filters)
     {
         return $query
-            ->where('payment_status', '!=', 'refunded')
+            // Pastikan data refund dikeluarkan dari perhitungan Laba/Rugi
+            ->where('status', '!=', 'refunded')
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))

@@ -264,7 +264,15 @@ class TransactionController extends Controller
                 $hold = $request->hold_id ? Hold::find($request->hold_id) : null;
                 $finalReferenceCode = $hold ? $hold->reference_code : ($request->reference_code ?? Str::random(4));
 
+                /**
+                 * FIX BUG LOMPAT NOMOR: 
+                 * Jika ada hold_id, pastikan ambil queue_number yang sudah digenerate sebelumnya.
+                 */
                 $finalQueueNumber = $request->queue_number;
+                if ($hold && $hold->queue_number) {
+                    $finalQueueNumber = $hold->queue_number;
+                }
+
                 if (!$finalQueueNumber) {
                     $todayCount = Transaction::whereDate('created_at', now())->count() + Hold::whereDate('created_at', now())->count();
                     $finalQueueNumber = 'Q-' . str_pad($todayCount + 1, 3, '0', STR_PAD_LEFT);
@@ -522,6 +530,46 @@ class TransactionController extends Controller
         } catch (\Exception $e) { return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()], 500); }
     }
 
+    /**
+     * REVIEW PRINT BILL (DRAF SEBELUM BAYAR)
+     */
+    public function printBill($id)
+    {
+        $hold = Hold::with('table')->findOrFail($id);
+
+        $transaction = (object) [
+            'invoice'         => $hold->ref_number,
+            'created_at'      => $hold->created_at,
+            'customer_name'   => $hold->customer_name ?? 'Pelanggan',
+            'table_name'      => $hold->table->name ?? 'BAWA PULANG',
+            'queue_number'    => $hold->queue_number,
+            'grand_total'     => $hold->total,
+            'cashier'         => (object) ['name' => auth()->user()->name],
+            'payment_method' => 'BELUM BAYAR',
+            'cash'           => 0,
+            'change'         => 0,
+            'details'        => collect($hold->cart_data)->map(function($item) {
+                return (object) [
+                    'qty'   => $item['qty'],
+                    'price' => $item['price'],
+                    'notes' => $item['notes'] ?? null,
+                    'product' => (object) [
+                        'title' => $item['product']['title'] ?? 'Produk',
+                        'sell_price' => $item['sell_price'] ?? 0,
+                        'unit'  => $item['unit'] ?? 'Pcs'
+                    ]
+                ];
+            })
+        ];
+
+        return Inertia::render('Dashboard/Transactions/Print', [
+            'transaction'    => $transaction,
+            'receiptSetting' => ReceiptSetting::first(),
+            'isBill'         => true,
+            'autoPrint'      => true
+        ]);
+    }
+
     public function history(Request $request)
     {
         $query = Transaction::query()
@@ -544,6 +592,64 @@ class TransactionController extends Controller
             'transactions' => $transactions, 
             'filters' => $request->all(['invoice', 'start_date', 'end_date', 'payment_method'])
         ]);
+    }
+
+    /**
+     * Handle Refund Transaksi (Hanya Super Admin)
+     */
+    public function refund(Request $request, $id)
+    {
+        $request->validate(['password' => 'required']);
+
+        // 1. Validasi Password
+        if (!Hash::check($request->password, auth()->user()->password)) {
+            return back()->withErrors(['password' => 'Password salah! Konfirmasi gagal.']);
+        }
+
+        // 2. Proteksi Role
+        if (!auth()->user()->hasRole('super-admin')) {
+            return back()->with('error', 'Akses Ditolak! Hanya Super Admin yang memiliki otorisasi refund.');
+        }
+
+        try {
+            DB::transaction(function () use ($id) {
+                // 3. Cari Transaksi
+                $transaction = Transaction::with('details.product.recipes')->findOrFail($id);
+
+                if ($transaction->status === 'refunded') {
+                    throw new \Exception('Transaksi ini sudah direfund sebelumnya.');
+                }
+
+                // 4. Kembalikan Stok (Loop Detail Transaksi)
+                foreach ($transaction->details as $detail) {
+                    $product = $detail->product;
+
+                    if ($product->recipes->count() > 0) {
+                        // Jika produk menggunakan Recipe, kembalikan stok Ingredients
+                        foreach ($product->recipes as $recipe) {
+                            DB::table('ingredients')->where('id', $recipe->ingredient_id)
+                                ->increment('stock', (float)$recipe->qty_needed * (float)$detail->qty);
+                        }
+                    } else if ($product->type !== 'bundle') {
+                        // Jika produk biasa (bukan bundle), kembalikan stok Produk
+                        $conversion = $detail->product_unit_id ? (ProductUnit::find($detail->product_unit_id)->conversion ?? 1) : 1;
+                        DB::table('products')->where('id', $detail->product_id)->increment('stock', $detail->qty * $conversion);
+                    }
+                    // Catatan: Untuk bundle, stok item di dalamnya biasanya dikelola via recipes atau ditangani saat store.
+                }
+
+                // 5. Update Status Transaksi
+                $transaction->update(['status' => 'refunded']);
+                
+                // 6. Hapus Data Profit Terkait (Agar laporan laba bersih akurat)
+                $transaction->profits()->delete();
+            });
+
+            return back()->with('success', 'Refund Berhasil! Stok telah dikembalikan ke inventori.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Refund Gagal: ' . $e->getMessage());
+        }
     }
 
     public function storeExpense(Request $request) 

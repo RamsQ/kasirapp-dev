@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react"; // Menambahkan router
 import { 
     IconShoppingCart, IconPlus, IconMinus, IconToolsKitchen2, 
     IconSearch, IconBoxSeam, IconUser, IconChevronLeft,
     IconCash, IconSpeakerphone, IconRosetteDiscount, IconGift,
-    IconCircleFilled, IconChevronRight, IconCheck
+    IconCircleFilled, IconChevronRight, IconCheck, IconPackage
 } from "@tabler/icons-react";
 import axios from "axios";
 import Swal from "sweetalert2";
@@ -63,7 +63,6 @@ const PromoBanner = ({ activePromos, formatPrice }) => {
                                 <p className="text-sm font-black text-white leading-tight uppercase italic tracking-tight">{getPromoMessage(currentPromo)}</p>
                             </div>
                         </div>
-                        <IconChevronRight size={20} className="text-white/40 shrink-0" />
                     </div>
                 </div>
             </div>
@@ -71,10 +70,11 @@ const PromoBanner = ({ activePromos, formatPrice }) => {
     );
 };
 
-export default function CustomerMenu({ products, table, categories, activePromos = [] }) {
+export default function CustomerMenu({ products, table, categories, activePromos = [], isTakeAway }) {
     const [cart, setCart] = useState([]);
     const [name, setName] = useState("");
-    const [orderType, setOrderType] = useState(table ? "table" : "takeaway");
+    // Inisialisasi orderType berdasarkan prop isTakeAway dari Controller
+    const [orderType, setOrderType] = useState(isTakeAway ? "takeaway" : "table");
     const [search, setSearch] = useState("");
     const [activeCategory, setActiveCategory] = useState("all");
     const [showReview, setShowReview] = useState(false);
@@ -189,7 +189,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
             const response = await axios.post(route('public.menu.order'), {
                 customer_name: name,
                 table_id: orderType === 'table' ? table?.id : null,
-                order_type: orderType,
+                order_type: orderType, // Mengirim 'takeaway' atau 'table' (dine_in)
                 cart_items: cart,
                 total: finalTotal,
                 payment_method: 'cash'
@@ -232,28 +232,53 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
     return (
         <div className="bg-slate-50 min-h-screen pb-48 font-sans text-slate-900">
-            <Head title="E-Menu Digital" />
+            <Head title={isTakeAway ? "Take Away Menu" : "E-Menu Digital"} />
             <Toaster />
             
             {!showReview ? (
                 <div className="animate-in fade-in duration-500">
-                    {/* Header Utama */}
-                    <div className="p-6 text-white rounded-b-[2.5rem] shadow-lg sticky top-0 z-30" style={{ background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}>
+                    {/* Header Utama - Berubah warna jika Take Away */}
+                    <div 
+                        className="p-6 text-white rounded-b-[2.5rem] shadow-lg sticky top-0 z-30 transition-colors duration-500" 
+                        style={{ background: isTakeAway ? 'linear-gradient(135deg, #059669 0%, #10b981 100%)' : 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)' }}
+                    >
                         <div className="flex justify-between items-center mb-4">
                             <div>
                                 <h1 className="text-xl font-black uppercase italic tracking-tighter flex items-center gap-2">
                                     <IconToolsKitchen2 size={24} /> MANGKU JAGAD
                                 </h1>
-                                <p className="text-[10px] font-bold uppercase opacity-90">{orderType === 'table' ? `Meja: ${table?.name}` : 'Take Away'}</p>
+                                <div className="mt-1 flex items-center gap-2">
+                                    {isTakeAway ? (
+                                        <div className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-md flex items-center gap-1.5 border border-white/20">
+                                            <IconPackage size={14} className="text-emerald-100" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Mode Take Away</span>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-white/20 px-3 py-1 rounded-full backdrop-blur-md flex items-center gap-1.5 border border-white/20">
+                                            <IconUser size={14} className="text-indigo-100" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white">Meja: {table?.name || '-'}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md relative">
+                            <div className="bg-white/20 p-2 rounded-xl backdrop-blur-md relative border border-white/10 shadow-sm">
                                 <IconShoppingCart size={20} />
-                                {cart.length > 0 && <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">{cart.length}</span>}
+                                {cart.length > 0 && (
+                                    <span className="absolute -top-2 -right-2 bg-rose-500 text-white text-[10px] font-black w-5 h-5 flex items-center justify-center rounded-full border-2 border-emerald-500 shadow-md">
+                                        {cart.length}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="relative">
-                            <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-200" size={18} />
-                            <input type="text" placeholder="Cari menu favorit..." className="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-white/20 placeholder:text-indigo-100 text-sm text-white font-bold focus:ring-2 focus:ring-white transition-all" value={search} onChange={(e) => setSearch(e.target.value)} />
+                            <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50" size={18} />
+                            <input 
+                                type="text" 
+                                placeholder="Cari menu favorit..." 
+                                className="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-white/20 placeholder:text-white/40 text-sm text-white font-bold focus:ring-2 focus:ring-white/50 transition-all" 
+                                value={search} 
+                                onChange={(e) => setSearch(e.target.value)} 
+                            />
                         </div>
                     </div>
 
@@ -261,9 +286,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                     {/* Filter Kategori */}
                     <div className="flex gap-2 overflow-x-auto p-4 sticky top-[145px] bg-slate-50/90 backdrop-blur-sm z-20 scrollbar-hide">
-                        <button onClick={() => setActiveCategory("all")} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all ${activeCategory === "all" ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-500'}`}>Semua</button>
+                        <button onClick={() => setActiveCategory("all")} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all ${activeCategory === "all" ? (isTakeAway ? 'bg-emerald-600 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 border-slate-200'}`}>Semua</button>
                         {categories?.map(cat => (
-                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all ${activeCategory == cat.id ? 'bg-slate-900 text-white shadow-lg' : 'bg-white text-slate-500'}`}>{cat.name}</button>
+                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all whitespace-nowrap ${activeCategory == cat.id ? (isTakeAway ? 'bg-emerald-600 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 border-slate-200'}`}>{cat.name}</button>
                         ))}
                     </div>
 
@@ -280,9 +305,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="font-black uppercase text-[11px] text-slate-800 leading-tight mb-0.5 truncate">{p.title}</h3>
-                                        <p className="text-indigo-600 font-black text-sm mb-1">{formatPrice(p.sell_price)}</p>
+                                        <p className={`font-black text-sm mb-1 ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(p.sell_price)}</p>
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[8px] px-2 py-0.5 rounded-md font-bold uppercase ${!p.is_available ? 'bg-slate-100 text-slate-400' : 'bg-indigo-50 text-indigo-600'}`}>
+                                            <span className={`text-[8px] px-2 py-0.5 rounded-md font-bold uppercase ${!p.is_available ? 'bg-slate-100 text-slate-400' : (isTakeAway ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600')}`}>
                                                 {!p.is_available ? 'Habis' : 'Tersedia'}
                                             </span>
                                             {promoProd && p.is_available && (
@@ -290,7 +315,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                             )}
                                         </div>
                                     </div>
-                                    <button onClick={() => p.is_available && addToCart(p)} disabled={!p.is_available} className={`w-12 h-12 rounded-2xl flex items-center justify-center ${p.is_available ? 'bg-indigo-100 text-indigo-600 active:scale-90 shadow-sm' : 'bg-slate-100 text-slate-300'}`}>
+                                    <button onClick={() => p.is_available && addToCart(p)} disabled={!p.is_available} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${p.is_available ? (isTakeAway ? 'bg-emerald-100 text-emerald-600 active:scale-90' : 'bg-indigo-100 text-indigo-600 active:scale-90 shadow-sm') : 'bg-slate-100 text-slate-300'}`}>
                                         <IconPlus size={24} />
                                     </button>
                                 </div>
@@ -304,9 +329,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
                             <div className="max-w-md mx-auto flex justify-between items-center">
                                 <div>
                                     <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Estimasi Total</span>
-                                    <span className="text-2xl font-black text-indigo-600 italic tracking-tighter leading-none">{formatPrice(finalTotal)}</span>
+                                    <span className={`text-2xl font-black italic tracking-tighter leading-none ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</span>
                                 </div>
-                                <button onClick={() => setShowReview(true)} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black uppercase text-[12px] flex items-center gap-3 shadow-xl active:scale-95 transition-all">
+                                <button onClick={() => setShowReview(true)} className={`px-8 py-4 text-white rounded-2xl font-black uppercase text-[12px] flex items-center gap-3 shadow-xl active:scale-95 transition-all ${isTakeAway ? 'bg-emerald-600' : 'bg-slate-900'}`}>
                                      Review Order <IconCheck size={20} />
                                 </button>
                             </div>
@@ -321,7 +346,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                     
                     <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-6">
                         <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest flex items-center gap-1"><IconUser size={14} /> Nama Pemesan</p>
-                        <input type="text" placeholder="Masukkan nama Anda..." className="w-full p-4 rounded-2xl bg-slate-50 border-none text-sm font-black focus:ring-2 focus:ring-indigo-500 uppercase" value={name} onChange={e => setName(e.target.value)} />
+                        <input type="text" placeholder="Masukkan nama Anda..." className={`w-full p-4 rounded-2xl bg-slate-50 border-none text-sm font-black focus:ring-2 uppercase ${isTakeAway ? 'focus:ring-emerald-500' : 'focus:ring-indigo-500'}`} value={name} onChange={e => setName(e.target.value)} />
                     </div>
 
                     <div className="space-y-4 mb-8">
@@ -335,13 +360,13 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                             <h4 className="font-black text-[11px] uppercase text-slate-800 truncate">{item.product_title}</h4>
                                             <div className="flex items-center gap-2">
                                                 {isDisc && <span className="text-[9px] text-slate-300 line-through font-bold">{formatPrice(item.sell_price)}</span>}
-                                                <p className="text-indigo-600 font-black text-sm">{formatPrice(item.current_unit_price)}</p>
+                                                <p className={`font-black text-sm ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(item.current_unit_price)}</p>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl ml-4">
+                                        <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl ml-4 border border-slate-100">
                                             <button onClick={() => updateQty(item.product_id, -1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-xl text-red-500 shadow-sm"><IconMinus size={16}/></button>
                                             <span className="font-black text-sm w-4 text-center">{item.qty}</span>
-                                            <button onClick={() => updateQty(item.product_id, 1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-xl text-indigo-500 shadow-sm"><IconPlus size={16}/></button>
+                                            <button onClick={() => updateQty(item.product_id, 1)} className={`w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}><IconPlus size={16}/></button>
                                         </div>
                                     </div>
                                 </div>
@@ -349,7 +374,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                         })}
                     </div>
 
-                    <div className="bg-white p-6 rounded-[2.5rem] mb-10 shadow-xl border-t-4 border-indigo-500">
+                    <div className={`bg-white p-6 rounded-[2.5rem] mb-10 shadow-xl border-t-4 ${isTakeAway ? 'border-emerald-500' : 'border-indigo-500'}`}>
                         <div className="space-y-2 mb-4 border-b border-slate-50 pb-4">
                             <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter"><span>Subtotal Produk</span><span>{formatPrice(subtotalNormal)}</span></div>
                             {totalSaved > 0 && (
@@ -357,11 +382,11 @@ export default function CustomerMenu({ products, table, categories, activePromos
                             )}
                         </div>
                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-1">Total yang dibayar di kasir</p>
-                        <h3 className="text-4xl font-black text-indigo-600 italic tracking-tighter text-center leading-none">{formatPrice(finalTotal)}</h3>
+                        <h3 className={`text-4xl font-black italic tracking-tighter text-center leading-none ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</h3>
                     </div>
 
-                    <button onClick={submitOrder} className="w-full bg-slate-900 p-6 rounded-[2rem] flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-2xl text-white group">
-                        <IconCash size={28} className="text-indigo-400" />
+                    <button onClick={submitOrder} className={`w-full p-6 rounded-[2rem] flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-2xl text-white group ${isTakeAway ? 'bg-emerald-600' : 'bg-slate-900'}`}>
+                        <IconCash size={28} className={isTakeAway ? 'text-emerald-200' : 'text-indigo-400'} />
                         <span className="font-black uppercase tracking-widest leading-none">Kirim Pesanan Sekarang</span>
                     </button>
                 </div>

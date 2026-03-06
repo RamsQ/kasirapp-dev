@@ -25,24 +25,24 @@ export default {
                 ],
             },
             colors: {
-                // WARNA COSMIC UTAMA (Aksen Ungu dari tengah gradasi)
-                "cosmic-main": "#ba83ca",
+                // WARNA COSMIC UTAMA (Sekarang Biru Terang agar senada)
+                "cosmic-main": "#818cf8",
 
-                // PRIMARY ROSE/PINK
+                // PRIMARY INDIGO BLUE (Mengganti Rose/Pink)
                 primary: {
-                    50: "#fff1f2",
-                    100: "#ffe4e6",
-                    200: "#fecdd3",
-                    300: "#fda4af",
-                    400: "#fb7185",
-                    500: "#f43f5e", // Warna Utama Aksen
-                    600: "#e11d48", // Warna Hover
-                    700: "#be123c",
-                    800: "#9f1239",
-                    900: "#881337",
-                    950: "#4c0519",
+                    50: "#eef2ff",
+                    100: "#e0e7ff",
+                    200: "#c7d2fe",
+                    300: "#a5b4fc",
+                    400: "#818cf8",
+                    500: "#6366f1", // Warna Utama Aksen (Indigo 500)
+                    600: "#4f46e5", // Warna Hover (Indigo 600)
+                    700: "#4338ca",
+                    800: "#3730a3",
+                    900: "#312e81",
+                    950: "#1e1b4b",
                 },
-                // SLATE DARK ELEGANT
+                // SLATE DARK ELEGANT (Tetap Dipertahankan)
                 slate: {
                     50: "#f8fafc",
                     100: "#f1f5f9",
@@ -109,9 +109,9 @@ export default {
                     950: "#4c0519",
                 },
             },
-            // --- GRADASI COSMIC GLOBAL ---
+            // --- GRADASI COSMIC BLUE SPECTRUM ---
             backgroundImage: {
-                'cosmic': 'linear-gradient(to right top, #d16ba5, #c777b9, #ba83ca, #aa8fd8, #9a9ae1, #8aa7ec, #79b3f4, #69bff8, #52cffe, #41dfff, #46eefa, #5ffbf1)',
+                'cosmic': 'linear-gradient(to right top, #312e81, #3730a3, #4338ca, #4f46e5, #6366f1, #818cf8, #93c5fd, #bfdbfe, #dbeafe, #f0f9ff)',
             },
             spacing: {
                 18: "4.5rem",
@@ -132,9 +132,10 @@ export default {
                 "4xl": "2rem",
             },
             boxShadow: {
-                glow: "0 0 20px rgba(244, 63, 94, 0.3)",
-                "glow-lg": "0 0 40px rgba(244, 63, 94, 0.4)",
-                "glow-cosmic": "0 0 25px rgba(186, 131, 202, 0.4)", // Shadow glow warna ungu gradasi
+                // Efek Glow diubah ke Biru/Indigo
+                glow: "0 0 20px rgba(99, 102, 241, 0.3)",
+                "glow-lg": "0 0 40px rgba(99, 102, 241, 0.4)",
+                "glow-cosmic": "0 0 25px rgba(129, 140, 248, 0.4)", 
                 "inner-lg": "inset 0 4px 6px -1px rgb(0 0 0 / 0.1)",
             },
             animation: {

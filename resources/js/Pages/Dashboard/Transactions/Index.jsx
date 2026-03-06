@@ -155,7 +155,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
     const currentActiveHold = useMemo(() => holds.find(h => h.id === activeHoldId), [holds, activeHoldId]);
 
-    // --- FIX: PINDAHKAN cartSubtotal KE SINI (Sangat Krusial untuk Mencegah Error Initialization) ---
+    // --- FIX: cartSubtotal KE SINI ---
     const cartSubtotal = useMemo(() => (carts || []).reduce((acc, c) => acc + parseFloat(c.price || 0), 0), [carts]);
 
     // Logika menutup dropdown jika klik di luar
@@ -275,7 +275,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         performSearch(search, catId);
     };
 
-    // --- LOGIKA HARGA BERDASARKAN QTY (Source of Truth) ---
     const getFinalPrice = useCallback((product) => {
         let price = parseFloat(product.sell_price || 0);
         
@@ -285,7 +284,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         }
 
         const itemInCart = carts.find(c => Number(c.product_id) === Number(product.id));
-        // FIX: Jika belum ada di keranjang, gunakan qty 0 (untuk tampilan grid) atau qty 1 (untuk hitungan awal)
         const currentQty = itemInCart ? parseFloat(itemInCart.qty) : 0; 
 
         const autoPromo = (discounts || []).find(d => 
@@ -294,7 +292,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
         if (autoPromo) {
             const syaratQty = parseFloat(autoPromo.minimum_item || 0);
-            // DISKON HANYA BERLAKU JIKA QTY DI KERANJANG SUDAH MENCAPAI SYARAT
             if (currentQty >= syaratQty && syaratQty > 0) {
                 if (autoPromo.type === 'percentage') {
                     price = price - (price * (parseFloat(autoPromo.value) / 100));
@@ -308,7 +305,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         return Math.round(price);
     }, [selectedPlatform, discounts, carts, cartSubtotal]);
 
-    // --- DISKON GLOBAL ---
     const activeGlobalDiscount = useMemo(() => {
         const globalPromo = (discounts || [])
             .filter(d => d.product_id === null || d.product_id === "")
@@ -340,7 +336,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
     const deleteCart = (id) => router.delete(route("transactions.destroyCart", id), { preserveScroll: true });
 
-    // --- POLLING PAYMENT ---
     const startPaymentPolling = (invoice) => {
         const interval = setInterval(async () => {
             try {
@@ -357,14 +352,12 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         return interval;
     };
 
-    // --- FINAL CHECKOUT (FIX REDIRECT & GATEWAY DETECTION) ---
     const submitTransaction = async (method, paidAmount, isConfirmed = false) => {
         if (carts.length === 0) return;
         if (!selectedTable) return Swal.fire("Peringatan", "Pilih Tipe Pesanan!", "warning");
         
         if (isPaymentLoading) return;
 
-        // --- LOGIKA PENENTUAN GATEWAY DINAMIS ---
         let finalMethod = method;
         if (method === 'auto_gateway') {
             if (paymentSetting.midtrans_enabled) finalMethod = 'midtrans';
@@ -374,7 +367,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             }
         }
 
-        // --- CEK KONFIRMASI QR MANUAL ---
         if (finalMethod === 'qris_manual' && !isConfirmed) {
             setShowManualQrisModal(true);
             return;
@@ -415,7 +407,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     window.location.href = response.data.payment_url;
                 }
             } else {
-                // REDIRECT CETAK UNTUK TUNAI / QRIS MANUAL / TRANSFER
                 setIsPaymentLoading(false);
                 toast.success("Transaksi Berhasil");
                 router.visit(route('transactions.print', response.data.invoice)); 
@@ -489,6 +480,13 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h2 className="text-xl font-black dark:text-white uppercase mb-6 tracking-tighter">Buka Shift Kasir</h2>
                         <input type="number" className="w-full pt-8 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none" value={shiftData.starting_cash} onChange={e => setShiftData('starting_cash', e.target.value)} required />
                         <button type="button" onClick={() => postShift(route('shifts.store'))} className="w-full py-4 mt-6 bg-primary-600 text-white rounded-2xl font-black uppercase shadow-lg">Mulai Bertugas</button>
+                        <Link 
+                        href={route('dashboard')} 
+                        className="w-full py-4 mt-6 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black uppercase shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
+                        >
+                        <IconLayoutDashboard size={20} /> 
+                        Kembali ke Dashboard
+                        </Link>
                     </div>
                 </div>
             )}
@@ -570,7 +568,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         </div>
                     </div>
 
-                    {/* SIDEBAR KERANJANG */}
                     <aside className={`fixed inset-x-0 bottom-0 z-40 lg:relative lg:inset-auto lg:z-auto w-full lg:w-[380px] xl:w-[420px] bg-white dark:bg-slate-900 border-t lg:border-t-0 lg:border-l dark:border-slate-800 flex flex-col shadow-2xl transition-all duration-500 ease-in-out ${showCartDrawer ? 'h-[90vh]' : 'h-16 lg:h-full'}`}>
                         <div onClick={() => window.innerWidth < 1024 && setShowCartDrawer(!showCartDrawer)} className="h-16 p-4 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50 cursor-pointer lg:cursor-default shrink-0">
                              <div className="flex items-center gap-3"><IconShoppingCart size={24} className="text-primary-500"/><span className="font-black dark:text-white uppercase text-xs italic tracking-tighter">Keranjang Belanja</span></div>
@@ -625,7 +622,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                                     <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><IconDeviceMobileVibration size={18}/></div>
                                                     <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS OTOMATIS</p><p className="text-[8px] text-slate-400 font-bold mt-1 tracking-tighter italic">Verifikasi Sistem</p></div>
                                                 </button>
-                                                <button onClick={() => { setShowNonTunaiMenu(false); submitTransaction('qris_manual', grandTotal); }} className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors border-b dark:border-slate-700">
+                                                <button onClick={() => { setShowNonTunaiMenu(false); submitTransaction('qris_manual', grandTotal, true); setShowManualQrisModal(false); }} className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors border-b dark:border-slate-700">
                                                     <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg"><IconQrcode size={18}/></div>
                                                     <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS STATIS</p><p className="text-[8px] text-slate-400 font-bold mt-1 tracking-tighter italic">Scan QR Toko</p></div>
                                                 </button>
@@ -644,7 +641,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </main>
             </div>
 
-            {/* MODAL QRIS MANUAL (FIXED REDIRECT) */}
+            {/* MODAL QRIS MANUAL */}
             {showManualQrisModal && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in zoom-in-95 duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 max-w-sm w-full border dark:border-slate-800 shadow-2xl text-center">
@@ -661,7 +658,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </div>
             )}
 
-            {/* RESTORE MODALS: HOLD, CASH OUT, CLOSE SHIFT */}
+            {/* MODAL HOLD / ANTREAN */}
             {showModalHold && (
                 <div className="fixed inset-0 z-[150] flex flex-col bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="h-20 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between px-6 md:px-10 shrink-0 shadow-sm">
@@ -697,11 +694,16 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                         ))}
                                     </div>
                                     <div className="flex gap-2">
-                                        <button type="button" onClick={() => {
-                                            const billData = { ...h, details: (h.cart_data || []).map(item => ({ ...item, product_title: item.product?.title || "PRODUK", price: parseFloat(item.price), product: item.product })), grand_total: h.total };
-                                            if (window.bluetoothSerial) toast.promise(smartPrint(billData, receiptSetting, 'transaction'), { loading: 'Cetak...', success: 'Berhasil!', error: 'Gagal' });
-                                            else toast.promise(printBillUsb(billData, receiptSetting), { loading: 'Cetak...', success: 'Berhasil!', error: 'Gagal' });
-                                        }} className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-primary-50 active:scale-90 transition-all border dark:border-slate-700"><IconPrinter size={20}/></button>
+                                        {/* FIX: TOMBOL REVIEW PRINT BILL MENGGUNAKAN ROUTE BARU */}
+                                        <Link 
+                                            href={route('transactions.printBill', h.id)} 
+                                            target="_blank" 
+                                            className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-primary-50 active:scale-90 transition-all border dark:border-slate-700"
+                                            title="Cetak Bill Sementara"
+                                        >
+                                            <IconPrinter size={20}/>
+                                        </Link>
+
                                         <button type="button" onClick={() => handleResumeHold(h.id)} className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black uppercase text-[11px] shadow-lg active:scale-95 hover:bg-primary-700 transition-all flex items-center justify-center gap-2"><IconCash size={18} /> BAYAR</button>
                                         <button type="button" onClick={() => { 
                                             Swal.fire({ title: 'Batalkan Pesanan?', text: 'Hapus permanen.', icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444' }).then(res => { if(res.isConfirmed) router.delete(route('transactions.destroyHold', h.id)); }) 
@@ -714,13 +716,14 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </div>
             )}
 
+            {/* MODAL CASH OUT */}
             {showCashOut && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-md w-full border dark:border-slate-800 shadow-2xl">
                          <div className="flex items-center gap-4 mb-6"><div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-2xl shadow-sm leading-none shadow-orange-500/20"><IconCashOff size={24}/></div><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter leading-none">Pengeluaran Kas Laci</h3></div>
                          <div className="space-y-4">
-                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none tracking-tighter">Keterangan</label><input type="text" placeholder="Contoh: Belanja Bahan Baku" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-bold focus:ring-primary-500 shadow-inner transition-all" value={cashOutName} onChange={e => setCashOutName(e.target.value)} /></div>
-                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none tracking-tighter">Nominal (Rp)</label><input type="number" placeholder="0" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-black focus:ring-primary-500 shadow-inner transition-all" value={cashOutAmount} onChange={e => setCashOutAmount(e.target.value)} /></div>
+                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Keterangan</label><input type="text" placeholder="Contoh: Belanja Bahan Baku" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-bold focus:ring-primary-500 shadow-inner transition-all" value={cashOutName} onChange={e => setCashOutName(e.target.value)} /></div>
+                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Nominal (Rp)</label><input type="number" placeholder="0" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-black focus:ring-primary-500 shadow-inner transition-all" value={cashOutAmount} onChange={e => setCashOutAmount(e.target.value)} /></div>
                             <div className="flex gap-3 mt-4">
                                 <button type="button" onClick={() => setShowCashOut(false)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400 hover:text-red-500 transition-colors tracking-widest leading-none">Batal</button>
                                 <button type="button" onClick={handleCashOutSubmit} disabled={isCashOutLoading || !cashOutName || !cashOutAmount} className="flex-[2] py-4 bg-orange-500 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 disabled:opacity-50 tracking-widest leading-none transition-all">{isCashOutLoading ? <IconLoader className="animate-spin inline mr-2" size={18} /> : <IconCheck className="inline mr-2" size={18} />} SIMPAN DATA</button>
@@ -730,6 +733,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </div>
             )}
 
+            {/* MODAL TUTUP SHIFT */}
             {showCloseShift && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 max-w-md w-full border dark:border-slate-800 shadow-2xl text-center">
@@ -737,7 +741,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h3 className="text-xl font-black uppercase mb-2 dark:text-white tracking-tighter leading-none italic">Akhiri Sesi Kasir?</h3>
                         <p className="text-[10px] text-slate-500 mb-8 font-black uppercase italic text-center px-4 leading-tight">Laporan shift akan otomatis dicetak. Pastikan uang laci sudah dihitung secara manual.</p>
                         <div className="relative mb-6 text-left">
-                            <span className="absolute top-2 left-4 text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none tracking-tighter">Uang Fisik Laci (Rp)</span>
+                            <span className="absolute top-2 left-4 text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Uang Fisik Laci (Rp)</span>
                             <input type="number" className="w-full pt-6 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none focus:ring-0 dark:text-white shadow-inner" value={closeShiftData.total_cash_physical} onChange={e => setCloseShiftData('total_cash_physical', e.target.value)} required />
                         </div>
                         <button type="button" onClick={(e) => { e.preventDefault(); postCloseShift(route('shifts.close')); }} disabled={processingCloseShift} className="w-full py-4 bg-red-600 text-white rounded-2xl font-black uppercase text-[11px] shadow-xl flex items-center justify-center gap-2 hover:bg-red-700 transition-all active:scale-95 tracking-widest leading-none">{processingCloseShift ? <IconLoader size={18} className="animate-spin" /> : <><IconPower size={18} /> TUTUP & CETAK LAPORAN</>}</button>
@@ -746,7 +750,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 </div>
             )}
 
-            {/* AREA CETAK TERSEMBUNYI */}
+            {/* AREA CETAK TERSEMBUNYI (BROWSER PRINT) */}
             <div id="print-area" className="hidden print:block">
                 {flash.print_invoice && (
                     <ThermalReceipt 

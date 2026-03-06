@@ -87,15 +87,17 @@ const sendToWeb = async (data) => {
     }
 };
 
-// --- ENCODER STRUK TRANSAKSI (FIX: SYNC CODE, LABELS & DISCOUNTS) ---
+// --- ENCODER STRUK TRANSAKSI (SUPPORTS REVIEW BILL) ---
 const encodeReceipt = (transaction, receiptSetting) => {
     const encoder = new EscPosEncoder();
     let result = encoder.initialize().codepage('windows1252'); 
     
     const details = Array.isArray(transaction.details) ? transaction.details : [];
+    const isBill = !!transaction.is_bill; // Cek apakah ini mode review bill
     
     // --- HELPER LABEL METODE PEMBAYARAN ---
     const getPaymentLabel = (method) => {
+        if (isBill) return "BELUM BAYAR";
         const m = method?.toLowerCase();
         if (m === 'cash') return "TUNAI";
         if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
@@ -113,19 +115,18 @@ const encodeReceipt = (transaction, receiptSetting) => {
 
     const queueNum = getQueue();
 
-    // 2. Logika Kode Pesanan (#4547)
+    // 2. Logika Kode Pesanan
     const displayCode = transaction.reference_code 
         ? transaction.reference_code.toString().replace("#", "") 
         : (transaction.invoice ? transaction.invoice.slice(-4) : "0000");
 
     const grandTotal = parseFloat(transaction.grand_total || 0);
-    // FIX: Gunakan variabel diskon yang dikirim dari Print.jsx (total item diskon + global)
     const totalDiscount = parseFloat(transaction.discount || 0);
     const subtotalGross = grandTotal + totalDiscount;
 
     // Header
     result.raw([0x1b, 0x61, 0x01]) // Center
-          .bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
+          .bold(true).line(clean(isBill ? "--- BILL (DRAF) ---" : (receiptSetting?.store_name || "TOKO POS"))).bold(false)
           .line(clean(receiptSetting?.store_address || ""))
           .line("TELP: " + clean(receiptSetting?.store_phone || "000"))
           .line("-".repeat(C_WIDTH))
@@ -152,7 +153,6 @@ const encodeReceipt = (transaction, receiptSetting) => {
         const price = parseFloat(item.price || 0);
         const qty = parseFloat(item.qty || 1);
         result.bold(true).line(title).bold(false);
-        // Harga yang ditampilkan adalah harga per unit dikali Qty
         result.line(formatRow(`${qty.toFixed(0)} x ${Math.round(price/qty).toLocaleString('id-ID')}`, Math.round(price).toLocaleString('id-ID')));
         if (item.notes && !item.notes.includes('BONUS PROMO')) {
             result.italic(true).line("*" + clean(item.notes).toLowerCase()).italic(false);
@@ -167,14 +167,19 @@ const encodeReceipt = (transaction, receiptSetting) => {
         result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
     }
 
-    result.bold(true).line(formatRow("TOTAL", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false)
-          .line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
-          .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')))
-          .line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
+    result.bold(true).line(formatRow("TOTAL", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
+    
+    // Sembunyikan Detail Bayar jika ini hanya Bill
+    if (!isBill) {
+        result.line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
+              .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')));
+    }
+
+    result.line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
           .line("-".repeat(C_WIDTH));
 
-    // QR Code (Hanya untuk Midtrans/Gateway Otomatis)
-    if (transaction.payment_url) {
+    // QR Code (Hanya untuk Transaksi Lunas dengan Payment URL)
+    if (transaction.payment_url && !isBill) {
         result.raw([0x1b, 0x61, 0x01])
               .newline()
               .line("SCAN UNTUK BAYAR")
@@ -185,14 +190,15 @@ const encodeReceipt = (transaction, receiptSetting) => {
               .newline();
     }
 
+    // Footer
     result.raw([0x1b, 0x61, 0x01])
-          .line(clean(receiptSetting?.store_footer || "Terima Kasih"))
+          .line(clean(isBill ? "* PESANAN BELUM DIBAYAR *" : (receiptSetting?.store_footer || "Terima Kasih")))
           .newline().newline().newline().newline(); 
     
     return result.encode();
 };
 
-// --- ENCODER LAPORAN SHIFT (SINKRON TUNAI VS DIGITAL) ---
+// --- ENCODER LAPORAN SHIFT ---
 const encodeShiftReport = (shift, receiptSetting) => {
     const encoder = new EscPosEncoder();
     let result = encoder.initialize().codepage('windows1252');
@@ -202,7 +208,6 @@ const encodeShiftReport = (shift, receiptSetting) => {
     const pettyCash = parseFloat(shift.total_expense || shift.petty_cash_out || 0);
     const startCash = parseFloat(shift.starting_cash || 0);
     
-    // Total yang seharusnya ada di laci (Uang Fisik)
     const systemSaldo = (startCash + cashSales) - pettyCash;
 
     result.raw([0x1b, 0x61, 0x01]).bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
@@ -223,7 +228,6 @@ const encodeShiftReport = (shift, receiptSetting) => {
           .line("-".repeat(C_WIDTH))
           .bold(true).line(formatRow("SELISIH", fPrice(shift.difference))).bold(false);
 
-    // Bagian Informasi Digital (Bank) - Tidak dihitung ke selisih laci
     result.newline()
           .line("INFO PENDAPATAN DIGITAL:")
           .line(formatRow("QRIS (AUTO/STATIS)", fPrice(shift.total_qris_sales)))

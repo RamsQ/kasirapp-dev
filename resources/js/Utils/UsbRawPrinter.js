@@ -1,6 +1,7 @@
 import EscPosEncoder from 'esc-pos-encoder';
 
 // --- FUNGSI INTERNAL: KONVERSI GAMBAR KE BINARY ---
+// Tetap dipertahankan untuk kebutuhan cetak Logo jika diperlukan di masa depan
 const getBinaryImage = async (url) => {
     return new Promise((resolve, reject) => {
         const img = new Image();
@@ -36,7 +37,7 @@ const formatRow = (left, right) => {
 };
 
 const formatDate = (dateStr) => {
-    const d = new Date(dateStr);
+    const d = dateStr ? new Date(dateStr) : new Date();
     if (isNaN(d.getTime())) return "00-00-0000 00:00";
     return `${String(d.getDate()).padStart(2, '0')}-${String(d.getMonth() + 1).padStart(2, '0')}-${d.getFullYear()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 };
@@ -99,12 +100,10 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
             const isFree = item.notes?.includes('BONUS PROMO') || parseFloat(item.price) === 0;
             const title = clean(item.product?.title || item.product_title || "PRODUK").toUpperCase();
             
-            // Logika COGS/Price
             const normalPricePerItem = parseFloat(item.product?.sell_price || 0);
             const actualPriceTotal = parseFloat(item.price || 0);
             const qty = parseFloat(item.qty || 0);
 
-            // Jika harga jual di database lebih mahal dari harga deal di item, anggap selisihnya diskon grosir
             if (!isFree) {
                 const normalTotal = normalPricePerItem * qty;
                 calculatedSubtotal += (normalTotal > 0) ? normalTotal : actualPriceTotal;
@@ -158,7 +157,7 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
     } catch (error) { throw error; }
 };
 
-// --- FUNGSI 2: PRINT BILL TAGIHAN ---
+// --- FUNGSI 2: PRINT BILL TAGIHAN (DRAF SEBELUM BAYAR) ---
 export const printBillUsb = async (transaction, receiptSetting) => {
     try {
         const device = await navigator.usb.requestDevice({ filters: [] });
@@ -170,19 +169,30 @@ export const printBillUsb = async (transaction, receiptSetting) => {
         let result = encoder.initialize().codepage('windows1252');
 
         const qNum = transaction.queue_number || (transaction.cart_data && transaction.cart_data[0]?.queue_number) || (transaction.customer_name?.match(/Q-\d+/)?.[0]) || "----";
-        const rawCode = transaction.reference_code || transaction.ref_number || transaction.invoice || "0000";
-        const displayCode = rawCode.toString().replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
+        
+        // Logika Pengambilan Kode Order
+        const getDisplayCode = () => {
+            if (transaction.reference_code) return transaction.reference_code;
+            if (transaction.customer_name && transaction.customer_name.includes('#')) {
+                return transaction.customer_name.split('#').pop().trim();
+            }
+            const rawVal = transaction.ref_number || transaction.invoice || "0000";
+            return rawVal.toString().replace(/[^0-9]/g, '').slice(-4).padStart(4, '0');
+        };
+        const displayCode = getDisplayCode();
 
         result.raw([0x1b, 0x61, 0x01]);
-        result.bold(true).line("BILL / TAGIHAN").bold(false)
+        result.bold(true).line("--- BILL (DRAF) ---").bold(false)
               .line(clean(receiptSetting?.store_name || "TOKO POS").toUpperCase())
               .line("-".repeat(C_WIDTH));
 
+        // ANTREAN BESAR
         result.size('large').bold(true).line(clean(qNum)).size('normal').bold(false)
               .line("-".repeat(C_WIDTH));
 
         result.raw([0x1b, 0x61, 0x00]);
-        result.line(formatRow("Kode Pesan:", "#" + displayCode));
+        result.line(formatRow("Order ID:", "#" + displayCode));
+        result.line(formatRow("Tgl:", formatDate(transaction.created_at)));
         result.line(formatRow("Plg:", clean(transaction.customer_name || "UMUM").toUpperCase().substring(0, 18)));
         result.line(formatRow("Meja:", clean(transaction.table_name || transaction.table?.name || "TAKE AWAY").toUpperCase()));
         
@@ -200,7 +210,7 @@ export const printBillUsb = async (transaction, receiptSetting) => {
             result.bold(true).line(title).bold(false);
             result.line(formatRow(`${q.toFixed(0)} x ${Math.round(p/q).toLocaleString('id-ID')}`, Math.round(p).toLocaleString('id-ID')));
 
-            // LOGIKA BUNDLING
+            // LOGIKA BUNDLING DALAM BILL
             const bundleItems = item.product?.bundle_items || item.bundle_items;
             if (bundleItems && Array.isArray(bundleItems)) {
                 bundleItems.forEach(bi => {
@@ -219,10 +229,13 @@ export const printBillUsb = async (transaction, receiptSetting) => {
             result.line(formatRow("SUBTOTAL", Math.round(subtotalBill).toLocaleString('id-ID')));
             result.line(formatRow("DISKON", `-${Math.round(discBill).toLocaleString('id-ID')}`));
         }
-        result.bold(true).line(formatRow("ESTIMASI TOTAL", `Rp ${Math.round(totalBill).toLocaleString('id-ID')}`)).bold(false);
+        result.bold(true).line(formatRow("TOTAL BILL", `Rp ${Math.round(totalBill).toLocaleString('id-ID')}`)).bold(false);
+        result.line(formatRow("METODE", "BELUM BAYAR"));
         
         result.raw([0x1b, 0x61, 0x01]);
-        result.newline().line("BUKAN BUKTI PEMBAYARAN SAH").line("SILAKAN BAYAR KE KASIR").newline().newline().cut();
+        result.line("-".repeat(C_WIDTH));
+        result.bold(true).line("* PESANAN BELUM DIBAYAR *").bold(false);
+        result.line("BUKAN BUKTI PEMBAYARAN SAH").newline().newline().cut();
         
         const data = result.encode();
         try { await device.transferOut(1, data); } catch (e) { await device.transferOut(2, data); }

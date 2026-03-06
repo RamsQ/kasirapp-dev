@@ -8,9 +8,11 @@ import {
     IconEyeOff, 
     IconLoader2,
     IconFaceId,
-    IconCamera,
     IconX,
-    IconAlertTriangle 
+    IconAlertTriangle,
+    IconSparkles,
+    IconInfinity,
+    IconCircleCheck
 } from "@tabler/icons-react";
 import * as faceapi from 'face-api.js';
 import axios from 'axios';
@@ -51,17 +53,12 @@ export default function Login({ status, canResetPassword }) {
         return () => reset("password");
     }, []);
 
-    // --- PERBAIKAN LOGIKA: Cek Status Mandatory & Ketersediaan Data Wajah ---
+    // --- Cek Status Mandatory & Ketersediaan Data Wajah ---
     const checkEmailStatus = async (email) => {
         if (!email.includes('@')) return;
         try {
             const res = await axios.post('/face-auth/fetch-user', { email });
             if (res.data.status === 'success') {
-                /**
-                 * Kunci form HANYA jika:
-                 * 1. is_mandatory bernilai true
-                 * 2. DAN face_data tidak kosong (sudah pernah daftar wajah)
-                 */
                 const harusWajah = res.data.is_mandatory && res.data.face_data !== null;
                 setIsFaceMandatory(harusWajah);
             } else {
@@ -95,23 +92,17 @@ export default function Login({ status, canResetPassword }) {
 
             if (!res.data.face_data) {
                 setFaceAuthLoading(false);
-                return Swal.fire('Belum Terdaftar', 'Wajah Anda belum didaftarkan. Silakan login menggunakan password terlebih dahulu untuk mendaftarkan wajah.', 'info');
+                return Swal.fire('Belum Terdaftar', 'Wajah Anda belum didaftarkan. Silakan login manual dulu.', 'info');
             }
 
-            // Aktifkan Kamera
             setIsScanning(true);
             const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    facingMode: "user",
-                    width: { ideal: 640 },
-                    height: { ideal: 480 }
-                } 
+                video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } } 
             });
             if (videoRef.current) {
                 videoRef.current.srcObject = stream;
             }
 
-            // Siapkan Matcher
             const savedDescriptor = new Float32Array(res.data.face_data);
             const faceMatcher = new faceapi.FaceMatcher(savedDescriptor, 0.6);
 
@@ -127,8 +118,9 @@ export default function Login({ status, canResetPassword }) {
                     const match = faceMatcher.findBestMatch(detection.descriptor);
                     if (match.label !== 'unknown') {
                         clearInterval(interval);
-                        stopCamera();
-                        
+                        if (videoRef.current.srcObject) {
+                            videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+                        }
                         const loginRes = await axios.post('/face-auth/login', { user_id: res.data.user_id });
                         if (loginRes.data.status === 'success') {
                             router.visit(loginRes.data.redirect);
@@ -138,245 +130,193 @@ export default function Login({ status, canResetPassword }) {
             }, 1000);
 
         } catch (error) {
-            console.error(error);
             setFaceAuthLoading(false);
             setIsScanning(false);
-            Swal.fire('Error', 'Terjadi kesalahan sistem atau kamera tidak diizinkan.', 'error');
+            Swal.fire('Error', 'Kamera tidak diizinkan atau bermasalah.', 'error');
         }
     };
 
-    const stopCamera = () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-        }
-        setIsScanning(false);
-        setFaceAuthLoading(false);
-    };
-
-    // --- LOGIKA SUBMIT DENGAN DOUBLE PROTECTION (SMART) ---
+    // --- LOGIKA SUBMIT DENGAN DOUBLE PROTECTION ---
     const submit = async (e) => {
         e.preventDefault();
-
-        // Cek Ulang ke Server untuk memastikan data wajah benar-benar sudah ada
         try {
             const check = await axios.post('/face-auth/fetch-user', { email: data.email });
-            if (check.data.status === 'success') {
-                const isReadyForLock = check.data.is_mandatory && check.data.face_data !== null;
-                
-                if (isReadyForLock) {
-                    setIsFaceMandatory(true);
-                    return Swal.fire({
-                        title: 'Keamanan Aktif',
-                        text: 'Akun ini wajib menggunakan Face ID karena data wajah sudah terdaftar.',
-                        icon: 'error',
-                        confirmButtonColor: '#4f46e5'
-                    });
-                }
+            if (check.data.status === 'success' && check.data.is_mandatory && check.data.face_data !== null) {
+                setIsFaceMandatory(true);
+                return Swal.fire({ title: 'Keamanan Aktif', text: 'Akun ini wajib menggunakan Face ID.', icon: 'error' });
             }
-        } catch (err) {
-            console.error("Gagal verifikasi keamanan");
-        }
+        } catch (err) {}
 
-        // Jika user baru (face_data null), post(route("login")) akan tetap dijalankan
         post(route("login"), {
             onFinish: () => reset("password"),
         });
     };
 
     return (
-        <div className="min-h-screen flex bg-slate-50 dark:bg-slate-950 transition-colors duration-300 font-sans">
-            <Head title="Masuk Ke Sistem" />
+        <div className="min-h-screen flex bg-white dark:bg-slate-950 transition-colors duration-300 font-sans overflow-hidden">
+            <Head title="Login | POS System Aja" />
             
-            <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-white dark:bg-slate-900 shadow-xl z-10 transition-colors duration-300">
-                <div className="w-full max-w-md">
+            {/* SISI KIRI: FORM LOGIN */}
+            <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-16 bg-white dark:bg-slate-900 z-20 relative transition-colors duration-300">
+                <div className="w-full max-w-[380px]">
                     <div className="mb-10 text-center lg:text-left">
-                        <div className="flex items-center justify-center lg:justify-start gap-3 mb-8 group">
+                        <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
                             <Link href="/" className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20 group-hover:scale-105 transition-transform">
+                                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all">
                                     <IconShoppingCart size={28} className="text-white" />
                                 </div>
-                                <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase">
-                                    POS SYSTEM
+                                <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
+                                    POS SYSTEM <br/> <span className="text-indigo-600 text-sm tracking-[0.3em]">AJA</span>
                                 </span>
                             </Link>
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight leading-none uppercase">
-                            Selamat Datang
-                        </h1>
-                        <p className="mt-3 text-slate-500 dark:text-slate-400 font-medium">
-                            Silakan masuk untuk mengelola transaksi toko Anda hari ini.
-                        </p>
+                        <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter leading-none uppercase italic">Welcome Back :)</h1>
+                        <p className="mt-4 text-slate-500 dark:text-slate-400 font-medium text-sm">Kelola operasional toko Anda secara profesional dalam satu genggaman.</p>
                     </div>
 
-                    {status && (
-                        <div className="mb-6 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 text-sm border border-emerald-100 dark:border-emerald-800 font-bold">
-                            {status}
-                        </div>
-                    )}
-
                     {isScanning ? (
-                        <div className="mb-8 space-y-4">
-                            <div className="relative mx-auto w-full aspect-square max-w-[300px] bg-black rounded-3xl overflow-hidden border-4 border-primary-500 shadow-2xl">
+                        <div className="animate-in fade-in zoom-in-95 duration-300">
+                            <div className="relative mx-auto w-full aspect-square max-w-[300px] bg-slate-100 rounded-[2.5rem] overflow-hidden border-4 border-indigo-500 shadow-2xl">
                                 <video ref={videoRef} autoPlay muted className="w-full h-full object-cover scale-x-[-1]" />
-                                <div className="absolute inset-0 border-[3px] border-dashed border-white/30 rounded-full m-8 animate-spin-slow pointer-events-none"></div>
-                                <div className="absolute inset-x-0 bottom-4 flex justify-center">
-                                    <span className="px-4 py-1 bg-primary-600 text-white text-[10px] font-black uppercase rounded-full animate-pulse">Memindai Wajah...</span>
+                                <div className="absolute inset-x-0 bottom-6 flex justify-center">
+                                    <div className="px-6 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-full shadow-xl flex items-center gap-2">
+                                        <IconLoader2 size={14} className="animate-spin" /> Memindai...
+                                    </div>
                                 </div>
                             </div>
-                            <button onClick={stopCamera} className="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold uppercase text-xs flex items-center justify-center gap-2 hover:bg-red-50 hover:text-red-500 transition-all">
-                                <IconX size={18} /> Batalkan Pemindaian
-                            </button>
+                            <button onClick={() => setIsScanning(false)} className="w-full mt-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-50 hover:text-red-500 transition-all">Batalkan</button>
                         </div>
                     ) : (
                         <form onSubmit={submit} className="space-y-5">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Email Kasir</label>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email Kasir</label>
                                 <div className="relative group">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
-                                        <IconMail size={20} />
-                                    </div>
+                                    <IconMail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
                                     <input 
                                         type="email" 
                                         value={data.email} 
-                                        autoComplete="username"
-                                        onChange={e => {
-                                            setData('email', e.target.value);
-                                            checkEmailStatus(e.target.value);
-                                        }}
-                                        placeholder="admin@pos.com"
-                                        className={`w-full h-13 pl-12 pr-4 rounded-2xl border-2 ${
-                                            errors.email ? 'border-red-500 ring-red-500/10' : 'border-slate-100 dark:border-slate-800'
-                                        } bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all`}
+                                        onChange={e => { setData('email', e.target.value); checkEmailStatus(e.target.value); }}
+                                        placeholder="kasir@mangkujagad.com"
+                                        className="w-full h-14 pl-14 pr-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:border-indigo-500 font-bold transition-all"
                                     />
+                                    {data.email.includes('@') && !errors.email && <IconCircleCheck className="absolute right-5 top-1/2 -translate-y-1/2 text-emerald-500 animate-in fade-in" size={20} />}
                                 </div>
-                                {errors.email && <p className="text-red-500 text-[10px] mt-1.5 font-black uppercase tracking-tight">{errors.email}</p>}
                             </div>
 
                             <button 
                                 type="button"
                                 onClick={handleFaceLogin}
                                 disabled={!modelsLoaded || faceAuthLoading}
-                                className={`w-full h-14 border-2 ${
-                                    isFaceMandatory 
-                                    ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/30' 
-                                    : 'border-primary-600/20 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/10'
-                                } rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-3 disabled:opacity-50`}
+                                className={`w-full h-15 border-2 ${isFaceMandatory ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'border-indigo-600/20 text-indigo-600 hover:bg-indigo-50'} rounded-2xl font-black uppercase text-[11px] tracking-[0.15em] transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-50`}
                             >
-                                {faceAuthLoading ? <IconLoader2 className="animate-spin" size={18} /> : <IconFaceId size={20} />}
-                                {isFaceMandatory ? "WAJIB VERIFIKASI WAJAH" : (modelsLoaded ? "Login Wajah" : "Memuat AI Wajah...")}
+                                {faceAuthLoading ? <IconLoader2 className="animate-spin" size={20} /> : <IconFaceId size={24} />}
+                                {isFaceMandatory ? "WAJIB SCAN WAJAH" : "Masuk Dengan Wajah"}
                             </button>
 
-                            {isFaceMandatory && (
-                                <div className="p-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-800 rounded-2xl flex items-start gap-3 animate-in slide-in-from-top duration-300 shadow-sm">
-                                    <IconAlertTriangle className="text-amber-600 shrink-0" size={20} />
-                                    <p className="text-[11px] font-bold text-amber-700 dark:text-amber-400 uppercase leading-tight">
-                                        Keamanan Wajah Aktif: Anda sudah mendaftarkan wajah. Login password dilarang untuk keamanan kasir.
-                                    </p>
-                                </div>
-                            )}
-
                             {!isFaceMandatory && (
-                                <>
-                                    <div className="relative py-2">
-                                        <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-100 dark:border-slate-800"></div></div>
-                                        <div className="relative flex justify-center text-[10px] uppercase font-black text-slate-300 dark:text-slate-700 bg-white dark:bg-slate-900 px-4">Opsi Login Password</div>
+                                <div className="space-y-5 animate-in slide-in-from-top-2 duration-500">
+                                    <div className="relative py-2 flex items-center">
+                                        <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
+                                        <span className="flex-shrink mx-4 text-[10px] uppercase font-black text-slate-300 tracking-widest">Atau Password</span>
+                                        <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                                     </div>
-
-                                    <div>
-                                        <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Kata Sandi</label>
-                                        <div className="relative group">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
-                                                <IconLock size={20} />
-                                            </div>
-                                            <input 
-                                                type={showPassword ? "text" : "password"}
-                                                value={data.password} 
-                                                autoComplete="current-password"
-                                                onChange={e => setData('password', e.target.value)}
-                                                placeholder="••••••••"
-                                                className={`w-full h-13 pl-12 pr-12 rounded-2xl border-2 ${
-                                                    errors.password ? 'border-red-500 ring-red-500/10' : 'border-slate-100 dark:border-slate-800'
-                                                } bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all`}
-                                            />
-                                            <button 
-                                                type="button" 
-                                                onClick={() => setShowPassword(!showPassword)} 
-                                                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary-500 transition-colors"
-                                            >
-                                                {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
-                                            </button>
-                                        </div>
+                                    <div className="relative group">
+                                        <IconLock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                                        <input type={showPassword ? "text" : "password"} value={data.password} onChange={e => setData('password', e.target.value)} placeholder="••••••••" className="w-full h-14 pl-14 pr-14 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:border-indigo-500 font-bold transition-all" />
+                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors">
+                                            {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
+                                        </button>
                                     </div>
-
-                                    <div className="flex items-center justify-between">
-                                        <label className="flex items-center gap-2 cursor-pointer group">
-                                            <input type="checkbox" checked={data.remember} onChange={e => setData('remember', e.target.checked)} className="w-5 h-5 rounded-lg border-slate-200 dark:border-slate-800 text-primary-600 focus:ring-primary-500 transition-all cursor-pointer shadow-sm" />
-                                            <span className="text-sm font-bold text-slate-500 dark:text-slate-400 group-hover:text-primary-500 transition-colors">Ingat Saya</span>
+                                    
+                                    <div className="flex items-center justify-between px-1">
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <input type="checkbox" checked={data.remember} onChange={e => setData('remember', e.target.checked)} className="w-5 h-5 rounded-lg border-slate-200 dark:border-slate-800 text-indigo-600 focus:ring-indigo-500 transition-all cursor-pointer" />
+                                            <span className="text-xs font-black text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 uppercase tracking-tighter transition-colors">Ingat Saya</span>
                                         </label>
+                                        
+                                        {/* LINK LUPA PASSWORD DIKEMBALIKAN */}
                                         {canResetPassword && (
-                                            <Link href={route("password.request")} className="text-sm font-bold text-primary-600 hover:text-primary-700 underline underline-offset-4 transition-all">Lupa Password?</Link>
+                                            <Link 
+                                                href={route("password.request")} 
+                                                className="text-xs font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-tighter underline underline-offset-4 decoration-indigo-500/30 hover:decoration-indigo-500 transition-all"
+                                            >
+                                                Lupa Sandi?
+                                            </Link>
                                         )}
                                     </div>
 
-                                    <button 
-                                        type="submit" 
-                                        disabled={processing}
-                                        className="w-full h-14 bg-primary-600 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-primary-700 disabled:opacity-50 transition-all shadow-lg shadow-primary-500/20 flex items-center justify-center gap-3 active:scale-[0.98]"
-                                    >
-                                        {processing ? <IconLoader2 className="animate-spin" size={24} /> : "Masuk Sekarang"}
-                                    </button>
-                                </>
+                                    <button type="submit" disabled={processing} className="w-full h-15 bg-indigo-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] shadow-[0_10px_25px_rgba(79,70,229,0.4)] hover:bg-indigo-700 transition-all active:scale-95 disabled:opacity-50">Masuk Ke Dashboard</button>
+                                </div>
                             )}
                         </form>
                     )}
-                 {/*   
-                   <div className="mt-8 text-center">
-                        <p className="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">
-                            Belum memiliki akun? {" "}
-                            <Link href={route("register")} className="text-primary-600 hover:text-primary-700 font-black decoration-primary-600/30 hover:decoration-primary-600 underline underline-offset-4 transition-all">Daftar Sekarang</Link>
-                        </p>
-                       </div> */}
                 </div>
+                <div className="absolute bottom-8 text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">© 2026 POS SYSTEM AJA • MANGKUJAGAD TECH</div>
             </div>
 
-            <div className="hidden lg:flex flex-1 relative bg-slate-100 items-center justify-center overflow-hidden">
-                <img 
-                    src="/image/kasir.jpg" 
-                    alt="POS Background" 
-                    className="absolute inset-0 w-full h-full object-cover scale-105 opacity-90"
-                    onError={(e) => { e.target.onerror = null; e.target.src = 'https://images.unsplash.com/photo-1556742049-13efd9395b46?q=80&w=1920'; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-primary-900/20 to-slate-900/60 mix-blend-multiply"></div>
-                <div className="absolute inset-0 bg-white/5 backdrop-blur-[0.5px]"></div>
+            {/* SISI KANAN: ANIME SCENERY + MODERN ORGANIC CURVE */}
+            <div className="hidden lg:flex flex-[1.4] relative bg-slate-900 items-center justify-center overflow-hidden">
                 
-                <div className="relative z-10 text-white p-16 max-w-2xl">
-                    <h2 className="text-6xl font-black uppercase leading-[1.1] tracking-tighter mb-8 italic drop-shadow-lg">
-                        Solusi Cerdas <br /> Untuk Kasir Anda.
+                {/* --- MODERN ORGANIC CURVE SEPARATOR --- */}
+                <div className="absolute left-0 top-0 bottom-0 w-[150px] z-10 pointer-events-none">
+                    <svg className="h-full w-full fill-white dark:fill-slate-900 drop-shadow-[-15px_0_20px_rgba(0,0,0,0.1)]" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <path d="M0 0 Q 100 50 0 100 L 0 100 L 0 0 Z" />
+                    </svg>
+                </div>
+
+                {/* BACKGROUND IMAGE */}
+                <img src="/image/login.jpg" alt="POS Background" className="absolute inset-0 w-full h-full object-cover scale-100 opacity-90 transition-transform duration-[15000ms] hover:scale-110" />
+                
+                {/* OVERLAY GRADASI SINEMATIK */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-950 via-indigo-950/60 to-transparent"></div>
+                <div className="absolute inset-0 bg-indigo-900/10 mix-blend-overlay"></div>
+                
+                {/* KONTEN BRANDING */}
+                <div className="relative z-10 w-full max-w-3xl px-24 text-left">
+                    <div className="mb-10 inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl animate-pulse-subtle">
+                        <IconSparkles className="text-yellow-400" size={20} />
+                        <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Advanced POS System</span>
+                    </div>
+
+                    <h2 className="text-8xl font-black uppercase leading-[0.85] tracking-tighter mb-12 italic text-white drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]">
+                        KENDALI <br /> <span className="text-indigo-400">CERDAS</span> <br /> USAHA ANDA.
                     </h2>
-                    <p className="text-lg font-medium text-white leading-relaxed mb-10 max-w-lg border-l-4 border-primary-500 pl-6 backdrop-blur-md bg-black/20 py-2 rounded-r-xl shadow-lg">
-                        Didesain untuk kecepatan transaksi dan akurasi stok. Kelola inventori dan laporan otomatis dalam satu platform terintegrasi.
-                    </p>
                     
-                    <div className="flex flex-wrap gap-3">
-                        {["Stok Real-time", "Manajemen Diskon", "Laporan", "Inventori", "Face ID Login"].map((tag, i) => (
-                            <div key={i} className="px-5 py-2.5 rounded-xl bg-primary-600/30 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-widest text-white shadow-2xl">
+                    <div className="relative mb-14 max-w-xl">
+                        <div className="absolute -left-6 top-0 bottom-0 w-1.5 bg-indigo-500 rounded-full shadow-[0_0_15px_rgba(129,140,248,0.8)]"></div>
+                        <p className="text-xl font-medium text-slate-100 leading-relaxed pl-6 py-1">
+                            Platform kasir modern yang menggabungkan kecepatan transaksi dengan sistem inventori berbasis cloud yang akurat.
+                        </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4">
+                        {["Real-time Sync", "Cloud Storage", "AI Security"].map((tag, i) => (
+                            <div key={i} className="px-8 py-4 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-black uppercase tracking-[0.2em] text-white hover:bg-indigo-600/50 transition-all cursor-default shadow-xl">
                                 {tag}
                             </div>
                         ))}
                     </div>
                 </div>
-                <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: `radial-gradient(#fff 1px, transparent 0)`, backgroundSize: `40px 40px` }}></div>
+
+                {/* DEKORATIF DOTS */}
+                <div className="absolute top-10 right-10 opacity-[0.15] grid grid-cols-5 gap-3">
+                    {[...Array(25)].map((_, i) => (
+                        <div key={i} className="w-1.5 h-1.5 bg-indigo-300 rounded-full"></div>
+                    ))}
+                </div>
+
+                {/* ICON INFINITY DEKORATIF */}
+                <div className="absolute bottom-10 right-10 opacity-20 text-indigo-400 animate-spin-slow">
+                    <IconInfinity size={100} stroke={1} />
+                </div>
             </div>
             
             <style>{`
-                .animate-spin-slow {
-                    animation: spin 8s linear infinite;
-                }
-                @keyframes spin {
-                    from { transform: rotate(0deg); }
-                    to { transform: rotate(360deg); }
-                }
+                .animate-spin-slow { animation: spin 20s linear infinite; }
+                .animate-pulse-subtle { animation: pulseSubtle 4s ease-in-out infinite; }
+                @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                @keyframes pulseSubtle { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.98); } }
+                .h-15 { height: 3.75rem; }
             `}</style>
         </div>
     );

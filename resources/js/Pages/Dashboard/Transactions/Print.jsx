@@ -10,16 +10,17 @@ import { smartPrint } from "@/Utils/BluetoothHybridService";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
-export default function Print({ transaction, receiptSetting, isPublic = false, autoPrint = false }) {
+export default function Print({ transaction, receiptSetting, isPublic = false, autoPrint = false, isBill = false }) {
     if (!transaction) return <div className="p-10 text-center text-white">Data Transaksi tidak ditemukan...</div>;
 
     const [isBtPrinting, setIsBtPrinting] = useState(false);
-    const C_WIDTH = 25; 
+    const C_WIDTH = 24; 
 
     const details = Array.isArray(transaction.details) ? transaction.details : [];
 
     // --- HELPER LABEL METODE PEMBAYARAN ---
     const getPaymentLabel = (method) => {
+        if (isBill) return "BELUM BAYAR";
         const m = method?.toLowerCase();
         if (m === 'cash') return "TUNAI";
         if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
@@ -80,7 +81,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
     const cashReceived = parseFloat(transaction.cash || grandTotal);
     const changeAmount = cashReceived - grandTotal;
 
-    // --- KIRIM WHATSAPP ---
+    // --- KIRIM WHATSAPP (MANUAL) ---
     const handleSendWhatsapp = async () => {
         let phoneNumber = transaction.customer?.phone || "";
         if (!phoneNumber) {
@@ -97,7 +98,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
         }
 
         const validationLink = `${window.location.origin}/p/invoice/${transaction.invoice}`;
-        let message = `*STRUK DIGITAL - ${receiptSetting?.store_name || "TOKO KAMI"}*\n`;
+        let message = `*${isBill ? "REVIEW BILL" : "STRUK DIGITAL"} - ${receiptSetting?.store_name || "TOKO KAMI"}*\n`;
         message += `--------------------------------\n`;
         message += `No. Antrean : *${displayQueue}*\n`;
         message += `--------------------------------\n\n`;
@@ -113,44 +114,43 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
         }
 
         message += `\n*TOTAL : Rp ${formatPrice(grandTotal)}*\n`;
-        message += `🔗 *Link Struk:* \n${validationLink}`;
+        if (!isBill) message += `🔗 *Link Struk:* \n${validationLink}`;
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
     };
 
-    // --- BLUETOOTH PRINT ---
+    // --- BLUETOOTH PRINT (MANUAL) ---
     const handleBluetoothPrint = async () => {
         setIsBtPrinting(true);
         try {
             const formattedTransaction = {
                 ...transaction,
+                is_bill: isBill,
                 queue_number: displayQueue,
-                discount: totalSaved, // Kirim total diskon yang sudah dihitung ulang
+                discount: totalSaved, 
                 details: details.map(d => ({ ...d, product_title: d.product?.title || d.product_title }))
             };
             await smartPrint(formattedTransaction, receiptSetting);
-            toast.success("Cetak Bluetooth Berhasil!");
+            toast.success(isBill ? "Cetak Bill Berhasil!" : "Cetak Struk Berhasil!");
         } catch (error) {
-            if (autoPrint) window.print();
-            else toast.error("Gagal cetak");
+            toast.error("Gagal cetak Bluetooth. Periksa koneksi printer.");
         } finally { setIsBtPrinting(false); }
     };
 
+    // --- LOGIKA AUTO-PRINT DIHAPUS (SESUAI PERMINTAAN: MANUAL SAJA) ---
     useEffect(() => {
-        if (autoPrint && transaction?.invoice) {
-            if (window.bluetoothSerial) { handleBluetoothPrint(); } 
-            else { const timer = setTimeout(() => window.print(), 1000); return () => clearTimeout(timer); }
-        }
-    }, [autoPrint, transaction]);
+        // Logika auto-trigger dihapus sepenuhnya.
+    }, []);
 
     return (
         <div className="min-h-screen bg-[#0f172a] font-sans text-slate-200 overflow-hidden flex flex-col md:flex-row print:bg-white print:block">
-            <Head title={`Print #${transaction.invoice}`} />
+            <Head title={isBill ? `Review Bill #${displayQueue}` : `Print #${transaction.invoice}`} />
 
             {!isPublic && (
                 <aside className="w-full md:w-80 bg-[#1e293b] border-r border-slate-700/50 p-6 flex flex-col justify-between print:hidden shadow-2xl">
                     <div>
                         <div className="flex items-center gap-3 mb-10 font-bold text-white uppercase tracking-tighter italic">
-                            <IconReceipt className="text-orange-500" size={24} /> Billing Terminal
+                            <IconReceipt className={isBill ? "text-blue-500" : "text-orange-500"} size={24} /> 
+                            {isBill ? "Review Terminal" : "Billing Terminal"}
                         </div>
                         <nav className="space-y-6">
                             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/30 space-y-2">
@@ -159,8 +159,10 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                                     <span className="text-white text-xl font-black">{displayQueue}</span>
                                 </div>
                                 <div className="flex justify-between text-xs font-bold border-b border-slate-700/30 pb-2 mb-2">
-                                    <span className="text-slate-500 uppercase">Metode</span>
-                                    <span className="text-emerald-400 font-black">{getPaymentLabel(transaction.payment_method)}</span>
+                                    <span className="text-slate-500 uppercase">Status</span>
+                                    <span className={isBill ? "text-blue-400 font-black" : "text-emerald-400 font-black"}>
+                                        {isBill ? "DRAF PESANAN" : getPaymentLabel(transaction.payment_method)}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-xs">
                                     <span className="text-slate-500">Order ID</span>
@@ -169,22 +171,33 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                             </div>
                             
                             <div className="space-y-3">
-                                <button onClick={handleBluetoothPrint} disabled={isBtPrinting} className={`w-full py-4 ${isBtPrinting ? 'bg-indigo-800' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all active:scale-95`}>
+                                {/* TOMBOL BLUETOOTH MANUAL */}
+                                <button 
+                                    onClick={handleBluetoothPrint} 
+                                    disabled={isBtPrinting} 
+                                    className={`w-full py-4 ${isBtPrinting ? 'bg-indigo-800' : 'bg-indigo-600 hover:bg-indigo-500'} text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all active:scale-95`}
+                                >
                                     {isBtPrinting ? <IconLoader2 size={24} className="animate-spin" /> : <IconBluetooth size={24} />}
-                                    {isBtPrinting ? "PROSES..." : "CETAK STRUK"}
+                                    {isBtPrinting ? "PROSES..." : isBill ? "CETAK BILL (BT)" : "CETAK STRUK (BT)"}
                                 </button>
+                                
                                 <button onClick={handleSendWhatsapp} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all active:scale-95">
                                     <IconBrandWhatsapp size={24} /> KIRIM WA
                                 </button>
+
                                 <div className="grid grid-cols-2 gap-2">
-                                    <button onClick={() => printUsbRaw(transaction, receiptSetting)} className="bg-orange-500 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95"><IconUsb size={16} /> USB</button>
-                                    <button onClick={() => window.print()} className="bg-slate-700 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95"><IconPrinter size={16} /> BROWSER</button>
+                                    <button onClick={() => printUsbRaw(transaction, receiptSetting)} className="bg-orange-500 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95">
+                                        <IconUsb size={16} /> USB RAW
+                                    </button>
+                                    <button onClick={() => window.print()} className="bg-slate-700 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95">
+                                        <IconPrinter size={16} /> BROWSER
+                                    </button>
                                 </div>
                             </div>
                         </nav>
                     </div>
                     <Link href={route("transactions.index")} className="w-full flex items-center justify-center gap-2 text-slate-400 hover:text-white py-2 text-sm font-medium transition-colors border-t border-slate-700/50 pt-6">
-                        <IconArrowLeft size={18} /> Kembali
+                        <IconArrowLeft size={18} /> Kembali ke Kasir
                     </Link>
                 </aside>
             )}
@@ -192,13 +205,15 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
             <main className="flex-1 p-4 md:p-12 flex flex-col items-center overflow-y-auto custom-scrollbar">
                 <div className="bg-white p-5 text-black font-mono text-[11px] w-[52mm] shadow-2xl print:shadow-none leading-tight border border-slate-100">
                     <header className="text-center uppercase mb-1">
-                        <div className="font-black text-[13px] leading-tight mb-1">{receiptSetting?.store_name || "TOKO ANDA"}</div>
+                        <div className="font-black text-[13px] leading-tight mb-1">
+                            {isBill ? "--- BILL (DRAF) ---" : (receiptSetting?.store_name || "TOKO ANDA")}
+                        </div>
                         <div className="text-[9px] opacity-70 leading-none">{receiptSetting?.store_address}</div>
                         <div className="mt-2 opacity-30">{"-".repeat(C_WIDTH)}</div>
                     </header>
 
                     <div className="text-center my-2">
-                        <div className="text-[34px] font-black leading-none tracking-tighter">{displayQueue}</div>
+                        <div className="text-[15px] font-black leading-none tracking-tighter">{displayQueue}</div>
                         <div className="mt-2 opacity-30">{"-".repeat(C_WIDTH)}</div>
                     </div>
 
@@ -225,7 +240,6 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
 
                         <div className="my-1 opacity-30">{"-".repeat(C_WIDTH)}</div>
                         
-                        {/* TAMPILAN DISKON TOTAL (SINKRON DENGAN GROSIR) */}
                         {totalSaved > 0 && (
                             <>
                                 {formatRow("SUBTOTAL", formatPrice(subtotalGross))}
@@ -239,12 +253,23 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                         <div className="font-black text-[11px] pt-1 border-t border-dashed border-black/20 mt-1">
                             {formatRow("TOTAL", `Rp ${formatPrice(grandTotal)}`)}
                         </div>
-                        {formatRow("BAYAR", formatPrice(cashReceived))}
-                        {formatRow("KEMBALI", formatPrice(Math.max(0, changeAmount)))}
+                        
+                        {!isBill && (
+                            <>
+                                <div className="font-black text-[11px] ">
+                                {formatRow("BAYAR", formatPrice(cashReceived))}
+                                </div>
+                                {formatRow("KEMBALI", formatPrice(Math.max(0, changeAmount)))}
+                            
+                            </>
+                            
+                        )}
                     </div>
 
                     <footer className="text-center mt-6 pt-4 border-t border-dashed border-black/20">
-                        <div className="font-black text-[9px] tracking-tight">{receiptSetting?.store_footer || "Terima Kasih"}</div>
+                        <div className="font-black text-[9px] tracking-tight">
+                            {isBill ? "* PESANAN BELUM DIBAYAR *" : (receiptSetting?.store_footer || "Terima Kasih")}
+                        </div>
                     </footer>
                 </div>
             </main>

@@ -22,7 +22,7 @@ use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - Mangkujagad PWA
+| Web Routes - POS SYSTEM AJA
 |--------------------------------------------------------------------------
 */
 
@@ -88,19 +88,24 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     // 4. MODUL KATALOG & MASTER DATA
     // =============================================================
     Route::group(['middleware' => ['permission:products.index']], function () {
-    Route::resource('categories', CategoryController::class);
+        Route::resource('categories', CategoryController::class);
 
-    // PINDAHKAN RUTE TEMPLATE KE SINI (DI ATAS RESOURCE)
-    Route::get('/products/template', [ProductController::class, 'template'])->name('products.template');
-    
-    // BARU KEMUDIAN RESOURCE
-    Route::resource('products', ProductController::class);
+        // Template Produk
+        Route::get('/products/template', [ProductController::class, 'template'])->name('products.template');
+        
+        // Produk Resource
+        Route::resource('products', ProductController::class);
+        Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
+        Route::post('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulk_destroy');
+        
+        // Manajemen Meja
+        Route::resource('/tables', TableController::class)->except(['create', 'edit', 'show']);
+        Route::get('/tables/print-qr', [TableController::class, 'printQr'])->name('tables.printQr');
 
-    Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
-    Route::post('/products/bulk-destroy', [ProductController::class, 'bulkDestroy'])->name('products.bulk_destroy');
-    
-    Route::resource('/tables', TableController::class)->except(['create', 'edit', 'show']);
-    Route::get('/tables/print-qr', [TableController::class, 'printQr'])->name('tables.printQr');
+        // BARU: Rute Cetak QR Take Away (Tampilan Digital Menu Hijau)
+        Route::get('/tables/print-qr-takeaway', function () {
+            return Inertia::render('Dashboard/Tables/PrintQRTakeAway');
+        })->name('print.qr.takeaway');
     });
 
     // =============================================================
@@ -161,7 +166,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::delete('/holds/{id}', [TransactionController::class, 'destroyHold'])->name('transactions.destroyHold');
         Route::delete('/holds-legacy/{id}', [TransactionController::class, 'destroyHold'])->name('holds.destroy');
             
-        Route::get('/transactions/bill/{id}', [TransactionController::class, 'printBill'])->name('transactions.bill');
+        Route::get('/transactions/print-bill/{id}', [TransactionController::class, 'printBill'])->name('transactions.printBill');
     });
 
     // =============================================================
@@ -195,9 +200,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::get('/settings/bluetooth', fn() => Inertia::render('Dashboard/Settings/BluetoothPairing'))->name('settings.bluetooth');
         
         Route::resource('/discounts', DiscountController::class)->except(['show', 'edit', 'update']);
-        
-        // Dinonaktifkan karena menyebabkan ReflectionException (File tidak ada)
-        // Route::resource('/units', UnitController::class)->except(['show', 'create', 'edit']);
     });
 
     // =============================================================

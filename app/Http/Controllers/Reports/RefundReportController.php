@@ -14,12 +14,13 @@ class RefundReportController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Query Dasar: Ambil hanya transaksi yang statusnya 'refunded'
+        // 1. Query Dasar: Gunakan kolom 'status', bukan 'payment_status'
+        // Karena di TransactionController kita update-nya ke kolom 'status'
         $query = Transaction::query()
-            ->with(['cashier', 'customer'])
-            ->where('payment_status', 'refunded');
+            ->with(['cashier:id,name', 'customer:id,name']) // Optimasi: hanya ambil id dan nama
+            ->where('status', 'refunded');
 
-        // 2. Filter Berdasarkan Tanggal (Jika ada input dari user)
+        // 2. Filter Berdasarkan Tanggal
         if ($request->start_date) {
             $query->whereDate('updated_at', '>=', $request->start_date);
         }
@@ -27,11 +28,17 @@ class RefundReportController extends Controller
             $query->whereDate('updated_at', '<=', $request->end_date);
         }
 
-        // 3. Hitung Total Uang yang Dikembalikan
+        // 3. Filter Berdasarkan No. Invoice (Tambahan agar lebih pro)
+        if ($request->invoice) {
+            $query->where('invoice', 'like', '%' . $request->invoice . '%');
+        }
+
+        // 4. Hitung Total Uang yang Dikembalikan
+        // Menggunakan clone agar query utama tidak terganggu untuk pagination
         $totalRefund = (clone $query)->sum('grand_total');
 
-        // 4. Ambil Data dengan Pagination (10 per halaman)
-        // Kita urutkan berdasarkan 'updated_at' karena itu waktu saat refund terjadi
+        // 5. Ambil Data dengan Pagination
+        // Diurutkan berdasarkan 'updated_at' (waktu admin klik tombol refund)
         $refunds = $query->latest('updated_at')
             ->paginate(10)
             ->withQueryString();
@@ -39,7 +46,7 @@ class RefundReportController extends Controller
         return Inertia::render('Dashboard/Reports/Refund', [
             'refunds'     => $refunds,
             'totalRefund' => (int) $totalRefund,
-            'filters'     => $request->only(['start_date', 'end_date']),
+            'filters'     => $request->only(['start_date', 'end_date', 'invoice']),
         ]);
     }
 }

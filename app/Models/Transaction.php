@@ -21,7 +21,7 @@ class Transaction extends Model
         'customer_id',
         'shift_id', 
         'invoice',
-        'reference_code', // --- TETAP DI SINI AGAR BISA DISIMPAN ---
+        'reference_code',
         'customer_name',
         'cash',
         'change',
@@ -29,6 +29,7 @@ class Transaction extends Model
         'grand_total',
         'payment_method',
         'payment_status',
+        'status',          // --- TAMBAHKAN INI AGAR REFUND TERSIMPAN ---
         'table_name',
         'queue_number',
         'payment_reference',
@@ -58,7 +59,7 @@ class Transaction extends Model
     /**
      * details
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Relations\HasMany
      */
     public function details()
     {

@@ -46,7 +46,7 @@ const sendToNativeBluetooth = (data) => {
                     await new Promise((res, rej) => {
                         btSerial.write(chunk, res, rej);
                     });
-                    await new Promise(res => setTimeout(res, 35)); // Jeda antar potongan
+                    await new Promise(res => setTimeout(res, 35)); // Jeda antar potongan hardware
                 }
                 
                 // Jeda sebelum disconnect agar buffer selesai
@@ -98,14 +98,16 @@ const sendToBluetooth = async (data) => {
     }
 };
 
-// --- FUNGSI UTAMA: PRINT TRANSAKSI ---
+// --- FUNGSI UTAMA: PRINT TRANSAKSI (MENDUKUNG REVIEW BILL) ---
 export const printTransactionBluetooth = async (transaction, receiptSetting) => {
     try {
         const encoder = new EscPosEncoder();
         let result = encoder.initialize().codepage('windows1252');
         const details = Array.isArray(transaction.details) ? transaction.details : [];
+        const isBill = !!transaction.is_bill; // Deteksi mode draf/bill
 
         const getPaymentLabel = (method) => {
+            if (isBill) return "BELUM BAYAR";
             const m = method?.toLowerCase();
             if (m === 'cash') return "TUNAI";
             if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
@@ -120,13 +122,12 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
             : (transaction.invoice ? transaction.invoice.slice(-4) : "0000");
         
         const grandTotal = parseFloat(transaction.grand_total || 0);
-        // FIX: Mendukung tampilan diskon total yang dihitung dari Print.jsx
         const totalDiscount = parseFloat(transaction.discount || 0);
         const subtotalGross = grandTotal + totalDiscount;
 
         // HEADER
         result.raw([0x1b, 0x61, 0x01]) // Center
-              .bold(true).line(clean(receiptSetting?.store_name || "TOKO POS")).bold(false)
+              .bold(true).line(clean(isBill ? "--- BILL (DRAF) ---" : (receiptSetting?.store_name || "TOKO POS"))).bold(false)
               .line(clean(receiptSetting?.store_address || ""))
               .line("-".repeat(C_WIDTH))
               .size('large').bold(true).line(queueNum).size('normal').bold(false)
@@ -166,14 +167,19 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
             result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
         }
 
-        result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false)
-              .line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
-              .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')))
-              .line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
+        result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
+        
+        // Sembunyikan Bayar & Kembali jika ini Bill Draf
+        if (!isBill) {
+            result.line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
+                  .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')));
+        }
+
+        result.line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
               .line("-".repeat(C_WIDTH));
 
-        // QRCODE PEMBAYARAN (JIKA ADA)
-        if (transaction.payment_url) {
+        // QRCODE PEMBAYARAN (JIKA ADA & BUKAN BILL)
+        if (transaction.payment_url && !isBill) {
             result.raw([0x1b, 0x61, 0x01])
                   .newline().line("SCAN UNTUK BAYAR").newline()
                   .qrcode(transaction.payment_url, 1, 6, 'm')
@@ -182,7 +188,7 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
 
         // FOOTER
         result.raw([0x1b, 0x61, 0x01])
-              .line(clean(receiptSetting?.store_footer || "Terima Kasih"))
+              .line(clean(isBill ? "* PESANAN BELUM DIBAYAR *" : (receiptSetting?.store_footer || "Terima Kasih")))
               .newline().newline().newline().newline();
 
         await sendToBluetooth(result.encode());

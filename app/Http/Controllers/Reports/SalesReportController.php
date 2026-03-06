@@ -20,13 +20,14 @@ class SalesReportController extends Controller
     {
         $filters = [
             'start_date' => $request->input('start_date'),
-            'end_date' => $request->input('end_date'),
-            'invoice' => $request->input('invoice'),
+            'end_date'   => $request->input('end_date'),
+            'invoice'    => $request->input('invoice'),
             'cashier_id' => $request->input('cashier_id'),
-            'customer_id' => $request->input('customer_id'),
+            'customer_id'=> $request->input('customer_id'),
         ];
 
-        // Base query untuk daftar transaksi (mengambil semua kolom termasuk kolom online baru)
+        // 1. Base query untuk daftar transaksi 
+        // Menggunakan applyFilters yang sudah diperbarui (status != refunded)
         $baseListQuery = $this->applyFilters(
             Transaction::query()
                 ->with(['cashier:id,name', 'customer:id,name'])
@@ -39,7 +40,7 @@ class SalesReportController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // Aggregate query untuk menghitung summary
+        // 2. Aggregate query untuk menghitung summary (Eksklusi Refunded otomatis)
         $aggregateQuery = $this->applyFilters(Transaction::query(), $filters);
 
         $totals = (clone $aggregateQuery)
@@ -54,23 +55,25 @@ class SalesReportController extends Controller
 
         $transactionIds = (clone $aggregateQuery)->pluck('id');
 
+        // Menghitung Item Terjual (Hanya dari transaksi sukses)
         $itemsSold = $transactionIds->isNotEmpty()
             ? TransactionDetail::whereIn('transaction_id', $transactionIds)->sum('qty')
             : 0;
 
+        // Menghitung Profit (Hanya dari transaksi sukses)
         $profitTotal = $transactionIds->isNotEmpty()
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
 
-        // Menyusun ringkasan data untuk ditampilkan di Summary Cards
+        // 3. Menyusun ringkasan data untuk Summary Cards
         $summary = [
-            'orders_count' => (int) ($totals->orders_count ?? 0),
+            'orders_count'  => (int) ($totals->orders_count ?? 0),
             'revenue_total' => (int) ($totals->revenue_total ?? 0),
-            'discount_total' => (int) ($totals->discount_total ?? 0),
-            'items_sold' => (int) $itemsSold,
-            'profit_total' => (int) $profitTotal,
-            'markup_total' => (int) ($totals->markup_total ?? 0), // Akumulasi Markup %
-            'fee_total' => (int) ($totals->fee_total ?? 0),       // Akumulasi Biaya Flat
+            'discount_total'=> (int) ($totals->discount_total ?? 0),
+            'items_sold'    => (int) $itemsSold,
+            'profit_total'  => (int) $profitTotal,
+            'markup_total'  => (int) ($totals->markup_total ?? 0), 
+            'fee_total'     => (int) ($totals->fee_total ?? 0),       
             'average_order' => ($totals->orders_count ?? 0) > 0
                 ? (int) round($totals->revenue_total / $totals->orders_count)
                 : 0,
@@ -78,20 +81,22 @@ class SalesReportController extends Controller
 
         return Inertia::render('Dashboard/Reports/Sales', [
             'transactions' => $transactions,
-            'summary' => $summary,
-            'filters' => $filters,
-            'cashiers' => User::select('id', 'name')->orderBy('name')->get(),
-            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
+            'summary'      => $summary,
+            'filters'      => $filters,
+            'cashiers'     => User::select('id', 'name')->orderBy('name')->get(),
+            'customers'    => Customer::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
     /**
      * Apply table filters.
+     * Filter ini memastikan transaksi 'refunded' tidak masuk ke dalam perhitungan laporan penjualan.
      */
     protected function applyFilters($query, array $filters)
     {
         return $query
-            ->where('payment_status', '!=', 'refunded')
+            // Update: Menggunakan kolom 'status' (bukan payment_status) untuk akurasi refund
+            ->where('status', '!=', 'refunded')
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))

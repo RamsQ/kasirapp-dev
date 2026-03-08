@@ -33,7 +33,7 @@ export default function Sidebar({ sidebarOpen }) {
                             <span className="text-white font-bold text-sm">K</span>
                         </div>
                         <span className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tighter font-sans">
-                            Kasir
+                            POS System
                         </span>
                     </div>
                 ) : (

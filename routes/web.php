@@ -6,7 +6,6 @@ use App\Http\Controllers\Apps\{
     ProfileController, StockOpnameController, StockInController, 
     ExpiredProductController, ReceiptSettingController, DiscountController,
     SettingController, TableController, IngredientController, 
-    // UnitController, // Dinonaktifkan sementara karena file tidak ditemukan
     RecipeController, PublicMenuController, OnlineSettingController
 };
 use App\Http\Controllers\{
@@ -115,7 +114,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         // --- INGREDIENTS ---
         Route::resource('/ingredients', IngredientController::class)->except(['create', 'edit', 'show']);
         Route::get('/ingredients-template', [IngredientController::class, 'template'])->name('ingredients.template');
-        Route::post('/ingredients-import', [IngredientController::class, 'import'])->name('ingredients.import');
+        // Route::post('/ingredients-import', [IngredientController::class, 'import'])->name('ingredients.import');
 
         // --- RECIPES (PENGATURAN HPP) ---
         Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
@@ -188,6 +187,18 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
     // =============================================================
     // 8. MODUL PENGATURAN
     // =============================================================
+
+    /** * Rute Bluetooth Pairing: 
+     * Dibuka untuk Admin (settings.index) ATAU Staf dengan izin khusus (settings.bluetooth)
+     */
+    Route::group(['middleware' => ['auth', 'permission:settings.index|settings.bluetooth']], function () {
+        Route::get('/settings/bluetooth', fn() => Inertia::render('Dashboard/Settings/BluetoothPairing'))->name('settings.bluetooth');
+    });
+
+    /**
+     * Rute Pengaturan Inti: 
+     * Tetap dibatasi hanya untuk pemegang izin settings.index (Admin/Owner)
+     */
     Route::group(['middleware' => ['permission:settings.index']], function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
@@ -197,7 +208,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::put('/settings/payments', [PaymentSettingController::class, 'update'])->name('settings.payments.update');
         Route::get('/settings/receipt', [ReceiptSettingController::class, 'index'])->name('settings.receipt.index');
         Route::post('/settings/receipt', [ReceiptSettingController::class, 'update'])->name('settings.receipt.update');
-        Route::get('/settings/bluetooth', fn() => Inertia::render('Dashboard/Settings/BluetoothPairing'))->name('settings.bluetooth');
         
         Route::resource('/discounts', DiscountController::class)->except(['show', 'edit', 'update']);
     });

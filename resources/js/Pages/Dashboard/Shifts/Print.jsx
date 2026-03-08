@@ -171,14 +171,17 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
 
                         <div className="border-b border-dashed border-black/30 mb-3 w-full"></div>
 
-                        {/* DIGITAL BREAKDOWN (BARU: QRIS AUTO) */}
+                        {/* DIGITAL BREAKDOWN (RINGKAS: QRIS DIGABUNG) */}
                         <div className="space-y-1.5 pb-4">
-                            <div className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Informasi Non-Tunai</div>
-                            <FlexRow label="QRIS AUTO (MID)" value={formatPrice(totalQrisAuto)} />
-                            <FlexRow label="QRIS MANUAL" value={formatPrice(totalQrisManual)} />
-                            <FlexRow label="TRANSFER BANK" value={formatPrice(totalTransfer)} />
-                            <div className="border-b border-dotted border-black/20 my-1"></div>
-                            <FlexRow label="TOTAL DIGITAL" value={formatPrice(totalDigital)} className="font-black" />
+                        <div className="text-[9px] font-black uppercase opacity-40 mb-1 tracking-widest">Informasi Non-Tunai</div>
+    
+                        {/* Menggabungkan Nilai Auto + Manual */}
+                        <FlexRow label="QRIS AUTO/STATIS" value={formatPrice(totalQrisAuto + totalQrisManual)} />
+    
+                        <FlexRow label="TRANSFER BANK" value={formatPrice(totalTransfer)} />
+    
+                        <div className="border-b border-dotted border-black/20 my-1"></div>
+                        <FlexRow label="TOTAL DIGITAL" value={formatPrice(totalDigital)} className="font-black" />
                         </div>
 
                         {/* FOOTER & VALIDASI */}

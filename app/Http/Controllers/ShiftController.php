@@ -8,6 +8,7 @@ use App\Models\ReceiptSetting;
 use App\Models\Expense; 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class ShiftController extends Controller
 {
@@ -47,7 +48,7 @@ class ShiftController extends Controller
     }
 
     /**
-     * Fungsi Tutup Shift (Menghitung Total Penjualan & Diskon)
+     * Fungsi Tutup Shift (Menghitung Total Penjualan Digital & Tunai)
      */
     public function close(Request $request)
     {
@@ -59,35 +60,58 @@ class ShiftController extends Controller
             ->where('status', 'open')
             ->firstOrFail();
 
-        // 1. Hitung Penjualan TUNAI & QRIS
+        // 1. Hitung Penjualan TUNAI (Hanya yang lunas dan TIDAK di-refund)
         $totalCashSales = Transaction::where('shift_id', $shift->id)
                             ->where('payment_method', 'cash') 
                             ->where('payment_status', 'paid')
+                            ->where('status', '!=', 'refunded')
                             ->sum('grand_total');
 
-        $totalQrisSales = Transaction::where('shift_id', $shift->id)
-                            ->where('payment_method', 'qris') 
+        // 2. Hitung Penjualan QRIS AUTO (Midtrans/Xendit)
+        $totalMidtransSales = Transaction::where('shift_id', $shift->id)
+                            ->whereIn('payment_method', ['midtrans', 'xendit']) 
                             ->where('payment_status', 'paid')
+                            ->where('status', '!=', 'refunded')
                             ->sum('grand_total');
 
-        // 2. Hitung TOTAL DISKON/PROMO selama shift ini
-        $totalDiscounts = Transaction::where('shift_id', $shift->id)->sum('discount');
+        // 3. Hitung Penjualan QRIS MANUAL
+        $totalQrisManualSales = Transaction::where('shift_id', $shift->id)
+                            ->where('payment_method', 'qris_manual') 
+                            ->where('payment_status', 'paid')
+                            ->where('status', '!=', 'refunded')
+                            ->sum('grand_total');
 
-        // 3. Hitung Pengeluaran Kasir (Kas Keluar)
+        // 4. Hitung Penjualan TRANSFER
+        $totalTransferSales = Transaction::where('shift_id', $shift->id)
+                            ->where('payment_method', 'transfer') 
+                            ->where('payment_status', 'paid')
+                            ->where('status', '!=', 'refunded')
+                            ->sum('grand_total');
+
+        // 5. Hitung TOTAL DISKON
+        $totalDiscounts = Transaction::where('shift_id', $shift->id)
+                            ->where('status', '!=', 'refunded')
+                            ->sum('discount');
+
+        // 6. Hitung Pengeluaran Kasir (Kas Keluar)
         $totalPettyCashOut = Expense::where('user_id', auth()->id())
-                            ->whereBetween('created_at', [$shift->opened_at, now()])
+                            ->whereBetween('created_at', [$shift->opened_at, Carbon::now()])
                             ->sum('amount');
 
-        // 4. Kalkulasi ekspektasi saldo tunai (Modal Awal + Jual Tunai - Kas Keluar)
+        // 7. Kalkulasi ekspektasi saldo tunai (Modal + Tunai - Keluar)
         $expected = ($shift->starting_cash + $totalCashSales) - $totalPettyCashOut;
         $actual = $request->total_cash_physical;
 
-        // 5. Update data shift
+        // 8. Update data shift (SIMPAN SEMUA KE DATABASE)
         $shift->update([
             'total_cash_expected' => $expected,
             'total_cash_actual'   => $actual,
-            'total_qris_sales'    => $totalQrisSales,
+            'total_cash_sales'    => $totalCashSales,
+            'total_midtrans_sales'=> $totalMidtransSales,
+            'total_qris_sales'    => $totalQrisManualSales,
+            'total_transfer_sales'=> $totalTransferSales,
             'total_discounts'     => $totalDiscounts, 
+            'total_expense'       => $totalPettyCashOut, // Data resmi tersimpan di kolom baru
             'difference'          => $actual - $expected,
             'status'              => 'closed',
             'closed_at'           => now(),
@@ -101,30 +125,22 @@ class ShiftController extends Controller
      */
     public function print(Shift $shift)
     {
-        // Ambil rincian transaksi untuk laporan
-        $totalCashSales = Transaction::where('shift_id', $shift->id)
-            ->where('payment_method', 'cash')
-            ->where('payment_status', 'paid')
-            ->sum('grand_total');
+        $shift->load('user');
+        
+        // Recalculate digital sales untuk memastikan data fresh di tampilan
+        $shift->total_midtrans_sales = Transaction::where('shift_id', $shift->id)->whereIn('payment_method', ['midtrans', 'xendit'])->where('status', '!=', 'refunded')->sum('grand_total');
+        $shift->total_qris_sales     = Transaction::where('shift_id', $shift->id)->where('payment_method', 'qris_manual')->where('status', '!=', 'refunded')->sum('grand_total');
+        $shift->total_transfer_sales = Transaction::where('shift_id', $shift->id)->where('payment_method', 'transfer')->where('status', '!=', 'refunded')->sum('grand_total');
+        $shift->total_cash_sales     = Transaction::where('shift_id', $shift->id)->where('payment_method', 'cash')->where('status', '!=', 'refunded')->sum('grand_total');
 
-        $totalQrisSales = Transaction::where('shift_id', $shift->id)
-            ->where('payment_method', 'qris')
-            ->where('payment_status', 'paid')
-            ->sum('grand_total');
-
-        // Hitung total diskon khusus untuk cetakan
-        $totalDiscounts = Transaction::where('shift_id', $shift->id)->sum('discount');
-
-        $pettyCashOut = Expense::where('user_id', $shift->user_id)
+        // Ambil rincian pengeluaran untuk detail struk
+        $pettyCashDetails = Expense::where('user_id', $shift->user_id)
             ->whereBetween('created_at', [$shift->opened_at, $shift->closed_at ?? now()])
             ->get();
 
-        $shift->load('user');
-        $shift->total_qris_sales = $totalQrisSales;
-        $shift->total_cash_sales = $totalCashSales;
-        $shift->total_discounts  = $totalDiscounts; 
-        $shift->petty_cash_out   = $pettyCashOut->sum('amount');
-        $shift->expense_details  = $pettyCashOut; 
+        // Mengambil dari kolom total_expense atau hitung manual jika data lama null
+        $shift->petty_cash_out   = $shift->total_expense ?? $pettyCashDetails->sum('amount');
+        $shift->expense_details  = $pettyCashDetails; 
 
         return Inertia::render('Dashboard/Shifts/Print', [
             'shift'          => $shift,
@@ -135,30 +151,32 @@ class ShiftController extends Controller
 
     /**
      * Riwayat Shift (Laporan Shift)
-     * Penyesuaian agar Riwayat memiliki data lengkap untuk CETAK ULANG
      */
     public function index(Request $request)
     {
         $shifts = Shift::with(['user:id,name'])
             ->withSum(['transactions as total_cash_sales' => function($query) {
-                $query->where('payment_method', 'cash')->where('payment_status', 'paid');
+                $query->where('payment_method', 'cash')->where('status', '!=', 'refunded');
+            }], 'grand_total')
+            ->withSum(['transactions as total_midtrans_sales' => function($query) {
+                $query->whereIn('payment_method', ['midtrans', 'xendit'])->where('status', '!=', 'refunded');
             }], 'grand_total')
             ->withSum(['transactions as total_qris_sales' => function($query) {
-                $query->where('payment_method', 'qris')->where('payment_status', 'paid');
+                $query->where('payment_method', 'qris_manual')->where('status', '!=', 'refunded');
             }], 'grand_total')
-            ->withSum('transactions as total_discounts', 'discount')
+            ->withSum(['transactions as total_transfer_sales' => function($query) {
+                $query->where('payment_method', 'transfer')->where('status', '!=', 'refunded');
+            }], 'grand_total')
+            // FIX: Dihapus withSum expenses karena method relasi tidak ada di Model.
+            // Kolom 'total_expense' sudah ada di tabel shifts, jadi otomatis terambil.
             ->when($request->date, fn($q, $date) => $q->whereDate('opened_at', $date))
             ->orderBy('id', 'desc')
             ->paginate(10)
             ->withQueryString();
-
-        // Agar riwayat bisa dicetak ulang dengan detail pengeluaran, kita perlu melampirkan 
-        // detail pengeluaran pada setiap shift di halaman riwayat (Opsional/Lazy Loading di Frontend)
-        // Namun untuk performa cetak ulang langsung, kita kirimkan ReceiptSetting juga.
         
         return Inertia::render('Dashboard/Shifts/Index', [
             'shifts'         => $shifts,
-            'receiptSetting' => ReceiptSetting::first(), // Penting untuk nama toko di cetakan ulang
+            'receiptSetting' => ReceiptSetting::first(),
             'filters'        => $request->all(['date'])
         ]);
     }

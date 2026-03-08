@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes - Mangkujagad PWA
+| API Routes - POS PWA
 |--------------------------------------------------------------------------
 |
 | Semua route di file ini otomatis mendapatkan prefix "api/".

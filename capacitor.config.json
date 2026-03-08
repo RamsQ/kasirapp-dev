@@ -1,6 +1,6 @@
 {
   "appId": "com.mangkujagad.app",
-  "appName": "mangkujagad",
+  "appName": "POS System",
   "webDir": "public",
   "server": {
     "url": "https://mangkujagad.my.id",

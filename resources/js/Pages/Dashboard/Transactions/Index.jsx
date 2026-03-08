@@ -471,7 +471,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
     return (
         <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-            <Head title="Kasir Mangkujagad" />
+            <Head title="POS System" />
             
             {!activeShift && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 text-center">

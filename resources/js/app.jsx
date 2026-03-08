@@ -34,7 +34,7 @@ createInertiaApp({
             if (path === '/' || path === '/dashboard') {
                 Swal.fire({
                     title: 'Keluar Aplikasi?',
-                    text: 'Apakah Anda yakin ingin menutup aplikasi mangkujagad?',
+                    text: 'Apakah Anda yakin ingin menutup aplikasi POS System?',
                     icon: 'question',
                     showCancelButton: true,
                     confirmButtonColor: '#4B5563', // Gray-600

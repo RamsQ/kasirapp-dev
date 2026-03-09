@@ -264,10 +264,6 @@ class TransactionController extends Controller
                 $hold = $request->hold_id ? Hold::find($request->hold_id) : null;
                 $finalReferenceCode = $hold ? $hold->reference_code : ($request->reference_code ?? Str::random(4));
 
-                /**
-                 * FIX BUG LOMPAT NOMOR: 
-                 * Jika ada hold_id, pastikan ambil queue_number yang sudah digenerate sebelumnya.
-                 */
                 $finalQueueNumber = $request->queue_number;
                 if ($hold && $hold->queue_number) {
                     $finalQueueNumber = $hold->queue_number;
@@ -401,6 +397,27 @@ class TransactionController extends Controller
         } catch (\Exception $e) { 
             return response()->json(['message' => 'Transaksi Gagal: ' . $e->getMessage()], 500); 
         }
+    }
+
+    /**
+     * FIX BUG: Membatalkan transaksi gateway jika pop-up Snap ditutup tanpa bayar
+     */
+    public function cancelGateway(Request $request)
+    {
+        $transaction = Transaction::where('invoice', $request->invoice)
+            ->where('payment_status', 'pending')
+            ->first();
+
+        if ($transaction) {
+            DB::transaction(function () use ($transaction) {
+                // Hapus detail dan profit agar tidak mengotori laporan keuangan
+                $transaction->details()->delete();
+                $transaction->profits()->delete();
+                $transaction->delete();
+            });
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['success' => false, 'message' => 'Transaksi tidak ditemukan atau sudah lunas.'], 404);
     }
 
     public function holdCart(Request $request)
@@ -573,6 +590,8 @@ class TransactionController extends Controller
     public function history(Request $request)
     {
         $query = Transaction::query()
+            // FIX: Hanya tampilkan transaksi yang sudah LUNAS agar pending gateway tidak mengotori riwayat
+            ->where('payment_status', 'paid') 
             ->with(['cashier:id,name', 'customer:id,name'])
             ->withSum('details as total_items', 'qty')
             ->withSum('profits as total_profit', 'total')
@@ -635,7 +654,6 @@ class TransactionController extends Controller
                         $conversion = $detail->product_unit_id ? (ProductUnit::find($detail->product_unit_id)->conversion ?? 1) : 1;
                         DB::table('products')->where('id', $detail->product_id)->increment('stock', $detail->qty * $conversion);
                     }
-                    // Catatan: Untuk bundle, stok item di dalamnya biasanya dikelola via recipes atau ditangani saat store.
                 }
 
                 // 5. Update Status Transaksi

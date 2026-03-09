@@ -155,7 +155,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
     const currentActiveHold = useMemo(() => holds.find(h => h.id === activeHoldId), [holds, activeHoldId]);
 
-    // --- FIX: cartSubtotal KE SINI ---
     const cartSubtotal = useMemo(() => (carts || []).reduce((acc, c) => acc + parseFloat(c.price || 0), 0), [carts]);
 
     // Logika menutup dropdown jika klik di luar
@@ -309,6 +308,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         const globalPromo = (discounts || [])
             .filter(d => d.product_id === null || d.product_id === "")
             .filter(d => cartSubtotal >= parseFloat(d.min_transaction || 0))
+            .filter(d => d.is_active)
             .sort((a, b) => parseFloat(b.min_transaction) - parseFloat(a.min_transaction))[0];
 
         if (!globalPromo) return { amount: 0, name: null };
@@ -401,7 +401,15 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                             Swal.fire({ title: 'Menunggu Pembayaran', text: 'Selesaikan transaksi di HP pelanggan.', icon: 'info', showConfirmButton: false });
                             startPaymentPolling(response.data.invoice);
                         },
-                        onClose: () => setIsPaymentLoading(false)
+                        // FIX: Jika kasir menutup pop-up, panggil backend untuk menghapus data pending
+                        onClose: () => {
+                            setIsPaymentLoading(false);
+                            axios.post(route('transactions.cancel_gateway'), {
+                                invoice: response.data.invoice
+                            }).then(() => {
+                                toast.error("Pembayaran Dibatalkan");
+                            }).catch(err => console.error("Gagal batalkan:", err));
+                        }
                     });
                 } else {
                     window.location.href = response.data.payment_url;
@@ -694,7 +702,6 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                         ))}
                                     </div>
                                     <div className="flex gap-2">
-                                        {/* FIX: TOMBOL REVIEW PRINT BILL MENGGUNAKAN ROUTE BARU */}
                                         <Link 
                                             href={route('transactions.printBill', h.id)} 
                                             target="_blank" 

@@ -25,20 +25,24 @@ Route::get('/user', function (Request $request) {
 
 /**
  * PEMBAYARAN GATEWAY (MIDTRANS / XENDIT)
- * Grouping ini menangani alur pembayaran otomatis.
+ * Grouping ini menangani alur pembayaran otomatis secara Real-time.
  */
 Route::prefix('payment')->group(function () {
     
-    // 1. POLLING STATUS
-    // Digunakan oleh React di Kasir untuk mengecek apakah user sudah bayar QRIS.
-    // Frontend akan memanggil ini setiap 3 detik.
+    /**
+     * 1. POLLING STATUS (FRONTEND CHECK)
+     * Digunakan oleh React di halaman Kasir untuk mengecek status transaksi.
+     * Frontend akan memanggil ini secara berkala (Polling) setiap 3 detik.
+     */
     Route::get('/check/{invoice}', [PaymentController::class, 'checkStatus'])
         ->name('payment.check');
     
-    // 2. WEBHOOK (NOTIFICATION)
-    // URL yang didaftarkan di Dashboard Midtrans.
-    // Midtrans akan "mengetuk" URL ini secara otomatis saat pembayaran lunas.
-    // Pastikan fungsi 'handleNotification' ada di PaymentController.
+    /**
+     * 2. WEBHOOK / CALLBACK (SERVER TO SERVER)
+     * URL utama yang didaftarkan pada Dashboard Midtrans (Settings > Configuration).
+     * Midtrans akan mengirimkan data JSON ke sini setiap ada perubahan status (Settlement/Expire).
+     * Rute ini bersifat publik karena diakses langsung oleh server Midtrans.
+     */
     Route::post('/notification', [PaymentController::class, 'handleNotification'])
         ->name('payment.notification');
         
@@ -46,5 +50,6 @@ Route::prefix('payment')->group(function () {
 
 /**
  * ADDITIONAL API
- * Tempat menambahkan API tambahan jika dibutuhkan di masa depan
+ * Tempat menambahkan API tambahan jika dibutuhkan di masa depan.
+ * Pastikan rute baru tetap mengikuti standar keamanan yang ada.
  */

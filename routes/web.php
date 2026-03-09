@@ -166,6 +166,9 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::delete('/holds-legacy/{id}', [TransactionController::class, 'destroyHold'])->name('holds.destroy');
             
         Route::get('/transactions/print-bill/{id}', [TransactionController::class, 'printBill'])->name('transactions.printBill');
+
+        // BARU: Rute Pembatalan Gateway jika pop-up ditutup tanpa bayar
+        Route::post('/transactions/cancel-gateway', [TransactionController::class, 'cancelGateway'])->name('transactions.cancel_gateway');
     });
 
     // =============================================================

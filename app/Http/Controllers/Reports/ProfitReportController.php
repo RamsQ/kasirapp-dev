@@ -28,7 +28,7 @@ class ProfitReportController extends Controller
             'customer_id'=> $request->input('customer_id'),
         ];
 
-        // Query dasar transaksi (Sudah difilter agar mengecualikan status 'refunded')
+        // Query dasar transaksi (Sudah difilter agar hanya mengambil yang LUNAS dan bukan REFUND)
         $baseQuery = $this->applyFilters(
             Transaction::query(),
             $filters
@@ -45,14 +45,14 @@ class ProfitReportController extends Controller
 
         $transactionIds = (clone $baseQuery)->pluck('id');
 
-        // 2. PENJUALAN BRUTO (Omzet Kotor dari transaksi yang valid)
+        // 2. PENJUALAN BRUTO (Omzet Kotor dari transaksi yang lunas)
         $revenueTotal = (clone $baseQuery)->sum('grand_total');
 
         // 3. BEBAN KOMISI APLIKASI
         $appExpenseAccount = (clone $baseQuery)->sum(DB::raw('total_markup + total_fee'));
 
         // 4. MARGIN KOTOR (Profit dari Penjualan Produk sebelum dipotong beban operasional)
-        // Kita hanya mengambil profit dari ID transaksi yang statusnya bukan refunded
+        // Kita hanya mengambil profit dari ID transaksi yang statusnya lunas dan bukan refunded
         $grossMargin = $transactionIds->isNotEmpty()
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
@@ -79,7 +79,7 @@ class ProfitReportController extends Controller
             ? TransactionDetail::whereIn('transaction_id', $transactionIds)->sum('qty')
             : 0;
 
-        // Ambil transaksi terbaik berdasarkan profit terbesar (hanya transaksi valid)
+        // Ambil transaksi terbaik berdasarkan profit terbesar (hanya transaksi valid/lunas)
         $bestTransaction = (clone $baseQuery)
             ->withSum('profits as total_profit', 'total')
             ->get()
@@ -114,12 +114,14 @@ class ProfitReportController extends Controller
 
     /**
      * Apply table filters
-     * Diperbarui untuk menggunakan kolom 'status' demi akurasi Laporan Keuntungan.
+     * FIX: Wajib hanya menampilkan transaksi 'paid' (lunas) agar angka akurat.
      */
     protected function applyFilters($query, array $filters)
     {
         return $query
-            // Pastikan data refund dikeluarkan dari perhitungan Laba/Rugi
+            // 1. Kunci Utama: Hanya hitung yang sudah LUNAS (Mencegah data pending QRIS masuk)
+            ->where('payment_status', 'paid')
+            // 2. Kecualikan data yang direfund
             ->where('status', '!=', 'refunded')
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))

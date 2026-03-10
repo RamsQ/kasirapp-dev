@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-// IMPORT NOTIFIKASI KUSTOM
 use App\Notifications\CustomResetPassword; 
+use Illuminate\Database\Eloquent\Casts\Attribute; // Penting untuk Accessor
 
 class User extends Authenticatable
 {
@@ -20,6 +20,13 @@ class User extends Authenticatable
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
 
     /**
+     * Alias untuk original Spatie hasPermissionTo agar tidak bentrok (Recursion)
+     */
+    use HasRoles {
+        hasPermissionTo as hasPermissionToSpatie;
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -28,7 +35,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'avatar',
+        'image',             // DISESUAIKAN: Dari avatar ke image agar sinkron dengan ProfileController
         'face_data', 
         'is_face_mandatory', // Fitur Face Auth Mandatory
     ];
@@ -59,6 +66,20 @@ class User extends Authenticatable
     }
 
     /**
+     * --- BARU: Accessor untuk Image ---
+     * Menghasilkan URL lengkap untuk foto profil.
+     * Mencegah masalah path manual di frontend dan menangani fallback UI Avatars.
+     */
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value 
+                ? (str_contains($value, 'http') ? $value : asset('/storage/users/' . $value)) 
+                : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=4e73df&color=ffffff&size=100',
+        );
+    }
+
+    /**
      * --- FITUR: OVERRIDE PASSWORD RESET ---
      * Mengirimkan email reset password menggunakan template mewah yang baru dibuat.
      */
@@ -69,7 +90,6 @@ class User extends Authenticatable
 
     /**
      * Relasi ke StockOpname
-     * Seorang user bisa melakukan banyak stock opname
      */
     public function stockOpnames()
     {
@@ -78,7 +98,6 @@ class User extends Authenticatable
 
     /**
      * Relasi ke Hold (Antrean/Pesanan QR)
-     * Menghubungkan pesanan mandiri pelanggan ke Admin/Kasir tertentu
      */
     public function holds()
     {
@@ -98,7 +117,6 @@ class User extends Authenticatable
 
     /**
      * get all permissions users
-     * Fitur lama: Digunakan oleh helper Permission.jsx di frontend
      */
     public function getPermissions()
     {
@@ -128,7 +146,7 @@ class User extends Authenticatable
             return true;
         }
 
-        return $this->parentHasPermissionTo($permission, $guardName);
+        return $this->hasPermissionToSpatie($permission, $guardName);
     }
 
     /**
@@ -137,12 +155,5 @@ class User extends Authenticatable
     protected function parentHasPermissionTo($permission, $guardName = null): bool
     {
         return $this->hasPermissionToSpatie($permission, $guardName);
-    }
-
-    /**
-     * Alias untuk original Spatie hasPermissionTo agar tidak bentrok (Recursion)
-     */
-    use HasRoles {
-        hasPermissionTo as hasPermissionToSpatie;
     }
 }

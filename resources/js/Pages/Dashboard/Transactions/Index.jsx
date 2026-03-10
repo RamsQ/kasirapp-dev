@@ -401,14 +401,19 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                             Swal.fire({ title: 'Menunggu Pembayaran', text: 'Selesaikan transaksi di HP pelanggan.', icon: 'info', showConfirmButton: false });
                             startPaymentPolling(response.data.invoice);
                         },
-                        // FIX: Jika kasir menutup pop-up, panggil backend untuk menghapus data pending
+                        // --- FIX BUG AUTO BAYAR ---
+                        // Jika kasir menutup pop-up (X), panggil backend untuk menghapus data pending agar tidak masuk laporan
                         onClose: () => {
                             setIsPaymentLoading(false);
+                            // Mengirim perintah ke backend untuk menghapus transaksi 'sampah' tersebut
                             axios.post(route('transactions.cancel_gateway'), {
                                 invoice: response.data.invoice
                             }).then(() => {
-                                toast.error("Pembayaran Dibatalkan");
-                            }).catch(err => console.error("Gagal batalkan:", err));
+                                toast.error("Pembayaran Dibatalkan & Antrean Dihapus");
+                            }).catch(err => {
+                                console.error("Gagal batalkan otomatis:", err);
+                                toast.error("Gagal membersihkan data pembatalan.");
+                            });
                         }
                     });
                 } else {

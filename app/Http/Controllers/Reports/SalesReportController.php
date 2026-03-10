@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Models\TransactionDetail;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SalesReportController extends Controller
@@ -27,7 +28,7 @@ class SalesReportController extends Controller
         ];
 
         // 1. Base query untuk daftar transaksi 
-        // Menggunakan applyFilters yang sudah diperbarui (status != refunded)
+        // Menggunakan applyFilters yang sudah diperkuat (payment_status = paid)
         $baseListQuery = $this->applyFilters(
             Transaction::query()
                 ->with(['cashier:id,name', 'customer:id,name'])
@@ -40,7 +41,7 @@ class SalesReportController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        // 2. Aggregate query untuk menghitung summary (Eksklusi Refunded otomatis)
+        // 2. Aggregate query untuk menghitung summary (Hanya transaksi lunas)
         $aggregateQuery = $this->applyFilters(Transaction::query(), $filters);
 
         $totals = (clone $aggregateQuery)
@@ -55,12 +56,12 @@ class SalesReportController extends Controller
 
         $transactionIds = (clone $aggregateQuery)->pluck('id');
 
-        // Menghitung Item Terjual (Hanya dari transaksi sukses)
+        // Menghitung Item Terjual (Hanya dari transaksi yang lunas/paid)
         $itemsSold = $transactionIds->isNotEmpty()
             ? TransactionDetail::whereIn('transaction_id', $transactionIds)->sum('qty')
             : 0;
 
-        // Menghitung Profit (Hanya dari transaksi sukses)
+        // Menghitung Profit (Hanya dari transaksi yang lunas/paid)
         $profitTotal = $transactionIds->isNotEmpty()
             ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
             : 0;
@@ -90,12 +91,14 @@ class SalesReportController extends Controller
 
     /**
      * Apply table filters.
-     * Filter ini memastikan transaksi 'refunded' tidak masuk ke dalam perhitungan laporan penjualan.
+     * FIX: Menambahkan filter 'payment_status' = 'paid' agar data pending QRIS tidak masuk laporan.
      */
     protected function applyFilters($query, array $filters)
     {
         return $query
-            // Update: Menggunakan kolom 'status' (bukan payment_status) untuk akurasi refund
+            // KUNCI UTAMA: Hanya tampilkan transaksi yang sudah dibayar (LUNAS)
+            ->where('payment_status', 'paid')
+            // Tetap mengecualikan transaksi yang direfund
             ->where('status', '!=', 'refunded')
             ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))

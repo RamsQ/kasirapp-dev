@@ -42,9 +42,6 @@ class TransactionController extends Controller
         $this->cogsService = $cogsService;
     }
 
-    /**
-     * Helper Internal: Memastikan relasi bundling ikut terbawa ke data cart
-     */
     private function resolveBundlingRelasi($cartItems)
     {
         $processed = [];
@@ -56,12 +53,8 @@ class TransactionController extends Controller
         return $processed;
     }
 
-    /**
-     * SOURCE OF TRUTH: Menghitung Harga Satuan setelah Diskon Dashboard berdasarkan Qty
-     */
     private function getDiscountedUnitPrice($productId, $basePrice, $qty = 1)
     {
-        // Cari diskon aktif yang syarat qty-nya (minimum_item) sudah terpenuhi
         $autoPromo = Discount::active()
             ->where('product_id', $productId)
             ->whereNull('bonus_product_id')
@@ -80,9 +73,6 @@ class TransactionController extends Controller
         return (float) $basePrice;
     }
 
-    /**
-     * Tampilan Utama Kasir
-     */
     public function index(Request $request)
     {
         $user = auth()->user();
@@ -331,6 +321,7 @@ class TransactionController extends Controller
                     
                     $realNetProfit = $totalItemSellingPrice - $itemDiscountAllocation - $appCommissionJatah - $totalItemCost;
 
+                    // POTONG STOK HANYA JIKA BUKAN GATEWAY (Gateway dipotong via Webhook)
                     if (!$isGateway) {
                         if ($product->recipes->count() > 0) {
                             foreach ($product->recipes as $recipe) {
@@ -366,6 +357,8 @@ class TransactionController extends Controller
                     }
                 }
 
+                // Keranjang dihapus HANYA jika bukan Gateway. 
+                // Jika Gateway, keranjang tetap ada untuk jaga-jaga jika modal ditutup (X)
                 if (!$isGateway) {
                     Cart::where('cashier_id', auth()->id())->delete();
                 }
@@ -400,24 +393,25 @@ class TransactionController extends Controller
     }
 
     /**
-     * FIX BUG: Membatalkan transaksi gateway jika pop-up Snap ditutup tanpa bayar
+     * FIX: Fungsi untuk membersihkan transaksi jika Kasir klik (X) pada Pop-up Midtrans
      */
     public function cancelGateway(Request $request)
     {
+        // Cari transaksi yang masih PENDING berdasarkan invoice
         $transaction = Transaction::where('invoice', $request->invoice)
             ->where('payment_status', 'pending')
             ->first();
 
         if ($transaction) {
             DB::transaction(function () use ($transaction) {
-                // Hapus detail dan profit agar tidak mengotori laporan keuangan
+                // Hapus data yang belum lunas agar tidak mengotori laporan omzet/laba
                 $transaction->details()->delete();
                 $transaction->profits()->delete();
                 $transaction->delete();
             });
-            return response()->json(['success' => true]);
+            return response()->json(['success' => true, 'message' => 'Antrean pembayaran dibersihkan.']);
         }
-        return response()->json(['success' => false, 'message' => 'Transaksi tidak ditemukan atau sudah lunas.'], 404);
+        return response()->json(['success' => false, 'message' => 'Data tidak ditemukan atau sudah dibayar.'], 404);
     }
 
     public function holdCart(Request $request)
@@ -469,10 +463,6 @@ class TransactionController extends Controller
         } catch (\Exception $e) { return back()->with('error', $e->getMessage()); }
     }
 
-    /**
-     * PESANAN DARI HP PELANGGAN (QR MENU)
-     * SINKRONISASI LOGIKA DISKON SISI SERVER
-     */
     public function customerOrder(Request $request)
     {
         $request->validate(['cart_items' => 'required|array', 'customer_name' => 'required', 'total' => 'required']);
@@ -480,7 +470,6 @@ class TransactionController extends Controller
             return DB::transaction(function() use ($request) {
                 $targetUserId = User::role('super-admin')->first()->id ?? 1;
                 
-                // 1. PROSES ULANG HARGA & BUNDLING (Keamanan & Diskon Sync)
                 $cartDataWithBundling = $this->resolveBundlingRelasi($request->cart_items);
                 $processedCart = [];
                 $cleanSubtotal = 0;
@@ -489,13 +478,11 @@ class TransactionController extends Controller
                     $product = Product::find($item['product_id']);
                     if (!$product) continue;
 
-                    // HITUNG HARGA DISKON GROSIR DI SISI SERVER BERDASARKAN QTY PESANAN
                     $unitPrice = $this->getDiscountedUnitPrice($product->id, $product->sell_price, $item['qty']);
                     
                     $itemTotal = $unitPrice * $item['qty'];
                     $cleanSubtotal += $itemTotal;
 
-                    // Tambahkan metadata lengkap untuk tabel Holds
                     $processedCart[] = array_merge($item, [
                         'price' => $itemTotal,
                         'unit_price' => $unitPrice,
@@ -503,7 +490,6 @@ class TransactionController extends Controller
                     ]);
                 }
                 
-                // 2. HITUNG DISKON GLOBAL (Potongan Transaksi di HP)
                 $diskonGlobal = 0;
                 $promo = Discount::active()->whereNull('product_id')->where('min_transaction', '<=', $cleanSubtotal)->orderBy('min_transaction', 'desc')->first();
                 if ($promo) {
@@ -547,9 +533,6 @@ class TransactionController extends Controller
         } catch (\Exception $e) { return response()->json(['success' => false, 'message' => 'Gagal: ' . $e->getMessage()], 500); }
     }
 
-    /**
-     * REVIEW PRINT BILL (DRAF SEBELUM BAYAR)
-     */
     public function printBill($id)
     {
         $hold = Hold::with('table')->findOrFail($id);
@@ -590,7 +573,6 @@ class TransactionController extends Controller
     public function history(Request $request)
     {
         $query = Transaction::query()
-            // FIX: Hanya tampilkan transaksi yang sudah LUNAS agar pending gateway tidak mengotori riwayat
             ->where('payment_status', 'paid') 
             ->with(['cashier:id,name', 'customer:id,name'])
             ->withSum('details as total_items', 'qty')
@@ -613,53 +595,41 @@ class TransactionController extends Controller
         ]);
     }
 
-    /**
-     * Handle Refund Transaksi (Hanya Super Admin)
-     */
     public function refund(Request $request, $id)
     {
         $request->validate(['password' => 'required']);
 
-        // 1. Validasi Password
         if (!Hash::check($request->password, auth()->user()->password)) {
             return back()->withErrors(['password' => 'Password salah! Konfirmasi gagal.']);
         }
 
-        // 2. Proteksi Role
         if (!auth()->user()->hasRole('super-admin')) {
             return back()->with('error', 'Akses Ditolak! Hanya Super Admin yang memiliki otorisasi refund.');
         }
 
         try {
             DB::transaction(function () use ($id) {
-                // 3. Cari Transaksi
                 $transaction = Transaction::with('details.product.recipes')->findOrFail($id);
 
                 if ($transaction->status === 'refunded') {
                     throw new \Exception('Transaksi ini sudah direfund sebelumnya.');
                 }
 
-                // 4. Kembalikan Stok (Loop Detail Transaksi)
                 foreach ($transaction->details as $detail) {
                     $product = $detail->product;
 
                     if ($product->recipes->count() > 0) {
-                        // Jika produk menggunakan Recipe, kembalikan stok Ingredients
                         foreach ($product->recipes as $recipe) {
                             DB::table('ingredients')->where('id', $recipe->ingredient_id)
                                 ->increment('stock', (float)$recipe->qty_needed * (float)$detail->qty);
                         }
                     } else if ($product->type !== 'bundle') {
-                        // Jika produk biasa (bukan bundle), kembalikan stok Produk
                         $conversion = $detail->product_unit_id ? (ProductUnit::find($detail->product_unit_id)->conversion ?? 1) : 1;
                         DB::table('products')->where('id', $detail->product_id)->increment('stock', $detail->qty * $conversion);
                     }
                 }
 
-                // 5. Update Status Transaksi
                 $transaction->update(['status' => 'refunded']);
-                
-                // 6. Hapus Data Profit Terkait (Agar laporan laba bersih akurat)
                 $transaction->profits()->delete();
             });
 

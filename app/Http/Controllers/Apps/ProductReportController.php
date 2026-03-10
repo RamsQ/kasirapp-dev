@@ -20,16 +20,26 @@ class ProductReportController extends Controller
         $end_date   = $request->end_date;
 
         $products = Product::with('category')
-            // Hitung total qty terjual dengan filter tanggal pada relasi details
+            // FIX: Hitung total qty terjual HANYA dari transaksi yang sudah PAID (Lunas)
             ->withSum(['details as total_sold' => function ($query) use ($start_date, $end_date) {
-                $query->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                    $q->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                $query->whereHas('transaction', function ($q) use ($start_date, $end_date) {
+                    $q->where('payment_status', 'paid')
+                      ->where('status', '!=', 'refunded'); // Kecualikan refund
+                    
+                    $q->when($start_date && $end_date, function ($sub) use ($start_date, $end_date) {
+                        $sub->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                    });
                 });
             }], 'qty')
-            // Hitung total omzet dengan filter tanggal pada relasi details
+            // FIX: Hitung total omzet HANYA dari transaksi yang sudah PAID (Lunas)
             ->withSum(['details as total_revenue' => function ($query) use ($start_date, $end_date) {
-                $query->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                    $q->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                $query->whereHas('transaction', function ($q) use ($start_date, $end_date) {
+                    $q->where('payment_status', 'paid')
+                      ->where('status', '!=', 'refunded');
+                    
+                    $q->when($start_date && $end_date, function ($sub) use ($start_date, $end_date) {
+                        $sub->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                    });
                 });
             }], 'price')
             ->when($request->search, function ($query, $search) {
@@ -63,14 +73,25 @@ class ProductReportController extends Controller
         $end_date   = $request->end_date;
 
         $products = Product::with('category')
+            // FIX: Filter ketat status 'paid' juga diterapkan saat export PDF
             ->withSum(['details as total_sold' => function ($query) use ($start_date, $end_date) {
-                $query->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                    $q->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                $query->whereHas('transaction', function ($q) use ($start_date, $end_date) {
+                    $q->where('payment_status', 'paid')
+                      ->where('status', '!=', 'refunded');
+                    
+                    $q->when($start_date && $end_date, function ($sub) use ($start_date, $end_date) {
+                        $sub->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                    });
                 });
             }], 'qty')
             ->withSum(['details as total_revenue' => function ($query) use ($start_date, $end_date) {
-                $query->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
-                    $q->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                $query->whereHas('transaction', function ($q) use ($start_date, $end_date) {
+                    $q->where('payment_status', 'paid')
+                      ->where('status', '!=', 'refunded');
+                    
+                    $q->when($start_date && $end_date, function ($sub) use ($start_date, $end_date) {
+                        $sub->whereBetween('created_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59']);
+                    });
                 });
             }], 'price')
             ->when($request->search, function ($query, $search) {

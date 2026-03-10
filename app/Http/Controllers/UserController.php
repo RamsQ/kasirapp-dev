@@ -23,8 +23,8 @@ class UserController extends Controller
                 $query->where('name', 'like', '%' . request()->search . '%')
                       ->orWhere('email', 'like', '%' . request()->search . '%');
             })
-            // Menambahkan 'is_face_mandatory' dan 'face_data' ke select untuk indikator di UI
-            ->select('id', 'name', 'avatar', 'email', 'face_data', 'is_face_mandatory', 'created_at')
+            // DISESUAIKAN: Mengganti 'avatar' menjadi 'image' agar sinkron dengan Model & ProfileController
+            ->select('id', 'name', 'image', 'email', 'face_data', 'is_face_mandatory', 'created_at')
             ->latest()
             ->paginate(10)
             ->withQueryString();

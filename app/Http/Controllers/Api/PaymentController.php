@@ -34,23 +34,26 @@ class PaymentController extends Controller
 
     /**
      * CEK STATUS (Digunakan oleh React/Frontend untuk Polling)
-     * Untuk fitur polling agar struk otomatis tercetak saat bayar lunas
+     * FIX: Mengembalikan 404 jika transaksi dihapus (Batal X) agar polling di frontend BERHENTI.
      */
     public function checkStatus($invoice)
     {
+        // Cari transaksi berdasarkan invoice
         $transaction = Transaction::where('invoice', $invoice)->first();
 
+        // JIKA TRANSAKSI TIDAK ADA (Karena sudah dihapus saat kasir klik X)
         if (!$transaction) {
             return response()->json([
-                'status'  => 'error',
-                'message' => 'Invoice tidak ditemukan'
-            ], 404);
+                'status'  => 'deleted',
+                'message' => 'Invoice tidak ditemukan atau sudah dibatalkan'
+            ], 404); // Response 404 akan memicu .catch() di Axios/Frontend untuk clearInterval
         }
 
+        // Kembalikan status payment saat ini
         return response()->json([
             'invoice' => $transaction->invoice,
-            'status'  => $transaction->payment_status, // 'paid' atau 'pending'
-        ]);
+            'status'  => $transaction->payment_status, // 'paid', 'pending', atau 'failed'
+        ], 200);
     }
 
     /**
@@ -60,8 +63,6 @@ class PaymentController extends Controller
     public function handleNotification(Request $request)
     {
         // --- FIX: Proteksi untuk Tombol "Tes URL" di Dashboard Midtrans ---
-        // Midtrans sering mengirimkan request kosong saat pengetesan URL.
-        // Jika request kosong, kita langsung balas 200 OK agar tes berhasil.
         if (!$request->all()) {
             return response()->json(['message' => 'Payment Notification URL is active'], 200);
         }
@@ -75,7 +76,7 @@ class PaymentController extends Controller
             $transaction = Transaction::with('details.product.recipes')->where('invoice', $orderId)->first();
 
             if ($transaction) {
-                // 1. CEK APAKAH SUDAH LUNAS (Agar tidak potong stok 2x jika ada notifikasi ganda)
+                // 1. CEK APAKAH SUDAH LUNAS (Cegah double processing)
                 if ($transaction->payment_status === 'paid') {
                     return response()->json(['message' => 'Transaction already processed'], 200);
                 }
@@ -84,14 +85,14 @@ class PaymentController extends Controller
                 if ($transactionStatus == 'settlement' || $transactionStatus == 'capture') {
                     
                     DB::transaction(function () use ($transaction, $orderId) {
-                        // A. Update Status Database
+                        // A. Update Status Database ke PAID
                         $transaction->update([
                             'payment_status' => 'paid',
                             'cash'           => $transaction->grand_total,
                             'change'         => 0
                         ]);
 
-                        // B. LOGIKA POTONG STOK (Sesuai dengan logika TransactionController)
+                        // B. LOGIKA POTONG STOK (Sinkron dengan TransactionController)
                         foreach ($transaction->details as $detail) {
                             $product = $detail->product;
 
@@ -103,7 +104,7 @@ class PaymentController extends Controller
                                         ->decrement('stock', (float)$recipe->qty_needed * (float)$detail->qty);
                                 }
                             } else if ($product && $product->type !== 'bundle') {
-                                // Jika produk biasa (bukan bundle), potong stok produk langsung
+                                // Jika produk biasa (bukan bundle), potong stok berdasarkan konversi satuan
                                 $conversion = $detail->product_unit_id ? (ProductUnit::find($detail->product_unit_id)->conversion ?? 1) : 1;
                                 DB::table('products')
                                     ->where('id', $detail->product_id)
@@ -115,7 +116,7 @@ class PaymentController extends Controller
                     });
                 } 
                 
-                // 3. STATUS GAGAL / EXPIRED / BATAL
+                // 3. STATUS GAGAL / EXPIRED / BATAL DARI SISI MIDTRANS
                 else if (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
                     $transaction->update(['payment_status' => 'failed']);
                     Log::warning("Payment Webhook Failed/Expired: " . $orderId);
@@ -125,7 +126,7 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Webhook Berhasil Diproses'], 200);
 
         } catch (\Exception $e) {
-            // Jika ada error, kita tetap kirimkan info ke log namun pastikan sistem tetap membalas Midtrans
+            // Tetap log error namun berikan respon agar Midtrans tidak mengirim notifikasi berulang
             Log::error("Webhook Error: " . $e->getMessage());
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }

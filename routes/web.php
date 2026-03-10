@@ -6,7 +6,8 @@ use App\Http\Controllers\Apps\{
     ProfileController, StockOpnameController, StockInController, 
     ExpiredProductController, ReceiptSettingController, DiscountController,
     SettingController, TableController, IngredientController, 
-    RecipeController, PublicMenuController, OnlineSettingController
+    RecipeController, PublicMenuController, OnlineSettingController,
+    ReportSettingController // Tambahkan Import Controller Baru
 };
 use App\Http\Controllers\{
     DashboardController, PermissionController, RoleController, 
@@ -21,7 +22,7 @@ use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - POS SYSTEM AJA
+| Web Routes - POS SYSTEM
 |--------------------------------------------------------------------------
 */
 
@@ -101,7 +102,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::resource('/tables', TableController::class)->except(['create', 'edit', 'show']);
         Route::get('/tables/print-qr', [TableController::class, 'printQr'])->name('tables.printQr');
 
-        // BARU: Rute Cetak QR Take Away (Tampilan Digital Menu Hijau)
+        // Cetak QR Take Away
         Route::get('/tables/print-qr-takeaway', function () {
             return Inertia::render('Dashboard/Tables/PrintQRTakeAway');
         })->name('print.qr.takeaway');
@@ -114,7 +115,6 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         // --- INGREDIENTS ---
         Route::resource('/ingredients', IngredientController::class)->except(['create', 'edit', 'show']);
         Route::get('/ingredients-template', [IngredientController::class, 'template'])->name('ingredients.template');
-        // Route::post('/ingredients-import', [IngredientController::class, 'import'])->name('ingredients.import');
 
         // --- RECIPES (PENGATURAN HPP) ---
         Route::get('/recipes', [RecipeController::class, 'index'])->name('recipes.index');
@@ -167,7 +167,7 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
             
         Route::get('/transactions/print-bill/{id}', [TransactionController::class, 'printBill'])->name('transactions.printBill');
 
-        // BARU: Rute Pembatalan Gateway jika pop-up ditutup tanpa bayar
+        // Rute Pembatalan Gateway jika pop-up ditutup tanpa bayar
         Route::post('/transactions/cancel-gateway', [TransactionController::class, 'cancelGateway'])->name('transactions.cancel_gateway');
     });
 
@@ -185,23 +185,19 @@ Route::group(['prefix' => 'dashboard', 'middleware' => ['auth']], function () {
         Route::get('/reports/expired/pdf', [ExpiredProductController::class, 'exportPdf'])->name('reports.expired.pdf');
         Route::get('/reports/expired/excel', [ExpiredProductController::class, 'exportExcel'])->name('reports.expired.excel');
         Route::delete('/reports/expired/{id}/destroy-stock', [ExpiredProductController::class, 'destroyStock'])->name('reports.expired.destroy_stock');
+
+        // BARU: Rute Managed Reports (Laporan Otomatis via WA/Email)
+        Route::get('/reports/managed', [ReportSettingController::class, 'index'])->name('report-settings.index');
+        Route::post('/reports/managed', [ReportSettingController::class, 'store'])->name('report-settings.store')->middleware('permission:report_settings.update');
     });
 
     // =============================================================
     // 8. MODUL PENGATURAN
     // =============================================================
-
-    /** * Rute Bluetooth Pairing: 
-     * Dibuka untuk Admin (settings.index) ATAU Staf dengan izin khusus (settings.bluetooth)
-     */
     Route::group(['middleware' => ['auth', 'permission:settings.index|settings.bluetooth']], function () {
         Route::get('/settings/bluetooth', fn() => Inertia::render('Dashboard/Settings/BluetoothPairing'))->name('settings.bluetooth');
     });
 
-    /**
-     * Rute Pengaturan Inti: 
-     * Tetap dibatasi hanya untuk pemegang izin settings.index (Admin/Owner)
-     */
     Route::group(['middleware' => ['permission:settings.index']], function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');

@@ -20,42 +20,51 @@ class ReportController extends Controller
         $end    = $request->end_date ?? now()->format('Y-m-d');
         $userId = $request->user_id;
 
-        // 2. HITUNG OMZET (Total Penjualan Bruto)
-        $revenue = DB::table('transactions')
+        // --- BASE QUERY TRANSAKSI (Hanya yang PAID/LUNAS) ---
+        // Variabel ini digunakan sebagai 'blueprint' untuk query lainnya agar konsisten.
+        $baseQuery = DB::table('transactions')
             ->where('payment_status', 'paid')
             ->whereDate('created_at', '>=', $start)
             ->whereDate('created_at', '<=', $end)
-            ->sum('grand_total');
+            ->when($userId, function($q) use ($userId) {
+                $q->where('cashier_id', $userId);
+            });
 
-        // 3. HITUNG AKUN BEBAN KOMISI APLIKASI (Markup + Fee)
-        $appExpenses = DB::table('transactions')
-            ->where('payment_status', 'paid')
-            ->whereDate('created_at', '>=', $start)
-            ->whereDate('created_at', '<=', $end)
-            ->sum(DB::raw('total_markup + total_fee'));
+        // 2. HITUNG OMZET (Total Penjualan Bruto dari transaksi Lunas)
+        $revenue = (clone $baseQuery)->sum('grand_total');
 
-        // 4. HITUNG LABA BERSIH PENJUALAN (Dari tabel profits)
+        // 3. HITUNG AKUN BEBAN KOMISI APLIKASI (Markup + Fee dari transaksi Lunas)
+        $appExpenses = (clone $baseQuery)->sum(DB::raw('total_markup + total_fee'));
+
+        // 4. HITUNG LABA BERSIH PENJUALAN (Dari tabel profits, join transaksi Lunas)
         $netProfitFromSales = DB::table('profits')
             ->join('transactions', 'transactions.id', '=', 'profits.transaction_id')
             ->where('transactions.payment_status', 'paid')
             ->whereDate('transactions.created_at', '>=', $start)
             ->whereDate('transactions.created_at', '<=', $end)
+            ->when($userId, function($q) use ($userId) {
+                $q->where('transactions.cashier_id', $userId);
+            })
             ->sum('profits.total');
 
-        // 5. HITUNG HPP (Modal) 
+        // 5. HITUNG HPP (Modal Pokok) 
+        // Rumus: Omzet - Beban Aplikasi - Laba Penjualan
         $totalHpp = (float)$revenue - (float)$appExpenses - (float)$netProfitFromSales;
         
         // Laba Kotor (Gross Profit)
         $grossProfit = (float)$revenue - (float)$totalHpp;
 
         // 6. LOGIKA LAPORAN PROMOSI & DISKON
-        // A. Diskon Item/Grosir (Selisih Harga Normal vs Harga Jual Riil)
+        // A. Diskon Item/Grosir (Hanya dari transaksi Lunas)
         $itemPromoStats = DB::table('transaction_details')
             ->join('transactions', 'transactions.id', '=', 'transaction_details.transaction_id')
             ->join('products', 'products.id', '=', 'transaction_details.product_id')
             ->where('transactions.payment_status', 'paid')
             ->whereDate('transactions.created_at', '>=', $start)
             ->whereDate('transactions.created_at', '<=', $end)
+            ->when($userId, function($q) use ($userId) {
+                $q->where('transactions.cashier_id', $userId);
+            })
             ->select(
                 'products.title as product_name',
                 DB::raw('SUM(transaction_details.qty) as total_qty'),
@@ -66,26 +75,16 @@ class ReportController extends Controller
             ->orderByDesc('total_discount_value')
             ->get();
 
-        // B. Diskon Global (Potongan Langsung di Keranjang)
-        $globalDiscountTotal = DB::table('transactions')
-            ->where('payment_status', 'paid')
-            ->whereDate('created_at', '>=', $start)
-            ->whereDate('created_at', '<=', $end)
-            ->sum('discount');
+        // B. Diskon Global (Potongan Langsung di Keranjang dari transaksi Lunas)
+        $globalDiscountTotal = (clone $baseQuery)->sum('discount');
 
-        // 7. PEMISAHAN PENDAPATAN TUNAI VS DIGITAL (Untuk Audit)
-        $cashRevenue = DB::table('transactions')
-            ->where('payment_status', 'paid')
+        // 7. PEMISAHAN PENDAPATAN TUNAI VS DIGITAL (Untuk Audit Keuangan Lunas)
+        $cashRevenue = (clone $baseQuery)
             ->where('payment_method', 'cash')
-            ->whereDate('created_at', '>=', $start)
-            ->whereDate('created_at', '<=', $end)
             ->sum('grand_total');
 
-        $digitalRevenue = DB::table('transactions')
-            ->where('payment_status', 'paid')
+        $digitalRevenue = (clone $baseQuery)
             ->whereIn('payment_method', ['midtrans', 'xendit', 'qris_manual', 'transfer'])
-            ->whereDate('created_at', '>=', $start)
-            ->whereDate('created_at', '<=', $end)
             ->sum('grand_total');
 
         // 8. AMBIL LIST PENGELUARAN (Expenses)
@@ -104,13 +103,22 @@ class ReportController extends Controller
         $totalDebtRepayment = $expenses->where('category', 'Pelunasan Hutang')->sum('amount');
         $operationalExpenses = $expenses->where('category', '!=', 'Pelunasan Hutang')->sum('amount');
 
-        // 9. DATA UNTUK CHART (Trend Omzet vs Pengeluaran Harian)
+        // 9. DATA UNTUK CHART (Trend Omzet Lunas vs Pengeluaran Harian)
         $chartData = [];
         $period = CarbonPeriod::create($start, $end);
         foreach ($period as $date) {
             $d = $date->format('Y-m-d');
-            $dayRevenue = DB::table('transactions')->whereDate('created_at', $d)->where('payment_status', 'paid')->sum('grand_total');
-            $dayExpense = DB::table('expenses')->whereDate('date', $d)->sum('amount');
+            
+            $dayRevenue = DB::table('transactions')
+                ->where('payment_status', 'paid')
+                ->whereDate('created_at', $d)
+                ->when($userId, fn($q) => $q->where('cashier_id', $userId))
+                ->sum('grand_total');
+                
+            $dayExpense = DB::table('expenses')
+                ->whereDate('date', $d)
+                ->when($userId, fn($q) => $q->where('user_id', $userId))
+                ->sum('amount');
 
             $chartData[] = [
                 'label'   => $date->format('d M'),
@@ -139,8 +147,10 @@ class ReportController extends Controller
         $totalInitialCash = DB::table('shifts')
             ->whereDate('opened_at', '>=', $start)
             ->whereDate('opened_at', '<=', $end)
+            ->when($userId, fn($q) => $q->where('user_id', $userId))
             ->sum('starting_cash');
         
+        // Audit Kas Laci: (Awal + Masuk Tunai) - Keluar Tunai
         $cashInDrawer = ($totalInitialCash + $cashRevenue) - $expenseFromCash;
 
         $historyTotalDebt = DB::table('expenses')->where('source', 'Hutang Dagang')->sum('amount');
@@ -150,11 +160,8 @@ class ReportController extends Controller
         // 11. KALKULASI FINAL LABA RUGI RIIL
         $finalNetProfit = (float)$netProfitFromSales - (float)$operationalExpenses; 
 
-        // [BARU] 12. LOGIKA ANALISIS WAKTU (JAM TERSIBUK)
-        $hourlyTransactions = DB::table('transactions')
-            ->where('payment_status', 'paid')
-            ->whereDate('created_at', '>=', $start)
-            ->whereDate('created_at', '<=', $end)
+        // 12. LOGIKA ANALISIS WAKTU (JAM TERSIBUK - HANYA TRANSAKSI PAID)
+        $hourlyTransactions = (clone $baseQuery)
             ->select(DB::raw('HOUR(created_at) as hour'), DB::raw('COUNT(*) as count'))
             ->groupBy('hour')
             ->orderBy('hour')
@@ -193,7 +200,7 @@ class ReportController extends Controller
                     'global_discount'=> (int)round($globalDiscountTotal),
                     'item_promos'    => $itemPromoStats,
                     'total_promo'    => (int)round($itemPromoStats->sum('total_discount_value') + $globalDiscountTotal),
-                    'hourly_stats'   => $formattedHourly, // Data Baru dikirim ke Frontend
+                    'hourly_stats'   => $formattedHourly,
                 ],
                 'balanceSheet' => [
                     'cash_in_drawer'   => (int)round($cashInDrawer),

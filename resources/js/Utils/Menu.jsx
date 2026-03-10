@@ -30,7 +30,8 @@ import {
     IconScale,
     IconToolsKitchen2,
     IconWorld,
-    IconRobot
+    IconRobot,
+    IconBellRinging // Tambahkan Icon Baru untuk Laporan Otomatis
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
@@ -208,6 +209,14 @@ export default function Menu() {
                     active: url.startsWith("/dashboard/shifts"),
                     icon: <IconCash size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["shifts-access", "reports-access"]),
+                },
+                // BARU: Menu Managed Reports (Laporan Otomatis)
+                {
+                    title: "Laporan Otomatis",
+                    href: route("report-settings.index"),
+                    active: url.startsWith("/dashboard/reports/managed"),
+                    icon: <IconBellRinging size={20} strokeWidth={1.5} className="text-primary-500" />,
+                    permissions: hasAnyPermission(["report_settings.index", "reports-access"]),
                 },
             ],
         },

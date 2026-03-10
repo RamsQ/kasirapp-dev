@@ -17,38 +17,53 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // --- DATA BASIC ---
+        // --- DATA BASIC (HANYA YANG SUDAH LUNAS) ---
         $totalCategories   = Category::count();
         $totalProducts     = Product::count();
-        $totalTransactions = Transaction::count();
+        
+        // Filter 'paid' agar transaksi pending/gagal tidak merusak statistik
+        $totalTransactions = Transaction::where('payment_status', 'paid')->count();
         $totalUsers        = User::count();
-        $totalRevenue      = Transaction::sum('grand_total');
-        $totalProfit       = Profit::sum('total');
-        $averageOrder      = Transaction::avg('grand_total') ?? 0;
-        $todayTransactions = Transaction::whereDate('created_at', Carbon::today())->count();
+        $totalRevenue      = Transaction::where('payment_status', 'paid')->sum('grand_total');
+        
+        // FIX BUG: Hitung laba hanya dari transaksi yang sudah LUNAS (Paid)
+        // Sebelumnya Profit::sum('total') mengambil semua, termasuk yang masih pending/cancel
+        $totalProfit       = Profit::whereHas('transaction', function($q) {
+                                $q->where('payment_status', 'paid');
+                            })->sum('total');
 
-        // --- 1. LOGIKA PENDAPATAN TERPISAH (BARU UNTUK KEUANGAN) ---
-        // Memisahkan uang fisik laci dan uang digital untuk audit owner
-        $totalCashRevenue = Transaction::where('payment_method', 'cash')->sum('grand_total');
-        $totalDigitalRevenue = Transaction::whereIn('payment_method', ['midtrans', 'xendit', 'qris_manual', 'transfer'])
-            ->sum('grand_total');
+        $averageOrder      = Transaction::where('payment_status', 'paid')->avg('grand_total') ?? 0;
+        $todayTransactions = Transaction::where('payment_status', 'paid')
+            ->whereDate('created_at', Carbon::today())
+            ->count();
 
-        // Ringkasan khusus hari ini
-        $todayCashRevenue = Transaction::whereDate('created_at', Carbon::today())
+        // --- 1. LOGIKA PENDAPATAN TERPISAH (AUDIT FINANCIAL) ---
+        // Menghitung uang yang benar-benar masuk (PAID) berdasarkan metode
+        $totalCashRevenue = Transaction::where('payment_status', 'paid')
             ->where('payment_method', 'cash')
             ->sum('grand_total');
-        $todayDigitalRevenue = Transaction::whereDate('created_at', Carbon::today())
+
+        $totalDigitalRevenue = Transaction::where('payment_status', 'paid')
             ->whereIn('payment_method', ['midtrans', 'xendit', 'qris_manual', 'transfer'])
             ->sum('grand_total');
 
-        // --- 2. LOGIKA EXPIRED DATE (FIXED) ---
-        // A. Produk SUDAH Kadaluarsa (Tanggal < Hari Ini)
+        // Ringkasan khusus hari ini (Hanya yang PAID)
+        $todayCashRevenue = Transaction::where('payment_status', 'paid')
+            ->whereDate('created_at', Carbon::today())
+            ->where('payment_method', 'cash')
+            ->sum('grand_total');
+
+        $todayDigitalRevenue = Transaction::where('payment_status', 'paid')
+            ->whereDate('created_at', Carbon::today())
+            ->whereIn('payment_method', ['midtrans', 'xendit', 'qris_manual', 'transfer'])
+            ->sum('grand_total');
+
+        // --- 2. LOGIKA EXPIRED DATE (PRODUK) ---
         $expiredProducts = Product::whereNotNull('expired_date')
             ->whereDate('expired_date', '<', Carbon::now())
             ->limit(10)
             ->get();
 
-        // B. Produk AKAN Kadaluarsa (H-30)
         $expiringProducts = Product::whereNotNull('expired_date')
             ->whereDate('expired_date', '>=', Carbon::now())
             ->whereDate('expired_date', '<=', Carbon::now()->addDays(30))
@@ -56,8 +71,9 @@ class DashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // --- 3. LOGIKA TREN PENDAPATAN (12 HARI TERAKHIR) ---
-        $revenueTrend = Transaction::selectRaw('DATE(created_at) as date, SUM(grand_total) as total')
+        // --- 3. LOGIKA TREN PENDAPATAN (12 HARI TERAKHIR - HANYA PAID) ---
+        $revenueTrend = Transaction::where('payment_status', 'paid')
+            ->selectRaw('DATE(created_at) as date, SUM(grand_total) as total')
             ->groupBy('date')
             ->orderBy('date', 'desc')
             ->take(12)
@@ -72,8 +88,11 @@ class DashboardController extends Controller
             ->reverse()
             ->values();
 
-        // --- 4. TOP 5 PRODUK TERLARIS ---
-        $topProducts = TransactionDetail::select('product_id', DB::raw('SUM(qty) as qty'), DB::raw('SUM(price) as total'))
+        // --- 4. TOP 5 PRODUK TERLARIS (DARI TRANSAKSI LUNAS) ---
+        $topProducts = TransactionDetail::whereHas('transaction', function($q) {
+                $q->where('payment_status', 'paid');
+            })
+            ->select('product_id', DB::raw('SUM(qty) as qty'), DB::raw('SUM(price) as total'))
             ->with('product:id,title')
             ->groupBy('product_id')
             ->orderByDesc('qty')
@@ -87,8 +106,9 @@ class DashboardController extends Controller
                 ];
             });
 
-        // --- 5. TRANSAKSI TERBARU ---
+        // --- 5. TRANSAKSI TERBARU (HANYA YANG LUNAS) ---
         $recentTransactions = Transaction::with('cashier:id,name', 'customer:id,name')
+            ->where('payment_status', 'paid')
             ->latest()
             ->take(5)
             ->get()
@@ -99,12 +119,14 @@ class DashboardController extends Controller
                     'customer' => $transaction->customer?->name ?? '-',
                     'cashier'  => $transaction->cashier?->name ?? '-',
                     'total'    => (int) $transaction->grand_total,
-                    'method'   => $transaction->payment_method, // Tambahan info metode
+                    'method'   => $transaction->payment_method,
+                    'status'   => $transaction->payment_status,
                 ];
             });
 
-        // --- 6. TOP 5 PELANGGAN ---
-        $topCustomers = Transaction::select('customer_id', DB::raw('COUNT(*) as orders'), DB::raw('SUM(grand_total) as total'))
+        // --- 6. TOP 5 PELANGGAN (DARI TRANSAKSI LUNAS) ---
+        $topCustomers = Transaction::where('payment_status', 'paid')
+            ->select('customer_id', DB::raw('COUNT(*) as orders'), DB::raw('SUM(grand_total) as total'))
             ->with('customer:id,name')
             ->whereNotNull('customer_id')
             ->groupBy('customer_id')
@@ -130,7 +152,7 @@ class DashboardController extends Controller
             'averageOrder'       => (int) round($averageOrder),
             'todayTransactions'  => (int) $todayTransactions,
             
-            // Data Pendapatan Terpisah (Baru)
+            // Data Pendapatan Terpisah
             'totalCashRevenue'    => (int) $totalCashRevenue,
             'totalDigitalRevenue' => (int) $totalDigitalRevenue,
             'todayCashRevenue'    => (int) $todayCashRevenue,

@@ -18,6 +18,9 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
+    /**
+     * Tampilkan daftar produk untuk manajemen inventory.
+     */
     public function index(Request $request)
     {
         $products = Product::when($request->search, function ($query, $search) {
@@ -35,6 +38,9 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Form tambah produk.
+     */
     public function create()
     {
         $categories = Category::all();
@@ -46,24 +52,26 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Simpan produk baru ke database.
+     */
     public function store(Request $request)
     {
         $request->validate([
-            'image'          => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'barcode'        => ['nullable', Rule::unique('products')->whereNull('deleted_at')],
-            'title'          => 'required',
-            'category_id'    => 'required',
-            'buy_price'      => 'required|numeric',
-            'sell_price'     => 'required|numeric',
-            'type'           => 'required|in:single,bundle',
-            // [REPAIR] Stok dibuat nullable agar tidak wajib diisi saat Create
-            'stock'          => 'nullable|numeric|min:0',
-            'unit'           => 'required|string|max:20', 
+            'image'                         => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'barcode'                       => ['nullable', Rule::unique('products')->whereNull('deleted_at')],
+            'title'                         => 'required',
+            'category_id'                   => 'required',
+            'buy_price'                     => 'required|numeric',
+            'sell_price'                    => 'required|numeric',
+            'type'                          => 'required|in:single,bundle',
+            'stock'                         => 'nullable|numeric|min:0',
+            'unit'                          => 'required|string|max:20', 
             
-            'units'               => 'nullable|array',
-            'units.*.unit_name'  => 'required_with:units|string',
-            'units.*.conversion' => 'required_with:units|numeric|min:0.01',
-            'units.*.sell_price' => 'required_with:units|numeric',
+            'units'                         => 'nullable|array',
+            'units.*.unit_name'             => 'required_with:units|string',
+            'units.*.conversion'            => 'required_with:units|numeric|min:0.01',
+            'units.*.sell_price'            => 'required_with:units|numeric',
 
             'bundle_items'                  => 'nullable|required_if:type,bundle|array',
             'bundle_items.*.item_id'        => 'required_if:type,bundle', 
@@ -75,11 +83,12 @@ class ProductController extends Controller
             $imageName = null;
             if ($request->hasFile('image')) {
                 $image = $request->file('image');
-                $image->storeAs('public/products', $image->hashName());
+                // Menggunakan disk 'public' agar bisa diakses via URL /storage/products/
+                $image->storeAs('products', $image->hashName(), 'public');
                 $imageName = $image->hashName();
             }
 
-            // [REPAIR] Pastikan nilai stok default 0 jika input dikosongkan
+            // Produk bundle tidak memiliki stok fisik sendiri (mengikuti stok item di dalamnya)
             $inputStock = ($request->type === 'bundle' || is_null($request->stock)) ? 0 : $request->stock;
 
             $product = Product::create([
@@ -96,7 +105,7 @@ class ProductController extends Controller
                 'type'         => $request->type,
             ]);
 
-            // Simpan Batch Awal hanya jika stok lebih dari 0
+            // --- LOGIKA FIFO: Tambah Batch Stok Awal ---
             if ($request->type === 'single' && $inputStock > 0) {
                 $product->stock_batches()->create([
                     'qty_in'        => $inputStock,
@@ -105,7 +114,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            // Simpan Multi-Satuan
+            // Simpan Multi-Satuan jika ada
             if ($request->has('units')) {
                 foreach ($request->units as $unit) {
                     $product->units()->create([
@@ -116,7 +125,7 @@ class ProductController extends Controller
                 }
             }
 
-            // Simpan Bundling Items
+            // Simpan Item Bundling jika tipe produk adalah bundle
             if ($request->type === 'bundle' && $request->bundle_items) {
                 foreach ($request->bundle_items as $item) {
                     if(!empty($item['item_id'])) {
@@ -135,6 +144,7 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
+        // Hanya bisa membundle produk bertipe 'single'
         $products = Product::where('type', 'single')->where('id', '!=', $product->id)->with('units')->get();
         
         $product->load(['bundle_items.units', 'units', 'stock_batches' => function($query) {
@@ -148,18 +158,20 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Update data produk.
+     */
     public function update(Request $request, Product $product)
     {
         $request->validate([
-            'barcode'      => ['nullable', Rule::unique('products')->ignore($product->id)->whereNull('deleted_at')],
-            'title'        => 'required',
-            'category_id'  => 'required',
-            'buy_price'    => 'required|numeric',
-            'sell_price'   => 'required|numeric',
-            'type'         => 'required|in:single,bundle',
-            // [REPAIR] Update stok juga nullable
-            'stock'        => 'nullable|numeric|min:0',
-            'unit'         => 'required|string|max:20', 
+            'barcode'        => ['nullable', Rule::unique('products')->ignore($product->id)->whereNull('deleted_at')],
+            'title'          => 'required',
+            'category_id'    => 'required',
+            'buy_price'      => 'required|numeric',
+            'sell_price'     => 'required|numeric',
+            'type'           => 'required|in:single,bundle',
+            'stock'          => 'nullable|numeric|min:0',
+            'unit'           => 'required|string|max:20', 
             
             'units'               => 'nullable|array',
             'units.*.unit_name'  => 'required_with:units|string',
@@ -173,16 +185,20 @@ class ProductController extends Controller
 
         DB::transaction(function () use ($request, $product) {
             if ($request->hasFile('image')) {
-                if ($product->getRawOriginal('image')) Storage::delete('public/products/' . $product->getRawOriginal('image'));
+                // Hapus image lama jika ada
+                if ($product->getRawOriginal('image')) {
+                    Storage::disk('public')->delete('products/' . $product->getRawOriginal('image'));
+                }
+                
                 $image = $request->file('image');
-                $image->storeAs('public/products', $image->hashName());
+                $image->storeAs('products', $image->hashName(), 'public');
                 $product->image = $image->hashName();
             }
 
             $oldStock = (float) $product->stock;
-            // [REPAIR] Handle null stock input
             $newStock = $request->type === 'bundle' ? 0 : (float) ($request->stock ?? 0);
 
+            // --- LOGIKA FIFO: Tambah Batch baru jika ada penambahan stok manual ---
             if ($request->type === 'single' && $newStock > $oldStock) {
                 $addedQty = $newStock - $oldStock;
                 $product->stock_batches()->create([
@@ -206,7 +222,7 @@ class ProductController extends Controller
                 'type'         => $request->type,
             ]);
 
-            // Sync Multi-Satuan
+            // Sinkronisasi Multi-Satuan
             $product->units()->delete();
             if ($request->has('units')) {
                 foreach ($request->units as $unit) {
@@ -220,7 +236,7 @@ class ProductController extends Controller
                 }
             }
 
-            // Sync Bundling Items
+            // Sinkronisasi Bundling
             if ($request->type === 'bundle' && $request->bundle_items) {
                 $syncData = [];
                 foreach ($request->bundle_items as $item) {
@@ -240,10 +256,16 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Produk Berhasil Diperbarui!');
     }
 
+    /**
+     * Hapus produk dan file gambar fisiknya.
+     */
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
         try {
+            if ($product->getRawOriginal('image')) {
+                Storage::disk('public')->delete('products/' . $product->getRawOriginal('image'));
+            }
             $product->delete();
             return redirect()->route('products.index')->with('success', 'Produk Berhasil Dihapus!');
         } catch (QueryException $e) {
@@ -251,6 +273,9 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * Download template import produk Excel.
+     */
     public function template()
     {
         try {
@@ -269,6 +294,9 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * Import produk via Excel.
+     */
     public function import(Request $request)
     {
         $request->validate(['file' => 'required|mimes:xlsx,xls']);
@@ -280,6 +308,9 @@ class ProductController extends Controller
         }
     }
 
+    /**
+     * Hapus massal produk terpilih.
+     */
     public function bulkDestroy(Request $request)
     {
         $request->validate([
@@ -288,6 +319,12 @@ class ProductController extends Controller
         ]);
 
         try {
+            $products = Product::whereIn('id', $request->ids)->get();
+            foreach ($products as $p) {
+                if ($p->getRawOriginal('image')) {
+                    Storage::disk('public')->delete('products/' . $p->getRawOriginal('image'));
+                }
+            }
             Product::destroy($request->ids);
             return back()->with('success', 'Produk terpilih berhasil dihapus!');
         } catch (\Exception $e) {

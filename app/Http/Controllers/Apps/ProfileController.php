@@ -13,7 +13,6 @@ class ProfileController extends Controller
 {
     /**
      * Menampilkan halaman profil
-     * Sesuaikan path render ke 'Profile/Index' sesuai struktur folder React Anda
      */
     public function index()
     {
@@ -43,19 +42,20 @@ class ProfileController extends Controller
         // Logika Upload Foto Profil
         if ($request->hasFile('image')) {
             
-            // 1. Hapus foto lama jika ada di storage (bukan URL luar)
-            if ($user->image && !str_contains($user->image, 'http')) {
-                Storage::disk('public')->delete('users/' . $user->image);
+            // 1. Hapus foto lama jika ada (Gunakan getRawOriginal untuk ambil nama file asli)
+            if ($user->getRawOriginal('image') && !str_contains($user->image, 'http')) {
+                Storage::disk('public')->delete('users/' . $user->getRawOriginal('image'));
             }
 
-            // 2. Ambil file dan simpan ke: storage/app/public/users
+            // 2. Ambil file dan generate nama unik
             $image = $request->file('image');
             $filename = $image->hashName();
             
-            // Menggunakan storeAs untuk kontrol folder yang lebih baik
-            $image->storeAs('public/users', $filename);
+            // 3. Simpan ke: storage/app/public/users menggunakan disk 'public'
+            // FIX: Cukup gunakan path 'users', jangan tambahkan awalan 'public/' lagi
+            $image->storeAs('users', $filename, 'public');
             
-            // 3. Simpan nama filenya saja ke kolom 'image' di database
+            // 4. Simpan nama filenya saja ke database
             $user->image = $filename;
         }
 

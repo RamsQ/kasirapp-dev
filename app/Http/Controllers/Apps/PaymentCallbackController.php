@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Apps;
 
+use App\Http\Controllers\Controller;
 use App\Models\PaymentSetting;
 use App\Models\Transaction;
 use App\Services\Payments\PaymentSettlementService;

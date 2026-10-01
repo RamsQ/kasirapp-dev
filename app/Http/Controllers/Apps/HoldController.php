@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Apps;
 
+use App\Events\OrderDeleted;
+use App\Events\OrderPlaced;
 use App\Http\Controllers\Controller;
 use App\Models\Hold;
-use App\Events\OrderPlaced; 
-use App\Events\OrderDeleted;
 use Illuminate\Http\Request;
 
 class HoldController extends Controller
@@ -17,9 +17,9 @@ class HoldController extends Controller
     {
         $hold = Hold::create([
             'ref_number' => $request->ref_number,
-            'cart_data'  => $request->cart_items,
-            'total'      => $request->total,
-            'user_id'    => auth()->id(),
+            'cart_data' => $request->cart_items,
+            'total' => $request->total,
+            'user_id' => auth()->id(),
         ]);
 
         /**
@@ -38,7 +38,7 @@ class HoldController extends Controller
     public function destroy($id)
     {
         $hold = Hold::findOrFail($id);
-        $userId = $hold->user_id; 
+        $userId = $hold->user_id;
         $hold->delete();
 
         /**

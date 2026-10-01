@@ -8,11 +8,11 @@ import {
 import {
     IconCash, IconPlus, IconCalendar, IconSearch,
     IconTrendingUp, IconReceipt2, IconTable,
-    IconReceipt, IconUser, IconClock, IconChartBar, 
+    IconReceipt, IconUser, IconClock, IconChartBar, IconInfoCircle,
     IconPhoto, IconLayoutDashboard, IconWallet, IconArrowUpRight, IconPackage,
     IconAlertTriangle, IconFilter, IconArrowDownRight, IconGift, IconWorld,
     IconQrcode, IconCreditCard, IconBuildingBank, IconTag, IconRosetteDiscount,
-    IconTicket, IconChartPie, IconChartArrows, IconHourglassHigh, IconFlame
+    IconTicket, IconChartPie, IconChartArrows, IconHourglassHigh, IconFlame, IconPercentage
 } from "@tabler/icons-react";
 
 const formatCurrency = (value) =>
@@ -54,6 +54,7 @@ const FinanceReport = ({ auth, report }) => {
     const appCommissionTotal = report.summary?.app_expenses || 0;
     const cashRevenue = report.summary?.cash_revenue || 0;
     const digitalRevenue = report.summary?.digital_revenue || 0;
+    const taxCollected = report.taxCollected || report.summary?.tax_collected || 0;
 
     const inventoryLossTotal = report.expenseList
         ?.filter(exp => exp.category === 'Kerugian Stok')
@@ -92,7 +93,11 @@ const FinanceReport = ({ auth, report }) => {
     return (
         <>
             <Head title="Laporan Keuangan" />
-            <div className="space-y-6 text-slate-900 dark:text-slate-100 pb-10">
+            {/* `min-w-0` wajib ada di anak flex ini. Tanpa itu anak flex
+                memakai `min-width: auto` dan menyusut di bawah lebar
+                isi minimumnya, sehingga formulir filter melebar melewati
+                kolomnya dan seluruh halaman ikut bisa digeser ke samping. */}
+            <div className="space-y-6 text-slate-900 dark:text-slate-100 pb-10 min-w-0">
                 
                 {/* 1. Header & Tab Navigation */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-2">
@@ -122,11 +127,11 @@ const FinanceReport = ({ auth, report }) => {
 
                     {activeTab !== 'neraca' && (
                         <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-2">
-                            <div className="flex items-center gap-2 px-2">
+                            <div className="flex flex-wrap items-center gap-2 px-2 min-w-0">
                                 <IconCalendar size={14} className="text-slate-400" />
-                                <input type="date" className="border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                                <input type="date" className="min-w-0 flex-1 sm:flex-none border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                                 <span className="text-[10px] text-slate-300 dark:text-slate-700 font-black">S/D</span>
-                                <input type="date" className="border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                                <input type="date" className="min-w-0 flex-1 sm:flex-none border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                             </div>
                             <div className="h-4 w-[1px] bg-slate-200 dark:bg-slate-700 mx-1"></div>
                             <select value={filterStaff} onChange={(e) => setFilterStaff(e.target.value)} className="border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 uppercase dark:text-white cursor-pointer">
@@ -143,30 +148,37 @@ const FinanceReport = ({ auth, report }) => {
                 {/* --- TAB CONTENT: LABA RUGI --- */}
                 {activeTab === 'laba-rugi' && (
                     <div className="space-y-6 animate-in fade-in duration-500">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
-                                <div className="p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt size={28}/></div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+                            <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
+                                <div className="p-3 sm:p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Total Omzet</p>
+                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Omzet Bersih</p>
                                     <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(report.revenue)}</h3>
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
-                                <div className="p-4 bg-orange-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconWorld size={28}/></div>
+                            <div className="bg-violet-50 dark:bg-violet-950/20 p-4 sm:p-6 rounded-[2rem] border border-violet-200 dark:border-violet-900/40 flex items-center gap-3 sm:gap-5 shadow-sm group">
+                                 <div className="p-3 sm:p-4 bg-violet-600 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconPercentage size={28}/></div>
+                                 <div>
+                                     <p className="text-[10px] font-black text-violet-500 dark:text-violet-400 uppercase tracking-widest leading-none mb-1">Pajak Terkumpul</p>
+                                     <h3 className="text-xl font-black text-violet-700 dark:text-violet-300 tracking-tighter">{formatCurrency(taxCollected)}</h3>
+                                 </div>
+                             </div>
+                             <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
+                                 <div className="p-3 sm:p-4 bg-orange-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconWorld size={28}/></div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Beban Komisi</p>
                                     <h3 className="text-xl font-black text-orange-600 dark:text-orange-400 tracking-tighter">{formatCurrency(appCommissionTotal)}</h3>
                                 </div>
                             </div>
-                            <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm group">
-                                <div className="p-4 bg-rose-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt2 size={28}/></div>
+                            <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
+                                <div className="p-3 sm:p-4 bg-rose-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt2 size={28}/></div>
                                 <div>
                                     <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Total Beban</p>
                                     <h3 className="text-xl font-black text-rose-600 dark:text-rose-400 tracking-tighter">{formatCurrency(report.expenses)}</h3>
                                 </div>
                             </div>
-                            <div className="bg-cosmic p-6 rounded-[2rem] flex items-center gap-5 text-white shadow-xl shadow-cosmic-main/20 group relative overflow-hidden">
-                                <div className="p-4 bg-white/20 rounded-2xl z-10 group-hover:scale-110 transition-transform"><IconCash size={28} /></div>
+                            <div className="bg-cosmic p-4 sm:p-6 rounded-[2rem] flex items-center gap-3 sm:gap-5 text-white shadow-xl shadow-cosmic-main/20 group relative overflow-hidden">
+                                <div className="p-3 sm:p-4 bg-white/20 rounded-2xl z-10 group-hover:scale-110 transition-transform"><IconCash size={28} /></div>
                                 <div className="z-10">
                                     <p className="text-[10px] font-black text-white/80 uppercase tracking-widest leading-none mb-1">Laba Bersih</p>
                                     <h3 className="text-2xl font-black tracking-tighter italic">{formatCurrency(report.netProfit)}</h3>
@@ -177,7 +189,7 @@ const FinanceReport = ({ auth, report }) => {
 
                         {/* ARUS KEUANGAN */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/40 p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
+                            <div className="bg-emerald-50/50 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/40 p-4 sm:p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-emerald-500 text-white rounded-2xl shadow-md"><IconCash size={24} /></div>
                                     <div>
@@ -189,7 +201,7 @@ const FinanceReport = ({ auth, report }) => {
                                     <span className="text-[9px] font-black bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 px-2 py-1 rounded-lg uppercase shadow-inner">Wajib Ada di Laci</span>
                                 </div>
                             </div>
-                            <div className="bg-blue-50/50 dark:bg-blue-950/10 border border-blue-100 dark:border-blue-900/40 p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
+                            <div className="bg-blue-50/50 dark:bg-blue-950/10 border border-blue-100 dark:border-blue-900/40 p-4 sm:p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
                                 <div className="flex items-center gap-4">
                                     <div className="p-3 bg-blue-500 text-white rounded-2xl shadow-md"><IconBuildingBank size={24} /></div>
                                     <div>
@@ -211,7 +223,9 @@ const FinanceReport = ({ auth, report }) => {
                         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 shadow-sm relative overflow-hidden">
                             <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-8 italic">Statement of Profit and Loss Analysis</h3>
                             <div className="space-y-5 text-sm font-bold relative z-10">
-                                <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Gross Revenue (Total Penjualan Kotor)</span><span>{formatCurrency(report.revenue)}</span></div>
+                                <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Gross Revenue (Penjualan Bersih)</span><span>{formatCurrency(report.revenue)}</span></div>
+                                 <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Total Tagihan Pelanggan</span><span>{formatCurrency(report.billedRevenue || report.revenue)}</span></div>
+                                 <div className="flex justify-between text-violet-500 dark:text-violet-400 uppercase tracking-tighter"><span>Pajak Terkumpul / Kewajiban</span><span>{formatCurrency(taxCollected)}</span></div>
                                 <div className="flex justify-between text-rose-500 dark:text-rose-400 uppercase tracking-tighter"><span>COGS / HPP (Modal Barang Terjual)</span><span>({formatCurrency(report.hpp)})</span></div>
                                 <div className="flex justify-between items-center py-3 px-5 bg-orange-50/40 dark:bg-orange-950/10 border border-dashed border-orange-200 dark:border-orange-900/40 rounded-2xl">
                                     <div className="flex items-center gap-3">
@@ -359,38 +373,95 @@ const FinanceReport = ({ auth, report }) => {
                 {/* --- TAB CONTENT: NERACA --- */}
                 {activeTab === 'neraca' && (
                     <div className="animate-in fade-in duration-500 space-y-6">
+                        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-4 flex items-start gap-3">
+                            <IconInfoCircle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                            <div className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed space-y-1">
+                                <p>
+                                    Neraca adalah <strong>foto posisi keuangan per {report.filter.end}</strong>, bukan
+                                    arus periode. Semua angka dikumpulkan kumulatif sampai tanggal tersebut,
+                                    jadi mengubah rentang tanggal hanya memengaruhi Laporan Laba Rugi.
+                                </p>
+                                <p>
+                                    <strong>Selisih pencocokan</strong> seharusnya nol. Kalau tidak,
+                                    ada pencatatan yang belum lengkap. Penyebab yang paling sering:
+                                    pembelian stok yang masuk lewat Stock In tanpa memilih cara
+                                    pembayaran, atau penjualan yang tidak punya alokasi batch.
+                                    Selisih ini alat bantu, bukan audit resmi.
+                                </p>
+                            </div>
+                        </div>
+
                         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm p-10">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                                {/* ---------- AKTIVA ---------- */}
                                 <div className="space-y-8">
-                                    <h4 className="flex items-center gap-3 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em] border-b border-blue-50 dark:border-blue-900/30 pb-4 italic"><IconChartBar size={18}/> Aktiva (Aset & Harta)</h4>
+                                    <h4 className="flex items-center gap-3 text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em] border-b border-blue-50 dark:border-blue-900/30 pb-4 italic">
+                                        <IconChartBar size={18} /> Aktiva
+                                    </h4>
                                     <div className="space-y-6 text-sm font-bold">
                                         {[
-                                            { label: 'Kas di Laci (Tunai)', val: report.balanceSheet.cash_in_drawer, color: 'text-slate-600 dark:text-slate-300' },
-                                            { label: 'Saldo Modal Bank (Digital)', val: report.balanceSheet.external_capital, color: 'text-emerald-600 dark:text-emerald-400' },
-                                            { label: 'Nilai Inventori (Bahan & Produk)', val: report.balanceSheet.inventory_value, color: 'text-slate-600 dark:text-slate-300' },
+                                            { label: 'Kas di Laci — Tunai', val: report.balanceSheet.cash_in_drawer },
+                                            { label: 'Kas Bank & QRIS — Saldo Digital', val: report.balanceSheet.bank_and_digital },
+                                            { label: 'Persediaan — Bahan Baku', val: report.balanceSheet.inventory_ingredients },
+                                            { label: 'Persediaan — Produk Jadi', val: report.balanceSheet.inventory_products },
                                         ].map((item, i) => (
-                                            <div key={i} className="flex justify-between uppercase tracking-tighter">
+                                            <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
                                                 <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
-                                                <span className={item.color}>{formatCurrency(item.val)}</span>
+                                                <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
-                                        <div className="pt-8 border-t-4 border-blue-600 dark:border-blue-500 flex justify-between items-center text-blue-600 dark:text-blue-400 text-2xl font-black tracking-tighter italic italic"><span>TOTAL ASET</span><span>{formatCurrency(report.balanceSheet.total_assets)}</span></div>
+                                        <div className="pt-8 border-t-4 border-blue-600 dark:border-blue-500 flex justify-between items-center text-blue-600 dark:text-blue-400 text-2xl font-black tracking-tighter italic">
+                                            <span>TOTAL AKTIVA</span>
+                                            <span>{formatCurrency(report.balanceSheet.total_assets)}</span>
+                                        </div>
                                     </div>
                                 </div>
+
+                                {/* ---------- KEWAJIBAN & EKUITAS ---------- */}
                                 <div className="space-y-8">
-                                    <h4 className="flex items-center gap-3 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.3em] border-b border-emerald-50 dark:border-emerald-900/30 pb-4 italic"><IconReceipt size={18}/> Pasiva (Modal & Kewajiban)</h4>
+                                    <h4 className="flex items-center gap-3 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.3em] border-b border-emerald-50 dark:border-emerald-900/30 pb-4 italic">
+                                        <IconReceipt size={18} /> Kewajiban &amp; Ekuitas
+                                    </h4>
                                     <div className="space-y-6 text-sm font-bold">
+                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-rose-600 dark:text-rose-400">Kewajiban</p>
                                         {[
-                                            { label: 'Hutang Dagang (Kewajiban)', val: report.balanceSheet.accounts_payable, color: 'text-rose-600 dark:text-rose-400' },
-                                            { label: 'Modal Disetor Pemilik', val: report.balanceSheet.external_capital, color: 'text-slate-600 dark:text-slate-300' },
-                                            { label: 'Akumulasi Laba Ditahan', val: report.balanceSheet.retained_earnings, color: 'text-slate-600 dark:text-slate-300' },
+                                            { label: 'Hutang Usaha', val: report.balanceSheet.accounts_payable, color: 'text-rose-600 dark:text-rose-400' },
+                                            { label: 'Hutang Pajak', val: report.balanceSheet.tax_payable, color: 'text-violet-600 dark:text-violet-400' },
                                         ].map((item, i) => (
-                                            <div key={i} className="flex justify-between uppercase tracking-tighter">
+                                            <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
                                                 <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
-                                                <span className={item.color}>{formatCurrency(item.val)}</span>
+                                                <span className={item.color + ' whitespace-nowrap'}>{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
-                                        <div className="pt-8 border-t-4 border-emerald-600 dark:border-emerald-500 flex justify-between items-center text-emerald-600 dark:text-emerald-400 text-2xl font-black tracking-tighter italic italic"><span>TOTAL PASIVA</span><span>{formatCurrency(report.balanceSheet.total_assets)}</span></div>
+                                        <div className="flex justify-between uppercase tracking-tighter gap-4 border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-slate-500 dark:text-slate-400 font-black text-[11px]">Total Kewajiban</span>
+                                            <span className="text-rose-600 dark:text-rose-400 whitespace-nowrap">{formatCurrency(report.balanceSheet.total_liabilities)}</span>
+                                        </div>
+
+                                        <p className="text-[9px] font-black uppercase tracking-[0.25em] text-emerald-600 dark:text-emerald-400 pt-3">Ekuitas</p>
+                                        {[
+                                            { label: 'Modal Disetor Pemilik', val: report.balanceSheet.external_capital },
+                                            { label: 'Laba Ditahan', val: report.balanceSheet.retained_earnings },
+                                        ].map((item, i) => (
+                                            <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
+                                                <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
+                                            </div>
+                                        ))}
+                                        <div className="flex justify-between uppercase tracking-tighter gap-4 border-t border-slate-200 dark:border-slate-800 pt-3">
+                                            <span className="text-slate-500 dark:text-slate-400 font-black text-[11px]">Total Ekuitas</span>
+                                            <span className="text-emerald-600 dark:text-emerald-400 whitespace-nowrap">{formatCurrency(report.balanceSheet.total_equity)}</span>
+                                        </div>
+
+                                        <div className="pt-6 border-t-4 border-emerald-600 dark:border-emerald-500 flex justify-between items-center text-emerald-600 dark:text-emerald-400 text-xl font-black tracking-tighter italic">
+                                            <span>TOTAL KEWAJIBAN + EKUITAS</span>
+                                            <span>{formatCurrency(report.balanceSheet.total_liabilities_equity)}</span>
+                                        </div>
+
+                                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-wider rounded-lg bg-slate-100 dark:bg-slate-800 px-3 py-2 text-slate-600 dark:text-slate-300">
+                                            <span>Selisih Pencocokan</span>
+                                            <span>{formatCurrency(Math.abs(report.balanceSheet.balance_difference))}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -405,9 +476,20 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24">
                                 <div className="p-6 bg-cosmic flex items-center gap-3 border-b border-white/10"><IconPlus size={20} className="text-white" /><span className="font-black text-[10px] uppercase tracking-[0.2em] text-white">Entry Pengeluaran</span></div>
                                 <form onSubmit={submitExpense} className="p-8 space-y-6">
+                                    <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Uang Keluar Dari</label><select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Kas Laci">Kas Laci (beban)</option><option value="Setor ke Bank">Setor ke Bank (pindah ke rekening)</option><option value="Modal Luar">Modal Luar (ambil modal)</option><option value="Hutang Dagang">Hutang Dagang (terima pinjaman)</option></select></div>
                                     <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Kategori Beban</label><select value={data.category} onChange={e => setData('category', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Operasional">Operasional</option><option value="Beban Promosi">Beban Promosi (Promo/Gift)</option><option value="Pelunasan Hutang">Pelunasan Hutang</option><option value="Kerugian Stok">Kerugian Stok</option></select></div>
                                     <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Keterangan</label><input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Contoh: Belanja Gula / Bayar Listrik" /></div>
                                     <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Nominal Rp</label><input type="number" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main" placeholder="0" /></div>
+                                    {data.source === 'Setor ke Bank' && (
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-relaxed bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                                            Ini bukan beban. Uang hanya pindah dari Kas di Laci ke Kas Bank, jadi laba tidak berubah dan neraca tetap balance. Catat setiap kali Anda menyetor kelebihan kas ke rekening.
+                                        </p>
+                                    )}
+                                    {data.source === 'Modal Luar' && (
+                                        <p className="text-[10px] text-rose-600 dark:text-rose-400 font-bold leading-relaxed bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-xl p-3">
+                                            Uang keluar dari laci DAN mengurangi Modal Disetor di sisi ekuitas. Jangan pakai ini untuk biaya harian.
+                                        </p>
+                                    )}
                                     <button disabled={processing} className="w-full bg-cosmic text-white font-black text-[10px] uppercase py-5 rounded-2xl shadow-xl shadow-cosmic-main/20 tracking-[0.2em] active:scale-95 transition-all leading-none tracking-widest">POST TRANSACTION</button>
                                 </form>
                             </div>

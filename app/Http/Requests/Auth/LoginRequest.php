@@ -58,11 +58,11 @@ class LoginRequest extends FormRequest
          */
         if ($userCheck) {
             $isMandatory = (bool) $userCheck->is_face_mandatory;
-            $hasFaceData = !empty($userCheck->face_data);
+            $hasFaceData = ! empty($userCheck->face_data);
 
             if ($isMandatory && $hasFaceData) {
                 RateLimiter::hit($this->throttleKey());
-                
+
                 throw ValidationException::withMessages([
                     'email' => 'KEAMANAN AKTIF: Akun ini diwajibkan menggunakan Face ID karena data wajah sudah terdaftar. Login password dinonaktifkan.',
                 ]);

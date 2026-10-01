@@ -11,7 +11,7 @@ class Discount extends Model
 
     /**
      * Mengizinkan semua kolom diisi secara mass-assignment.
-     * Pastikan kolom berikut ada di DB: 
+     * Pastikan kolom berikut ada di DB:
      * product_id, bonus_product_id, minimum_item, name, type, value, min_transaction, start_date, end_date, is_active
      */
     protected $guarded = [];
@@ -38,13 +38,13 @@ class Discount extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-            ->where(function($q) {
-                // Promo dianggap aktif jika: 
+            ->where(function ($q) {
+                // Promo dianggap aktif jika:
                 // 1. Tanggal tidak diatur (NULL) - berlaku selamanya
                 // 2. Hari ini berada di antara start_date dan end_date
-                $q->where(function($sub) {
+                $q->where(function ($sub) {
                     $sub->whereNull('start_date')->whereNull('end_date');
-                })->orWhere(function($sub) {
+                })->orWhere(function ($sub) {
                     $sub->whereDate('start_date', '<=', now()->toDateString())
                         ->whereDate('end_date', '>=', now()->toDateString());
                 });
@@ -56,7 +56,7 @@ class Discount extends Model
      */
     public function isProductSpecific()
     {
-        return !is_null($this->product_id);
+        return ! is_null($this->product_id);
     }
 
     /**
@@ -64,6 +64,6 @@ class Discount extends Model
      */
     public function isBuyGet()
     {
-        return $this->type === 'buy_get' && !is_null($this->bonus_product_id);
+        return $this->type === 'buy_get' && ! is_null($this->bonus_product_id);
     }
 }

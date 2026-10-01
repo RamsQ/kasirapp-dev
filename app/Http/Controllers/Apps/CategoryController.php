@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Apps;
 
-use Inertia\Inertia;
+use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
@@ -16,7 +16,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::when(request()->search, function ($query) {
-            $query->where('name', 'like', '%' . request()->search . '%');
+            $query->where('name', 'like', '%'.request()->search.'%');
         })->latest()->paginate(10); // Mengubah paginate menjadi 10 agar lebih standar
 
         return Inertia::render('Dashboard/Categories/Index', [
@@ -41,9 +41,9 @@ class CategoryController extends Controller
          * Validasi: Gambar dan Deskripsi sekarang bersifat opsional (nullable)
          */
         $request->validate([
-            'image'       => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'name'        => 'required|unique:categories,name',
-            'description' => 'nullable'
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'name' => 'required|unique:categories,name',
+            'description' => 'nullable',
         ]);
 
         $imageName = null;
@@ -56,9 +56,9 @@ class CategoryController extends Controller
 
         // Create category
         Category::create([
-            'image'       => $imageName,
-            'name'        => $request->name,
-            'description' => $request->description ?? '-' // Default strip jika kosong
+            'image' => $imageName,
+            'name' => $request->name,
+            'description' => $request->description ?? '-', // Default strip jika kosong
         ]);
 
         return to_route('categories.index')->with('success', 'Kategori berhasil disimpan!');
@@ -80,13 +80,13 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'name'        => 'required|unique:categories,name,' . $category->id,
-            'image'       => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
-            'description' => 'nullable'
+            'name' => 'required|unique:categories,name,'.$category->id,
+            'image' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'description' => 'nullable',
         ]);
 
         $data = [
-            'name'        => $request->name,
+            'name' => $request->name,
             'description' => $request->description ?? '-',
         ];
 
@@ -94,7 +94,7 @@ class CategoryController extends Controller
         if ($request->hasFile('image')) {
             // Hapus gambar lama jika ada
             if ($category->image) {
-                Storage::disk('local')->delete('public/category/' . basename($category->image));
+                Storage::disk('local')->delete('public/category/'.basename($category->image));
             }
 
             // Upload gambar baru
@@ -117,7 +117,7 @@ class CategoryController extends Controller
 
         // Hapus file gambar dari storage jika ada
         if ($category->image) {
-            Storage::disk('local')->delete('public/category/' . basename($category->image));
+            Storage::disk('local')->delete('public/category/'.basename($category->image));
         }
 
         $category->delete();

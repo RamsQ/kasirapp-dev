@@ -10,13 +10,13 @@ class IngredientsImport implements ToModel, WithHeadingRow
 {
     /**
      * Mapping data dari Excel ke Model Ingredient
-     * * @param array $row
+     *
      * @return \Illuminate\Database\Eloquent\Model|null
      */
     public function model(array $row)
     {
         // 1. Validasi: Jika kolom 'nama_bahan' kosong, lewati baris ini
-        if (!isset($row['nama_bahan']) || $row['nama_bahan'] == null) {
+        if (! isset($row['nama_bahan']) || $row['nama_bahan'] == null) {
             return null;
         }
 
@@ -32,9 +32,9 @@ class IngredientsImport implements ToModel, WithHeadingRow
             ],
             [
                 // Langsung simpan string dari Excel, tidak perlu cari Unit ID lagi
-                'unit'      => $row['satuan'] ?? 'pcs', 
+                'unit' => $row['satuan'] ?? 'pcs',
                 'buy_price' => $row['harga_modal'] ?? 0,
-                'stock'     => $row['stok_saat_ini'] ?? 0,
+                'stock' => $row['stok_saat_ini'] ?? 0,
                 'min_stock' => $row['batas_minimum'] ?? 0,
             ]
         );

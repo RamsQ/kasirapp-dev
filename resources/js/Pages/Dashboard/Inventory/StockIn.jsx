@@ -27,7 +27,9 @@ export default function StockIn({ auth, products, ingredients, history, filters 
     const [loadingBatch, setLoadingBatch] = useState(false);
 
     const { data, setData, reset, processing } = useForm({
-        entries: []
+        entries: [],
+        // "cash" mengurangi Kas di Laci, "credit" menambah Hutang Usaha.
+        payment_method: "cash"
     });
 
     useEffect(() => {
@@ -129,10 +131,16 @@ export default function StockIn({ auth, products, ingredients, history, filters 
         }
 
         // PERBAIKAN: Hapus prefix apps.
-        router.post(route("stock_in.store"), { entries: filledData }, {
+        // payment_method menentukan sisi neraca mana yang berubah: kas (tunai)
+        // atau hutang usaha (belum dibayar). Tanpa ini, nilai persediaan naik
+        // tanpa ada sisi lain yang ikut turun.
+        router.post(route("stock_in.store"), {
+            entries: filledData,
+            payment_method: data.payment_method || "cash",
+        }, {
             preserveScroll: true,
             onSuccess: () => {
-                reset(); 
+                reset();
                 Swal.fire('BERHASIL', 'Stok manual berhasil ditambahkan.', 'success');
             },
         });
@@ -271,7 +279,32 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                             </tbody>
                         </table>
                     </div>
-                    <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30">
+                    <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex flex-col md:flex-row md:items-center gap-3 justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Dibayar dengan:</span>
+                            {[
+                                { value: "cash", label: "Tunai / Rekening" },
+                                { value: "credit", label: "Hutang (Belum Dibayar)" },
+                            ].map((option) => (
+                                <button
+                                    key={option.value}
+                                    type="button"
+                                    onClick={() => setData("payment_method", option.value)}
+                                    className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${
+                                        (data.payment_method || "cash") === option.value
+                                            ? "bg-slate-900 text-white dark:bg-emerald-600 shadow-lg"
+                                            : "bg-white text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:border-slate-400"
+                                    }`}
+                                >
+                                    {option.label}
+                                </button>
+                            ))}
+                            <span className="text-[10px] text-slate-400 italic">
+                                {data.payment_method === "credit"
+                                    ? "Akan dicatat sebagai Hutang Usaha."
+                                    : "Akan mengurangi Kas di Laci."}
+                            </span>
+                        </div>
                         <Pagination links={activeTab === "products" ? products?.links : ingredients?.links} />
                     </div>
                 </div>
@@ -335,8 +368,12 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                 </button>
                             </div>
                             
-                            <div className="p-6 max-h-[40vh] overflow-y-auto">
-                                <table className="w-full text-sm">
+                            {/* `overflow-x-auto` ditambahkan karena modal ini
+                                punya `overflow-hidden`, jadi tanpa itu tabel
+                                batch yang 5 kolom akan terpotong dan tidak
+                                pernah bisa digeser di HP. */}
+                            <div className="p-4 sm:p-6 max-h-[40vh] overflow-y-auto overflow-x-auto">
+                                <table className="w-full min-w-[560px] text-sm">
                                     <thead className="sticky top-0 bg-white dark:bg-slate-900 shadow-sm">
                                         <tr className="text-[10px] uppercase font-black text-slate-400 border-b border-slate-100 dark:border-slate-800">
                                             <th className="py-3 text-left">Ref / Batch</th>

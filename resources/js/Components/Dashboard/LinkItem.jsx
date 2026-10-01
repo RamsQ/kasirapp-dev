@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
+import { isActivePath } from "@/Utils/ActivePath";
 
 export default function LinkItem({
     href,
@@ -7,12 +8,16 @@ export default function LinkItem({
     access,
     title,
     sidebarOpen,
+    // Dipakai Sidebar untuk menutup drawer setelah menu ditekan. Dipisah
+    // dari `...props` supaya tidak ikut diteruskan ke <Link> sebagai
+    // atribut DOM yang tidak dikenal.
+    onNavigate,
     ...props
 }) {
     const { url } = usePage();
     const { auth } = usePage().props;
 
-    const isActive = url.startsWith(href);
+    const isActive = isActivePath(url, href);
     const canAccess = auth.super === true || access === true;
 
     if (!canAccess) return null;
@@ -31,7 +36,9 @@ export default function LinkItem({
         return (
             <Link
                 href={href}
+                onClick={onNavigate}
                 className={`${baseClasses} ${activeClasses} px-4 py-2.5 text-sm font-medium`}
+                aria-current={isActive ? "page" : undefined}
                 {...props}
             >
                 <span
@@ -50,6 +57,7 @@ export default function LinkItem({
     return (
         <Link
             href={href}
+            onClick={onNavigate}
             className={`
                 w-full flex justify-center py-3
                 transition-all duration-200
@@ -60,6 +68,7 @@ export default function LinkItem({
                 }
             `}
             title={title}
+            aria-current={isActive ? "page" : undefined}
             {...props}
         >
             {icon}

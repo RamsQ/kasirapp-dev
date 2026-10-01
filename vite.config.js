@@ -30,6 +30,7 @@ export default defineConfig({
                         urlPattern: ({ url }) => 
                             url.pathname.startsWith('/api') || 
                             url.pathname.startsWith('/transactions') || 
+                            url.pathname.startsWith('/dashboard/kitchen') ||
                             url.pathname.includes('queue') ||
                             url.pathname.includes('check'),
                         handler: 'NetworkOnly', // WAJIB: Ambil langsung dari server, jangan lewat cache

@@ -12,7 +12,7 @@ class OnlineSettingController extends Controller
     public function index()
     {
         return Inertia::render('Dashboard/Settings/Online', [
-            'settings' => OnlineSetting::all()
+            'settings' => OnlineSetting::all(),
         ]);
     }
 
@@ -32,6 +32,7 @@ class OnlineSettingController extends Controller
     public function destroy($id)
     {
         OnlineSetting::findOrFail($id)->delete();
+
         return back()->with('success', 'Platform berhasil dihapus!');
     }
 }

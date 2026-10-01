@@ -286,20 +286,20 @@ export default function Edit({ categories, product, products }) {
                                     <button type="button" onClick={addUnitRow} className="bg-primary-50 text-primary-600 px-3 py-1.5 rounded-lg text-[10px] uppercase font-black hover:bg-primary-100 transition-colors flex items-center gap-1"><IconPlus size={14} /> Tambah Satuan</button>
                                 </div>
                                 {data.units.map((unit, index) => (
-                                    <div key={index} className="grid grid-cols-12 gap-3 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl mb-2 items-end">
-                                        <div className="col-span-4">
+                                    <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl mb-2 items-end">
+                                        <div className="col-span-1 sm:col-span-4">
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Nama Satuan</label>
                                             <input placeholder="Kg / Dus" value={unit.unit_name} onChange={(e) => updateUnitData(index, "unit_name", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
-                                        <div className="col-span-3">
+                                        <div className="col-span-1 sm:col-span-3">
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Isi (Qty)</label>
                                             <input type="number" placeholder="Konv" value={unit.conversion} onChange={(e) => updateUnitData(index, "conversion", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
-                                        <div className="col-span-4">
+                                        <div className="col-span-1 sm:col-span-4">
                                             <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Harga Jual</label>
                                             <input type="number" placeholder="Harga" value={unit.sell_price} onChange={(e) => updateUnitData(index, "sell_price", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
-                                        <div className="col-span-1 text-right">
+                                        <div className="col-span-1 flex justify-end sm:text-right">
                                             <button type="button" onClick={() => removeUnitRow(index)} className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"><IconX size={18} /></button>
                                         </div>
                                     </div>

@@ -6,19 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-        public function up(): void
-{
-    Schema::table('expenses', function (Blueprint $table) {
-        // Tambahkan kolom user_id setelah kolom id
-        $table->foreignId('user_id')->nullable()->after('id')->constrained('users')->onDelete('cascade');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('expenses', function (Blueprint $table) {
+            // Tambahkan kolom user_id setelah kolom id
+            $table->foreignId('user_id')->nullable()->after('id')->constrained('users')->onDelete('cascade');
+        });
+    }
 
-public function down(): void
-{
-    Schema::table('expenses', function (Blueprint $table) {
-        $table->dropForeign(['user_id']);
-        $table->dropColumn('user_id');
-    });
-}
+    public function down(): void
+    {
+        Schema::table('expenses', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+        });
+    }
 };

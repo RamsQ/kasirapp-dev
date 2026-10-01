@@ -4,17 +4,17 @@ namespace App\Exports;
 
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class ProductOpnameTemplateExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
+class ProductOpnameTemplateExport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithHeadings, WithMapping
 {
     /**
-    * Mengambil data produk jadi
-    */
+     * Mengambil data produk jadi
+     */
     public function collection()
     {
         return Product::where('type', 'single')
@@ -23,8 +23,8 @@ class ProductOpnameTemplateExport implements FromCollection, WithHeadings, WithM
     }
 
     /**
-    * Header Excel
-    */
+     * Header Excel
+     */
     public function headings(): array
     {
         return [
@@ -38,12 +38,12 @@ class ProductOpnameTemplateExport implements FromCollection, WithHeadings, WithM
     }
 
     /**
-    * Mapping data ke kolom Excel
-    */
+     * Mapping data ke kolom Excel
+     */
     public function map($product): array
     {
         return [
-            $product->barcode ? $product->barcode : $product->id, 
+            $product->barcode ? $product->barcode : $product->id,
             $product->title,
             $product->unit,
             $product->stock,
@@ -53,8 +53,8 @@ class ProductOpnameTemplateExport implements FromCollection, WithHeadings, WithM
     }
 
     /**
-    * Format Kolom A agar Barcode tidak rusak
-    */
+     * Format Kolom A agar Barcode tidak rusak
+     */
     public function columnFormats(): array
     {
         return [

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import useMediaQuery from '@/Hooks/useMediaQuery'
 import { Menu, Transition } from '@headlessui/react'
 import { Link, usePage } from '@inertiajs/react' // Import Link dan usePage
 import { 
@@ -39,7 +40,13 @@ export default function Notification() {
     }
 
     // --- LOGIC BAWAAN TEMPLATE ---
-    const [isMobile, setIsMobile] = useState(false);
+    // Dibaca lewat matchMedia, bukan window.innerWidth <= 768 yang dipasang di
+    // listener resize. Alasannya nilai itu off-by-one terhadap titik henti md"r
+    // Tailwind (yang mulai berlaku pada 768px ke atas), sehingga tepat di 768px
+    // sidebar sudah tampil sebagai kolom tapi panel_notifications masih
+    // memakai versi mobile. Selain itu,_listener_ resize dipanggil untuk setiap
+    // pixel yang digeser.
+    const isMobile = !useMediaQuery('(min-width: 768px)');
     const [isOpen, setIsOpen] = useState(false);
     const notificationRef = useRef(null);
 
@@ -50,12 +57,8 @@ export default function Notification() {
     };
 
     useEffect(() => {
-        const handleResize = () => setIsMobile(window.innerWidth <= 768);
-        window.addEventListener('resize', handleResize);
         window.addEventListener("mousedown", handleClickOutside);
-        handleResize();
         return () => {
-            window.removeEventListener('resize', handleResize);
             window.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);

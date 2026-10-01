@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         // Cek jika tabel BELUM ada, baru buat
-        if (!Schema::hasTable('stock_batches')) {
+        if (! Schema::hasTable('stock_batches')) {
             Schema::create('stock_batches', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('product_id')->constrained()->onDelete('cascade');
@@ -24,7 +24,7 @@ return new class extends Migration
         // Cek tabel settings untuk menambah kolom cogs_method
         if (Schema::hasTable('settings')) {
             Schema::table('settings', function (Blueprint $table) {
-                if (!Schema::hasColumn('settings', 'cogs_method')) {
+                if (! Schema::hasColumn('settings', 'cogs_method')) {
                     $table->string('cogs_method')->default('AVERAGE')->after('id');
                 }
             });
@@ -34,7 +34,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('stock_batches');
-        
+
         if (Schema::hasTable('settings')) {
             Schema::table('settings', function (Blueprint $table) {
                 if (Schema::hasColumn('settings', 'cogs_method')) {

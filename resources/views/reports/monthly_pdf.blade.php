@@ -22,8 +22,11 @@
         <h3>💰 Ringkasan Keuangan</h3>
         <table>
             <tr><td>Total Transaksi</td><td class="total">{{ $count }} Trx</td></tr>
-            <tr><td>Total Omzet</td><td class="total">Rp {{ number_format($revenue) }}</td></tr>
-            <tr><td>Total Laba Kotor</td><td class="total">Rp {{ number_format($profit) }}</td></tr>
+            <tr><td>Omzet Bersih (tanpa pajak)</td><td class="total">Rp {{ number_format($revenue) }}</td></tr>
+            <tr><td>Pajak Terkumpul</td><td class="total">Rp {{ number_format($tax_collected ?? 0) }}</td></tr>
+            <tr><td>HPP</td><td class="total">Rp {{ number_format($hpp ?? 0) }}</td></tr>
+             <tr><td>Komisi Platform</td><td class="total">Rp {{ number_format($app_expenses ?? 0) }}</td></tr>
+             <tr><td>Laba Kotor / Kontribusi</td><td class="total">Rp {{ number_format($profit) }}</td></tr>
             <tr><td>Total Pengeluaran</td><td class="total" style="color: #e74c3c">- Rp {{ number_format($expense) }}</td></tr>
             <tr><td><strong>LABA BERSIH</strong></td><td class="profit"><strong>Rp {{ number_format($net_profit) }}</strong></td></tr>
         </table>

@@ -9,15 +9,14 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
+    public function up()
     {
-    Schema::table('users', function (Blueprint $table) {
-        $table->json('face_data')->nullable(); // Menyimpan array descriptor wajah
-    });
+        Schema::table('users', function (Blueprint $table) {
+            $table->json('face_data')->nullable(); // Menyimpan array descriptor wajah
+        });
     }
 
     /**
      * Reverse the migrations.
      */
-
 };

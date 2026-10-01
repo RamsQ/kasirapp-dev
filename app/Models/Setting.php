@@ -14,6 +14,24 @@ class Setting extends Model
      */
     protected $fillable = [
         'cogs_method',
-        // tambahkan field lain jika ada di tabel settings Anda nanti
+        'tax_enabled',
+        'tax_rate',
+        'loyalty_enabled',
+        'loyalty_points_per_100',
+        'kitchen_display_enabled',
+        'kitchen_display_payment_status',
+        'kitchen_display_enabled_at',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'tax_enabled' => 'boolean',
+            'tax_rate' => 'float',
+            'loyalty_enabled' => 'boolean',
+            'loyalty_points_per_100' => 'integer',
+            'kitchen_display_enabled' => 'boolean',
+            'kitchen_display_enabled_at' => 'datetime',
+        ];
+    }
 }

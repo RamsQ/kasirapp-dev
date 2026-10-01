@@ -29,7 +29,7 @@ class OrderPlaced implements ShouldBroadcast
     public function broadcastOn()
     {
         /**
-         * Gunakan channel global 'orders' agar Kasir A dan Kasir B 
+         * Gunakan channel global 'orders' agar Kasir A dan Kasir B
          * bisa saling mendengarkan event satu sama lain.
          */
         return new Channel('orders');
@@ -49,9 +49,9 @@ class OrderPlaced implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'userId'  => $this->userId,
+            'userId' => $this->userId,
             'message' => 'Ada pesanan masuk baru!',
-            'time'    => now()->toDateTimeString(),
+            'time' => now()->toDateTimeString(),
         ];
     }
 }

@@ -10,7 +10,8 @@ import {
     IconUser,
     IconHash,
     IconTrendingDown,
-    IconAlertCircle
+    IconAlertCircle,
+    IconPercentage
 } from "@tabler/icons-react";
 
 const formatCurrency = (value) =>
@@ -20,7 +21,7 @@ const formatCurrency = (value) =>
         minimumFractionDigits: 0,
     }).format(value);
 
-const RefundReport = ({ refunds, totalRefund, filters }) => {
+const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
     // 1. STATE UNTUK FILTER (Menjaga sinkronisasi dengan backend)
     const [startDate, setStartDate] = useState(filters.start_date || "");
     const [endDate, setEndDate] = useState(filters.end_date || "");
@@ -48,7 +49,7 @@ const RefundReport = ({ refunds, totalRefund, filters }) => {
 
     return (
         <>
-            <Head title="Laporan Refund | POS SYSTEM AJA" />
+            <Head title="Laporan Refund | LakuPOS AJA" />
             <div className="space-y-6">
                 
                 {/* 1. Header & Filter Section */}
@@ -119,7 +120,7 @@ const RefundReport = ({ refunds, totalRefund, filters }) => {
                 </div>
 
                 {/* 2. Kartu Ringkasan Total (Hero Section) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                     <div className="bg-gradient-to-br from-rose-500 to-rose-600 p-7 rounded-[2.5rem] text-white shadow-xl shadow-rose-500/20 relative overflow-hidden group">
                         <div className="absolute -right-4 -top-4 opacity-10 group-hover:scale-110 transition-transform duration-700">
                             <IconTrendingDown size={140} />
@@ -135,6 +136,13 @@ const RefundReport = ({ refunds, totalRefund, filters }) => {
                         </div>
                     </div>
 
+                    <div className="bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900/40 rounded-[2.5rem] p-7">
+                        <IconPercentage size={28} className="text-violet-500 mb-3" />
+                        <p className="text-violet-500 text-[10px] font-black uppercase tracking-[0.2em]">Pajak Dikembalikan</p>
+                        <h3 className="text-3xl font-black mt-2 tracking-tighter text-violet-700 dark:text-violet-300">
+                            {formatCurrency(taxRefund)}
+                        </h3>
+                    </div>
                     <div className="md:col-span-2 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-800/50 rounded-[2.5rem] p-7 flex items-center gap-6">
                         <div className="w-16 h-16 rounded-3xl bg-white dark:bg-slate-800 flex items-center justify-center text-indigo-600 shadow-sm border border-indigo-100 dark:border-indigo-800">
                             <IconAlertCircle size={32} />

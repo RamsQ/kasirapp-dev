@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { IconArrowLeft, IconPrinter, IconUsb } from "@tabler/icons-react";
 import { printUsbRaw } from "@/Utils/UsbRawPrinter"; 
+import { paymentLabel } from "@/Utils/PaymentLabels";
 
 export default function Print({ transaction, receiptSetting, isPublic = false, autoPrint = false }) {
     
@@ -17,6 +18,8 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
     const details = Array.isArray(transaction.details) ? transaction.details : [];
     const displayCode = transaction.reference_code || (transaction.customer_name?.includes('#') ? transaction.customer_name.split('#').pop().trim() : "----");
     const displayQueue = transaction.queue_number || details[0]?.queue_number || "";
+    const taxAmount = parseFloat(transaction.tax_amount || 0);
+    const taxRate = parseFloat(transaction.tax_rate || 0);
 
     useEffect(() => {
         if (autoPrint && transaction?.invoice) {
@@ -80,10 +83,18 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                             {"-".repeat(C_WIDTH) + "\n"}
                             
                             {/* TOTALS */}
-                            {formatRow("TOTAL AKHIR", `Rp ${Math.round(transaction.grand_total).toLocaleString('id-ID')}`) + "\n"}
-                            {formatRow("BAYAR", Math.round(transaction.cash || transaction.grand_total).toLocaleString('id-ID')) + "\n"}
-                            {formatRow("KEMBALI", Math.round(transaction.change || 0).toLocaleString('id-ID')) + "\n"}
-                            {formatRow("METODE", (transaction.payment_method || 'CASH')) + "\n"}
+                            {taxAmount > 0 && formatRow(`PAJAK ${taxRate}%`, Math.round(taxAmount).toLocaleString('id-ID')) + "\n"}
+                             {formatRow("TOTAL AKHIR", `Rp ${Math.round(transaction.grand_total).toLocaleString('id-ID')}`) + "\n"}
+                            {/* Pembayaran non-tunai tidak punya kembalian, jadi
+                                "KEMBALI 0" tidak perlu dicetak untuk order QRIS
+                                yang sudah lunas. */}
+                            {(transaction.payment_method === 'cash' || Number(transaction.cash || 0) > 0) ? (
+                                formatRow("BAYAR", Math.round(transaction.cash || transaction.grand_total).toLocaleString('id-ID')) + "\n"
+                                    + formatRow("KEMBALI", Math.round(transaction.change || 0).toLocaleString('id-ID')) + "\n"
+                            ) : (
+                                formatRow("SUDAH DIBAYAR", Math.round(transaction.grand_total).toLocaleString('id-ID')) + "\n"
+                            )}
+                            {formatRow("METODE", paymentLabel(transaction.payment_method)) + "\n"}
                             {"-".repeat(C_WIDTH) + "\n"}
                         </pre>
 

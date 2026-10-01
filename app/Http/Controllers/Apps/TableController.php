@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Apps;
 
 use App\Http\Controllers\Controller;
-use App\Models\Table;
 use App\Models\ReceiptSetting;
+use App\Models\Table;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -16,8 +16,9 @@ class TableController extends Controller
     public function index()
     {
         $tables = Table::orderBy('name')->paginate(10);
+
         return Inertia::render('Dashboard/Tables/Index', [
-            'tables' => $tables
+            'tables' => $tables,
         ]);
     }
 
@@ -28,6 +29,7 @@ class TableController extends Controller
     {
         $request->validate(['name' => 'required|unique:tables,name']);
         Table::create(['name' => $request->name, 'status' => 'available']);
+
         return back()->with('success', 'Meja berhasil ditambahkan.');
     }
 
@@ -36,8 +38,9 @@ class TableController extends Controller
      */
     public function update(Request $request, Table $table)
     {
-        $request->validate(['name' => 'required|unique:tables,name,' . $table->id]);
+        $request->validate(['name' => 'required|unique:tables,name,'.$table->id]);
         $table->update(['name' => $request->name]);
+
         return back()->with('success', 'Meja berhasil diupdate.');
     }
 
@@ -50,6 +53,7 @@ class TableController extends Controller
             return back()->with('error', 'Meja sedang digunakan!');
         }
         $table->delete();
+
         return back()->with('success', 'Meja berhasil dihapus.');
     }
 
@@ -60,14 +64,14 @@ class TableController extends Controller
     {
         // Mengambil semua data meja tanpa pagination untuk dicetak
         $tables = Table::orderBy('name')->get();
-        
+
         // Mengambil nama toko dari pengaturan struk
         $storeName = ReceiptSetting::first()->store_name ?? 'KASIR POS';
 
         return Inertia::render('Dashboard/Tables/PrintQr', [
-            'tables'    => $tables,
+            'tables' => $tables,
             'storeName' => $storeName,
-            'baseUrl'   => url('/menu') // Menghasilkan root URL (misal: https://tokoanda.com/menu)
+            'baseUrl' => url('/menu'), // Menghasilkan root URL (misal: https://tokoanda.com/menu)
         ]);
     }
 }

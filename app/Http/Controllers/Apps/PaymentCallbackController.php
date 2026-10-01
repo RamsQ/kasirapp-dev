@@ -2,61 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaymentSetting;
 use App\Models\Transaction;
-use App\Models\ProductUnit;
+use App\Services\Payments\PaymentSettlementService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PaymentCallbackController extends Controller
 {
+    public function __construct(protected PaymentSettlementService $settlements) {}
+
+    /**
+     * Legacy Midtrans endpoint. The canonical settlement service owns state
+     * transitions and stock consumption for every callback source.
+     */
     public function midtrans(Request $request)
     {
-        $serverKey = config('services.midtrans.server_key'); // Pastikan server_key ada di config/services.php
-        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
+        $payload = $request->json()->all() ?: $request->all();
+        $orderId = (string) ($payload['order_id'] ?? $payload['transaction_id'] ?? '');
+        $status = (string) ($payload['transaction_status'] ?? '');
+        $transaction = $orderId ? Transaction::where('invoice', $orderId)->first() : null;
+        $serverKey = (string) (config('services.midtrans.server_key') ?: PaymentSetting::first()?->midtrans_server_key);
 
-        if ($hashed !== $request->signature_key) {
-            return response()->json(['message' => 'Invalid signature'], 403);
-        }
+        try {
+            $expected = hash(
+                'sha512',
+                $orderId.$status.(string) ($payload['gross_amount'] ?? '').$serverKey,
+            );
+            if ($serverKey === '' || ! hash_equals($expected, (string) ($payload['signature_key'] ?? ''))) {
+                $this->settlements->recordRejectedEvent(
+                    provider: PaymentSetting::GATEWAY_MIDTRANS,
+                    providerStatus: $status,
+                    providerReference: $orderId,
+                    payload: $payload,
+                    error: 'Signature Midtrans tidak valid.',
+                    transaction: $transaction,
+                );
 
-        $transaction = Transaction::where('invoice', $request->order_id)->first();
-
-        if (!$transaction) {
-            return response()->json(['message' => 'Transaction not found'], 404);
-        }
-
-        $transactionStatus = $request->transaction_status;
-        $type = $request->payment_type;
-
-        if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
-            
-            // CEK: Jika status sudah paid, jangan kurangi stok lagi (mencegah double hit)
-            if ($transaction->payment_status === 'paid') {
-                return response()->json(['message' => 'Already processed'], 200);
+                return response()->json(['message' => 'Invalid signature'], 403);
             }
 
-            DB::transaction(function () use ($transaction) {
-                // 1. Update Status Pembayaran
-                $transaction->update(['payment_status' => 'paid']);
+            if (! $transaction) {
+                return response()->json(['message' => 'Transaction not found'], 404);
+            }
 
-                // 2. POTONG STOK (Karena tadi di TransactionController kita skip stok untuk gateway)
-                foreach ($transaction->details as $detail) {
-                    $product = $detail->product;
+            $statusForSettlement = $status;
+            if (strtolower($status) === 'capture'
+                && in_array(strtolower((string) ($payload['fraud_status'] ?? '')), ['challenge', 'review'], true)) {
+                $statusForSettlement = 'pending';
+            }
 
-                    if ($product->recipes->count() > 0) {
-                        foreach ($product->recipes as $recipe) {
-                            DB::table('ingredients')->where('id', $recipe->ingredient_id)
-                                ->decrement('stock', (float)$recipe->qty_needed * (float)$detail->qty);
-                        }
-                    } else if ($product->type !== 'bundle') {
-                        $conversion = $detail->product_unit_id ? (ProductUnit::find($detail->product_unit_id)->conversion ?? 1) : 1;
-                        DB::table('products')->where('id', $detail->product_id)->decrement('stock', $detail->qty * $conversion);
-                    }
-                }
-            });
-        } elseif ($transactionStatus == 'expire' || $transactionStatus == 'cancel' || $transactionStatus == 'deny') {
-            $transaction->update(['payment_status' => 'failed']);
+            $result = $this->settlements->processStatus(
+                transaction: $transaction,
+                provider: PaymentSetting::GATEWAY_MIDTRANS,
+                providerStatus: $statusForSettlement,
+                providerReference: $orderId,
+                amount: array_key_exists('gross_amount', $payload) ? (float) $payload['gross_amount'] : null,
+                payload: $payload,
+                signatureValid: true,
+                source: 'legacy_midtrans_callback',
+            );
+
+            return response()->json(['message' => 'OK', 'result' => $result], 200);
+        } catch (Throwable $exception) {
+            Log::error('Legacy Midtrans callback error', ['exception' => $exception]);
+
+            return response()->json(['message' => 'Callback belum dapat diproses'], 500);
         }
-
-        return response()->json(['message' => 'OK'], 200);
     }
 }

@@ -13,6 +13,6 @@ class Table extends Model
         'name',       // Contoh: 'Meja 01'
         'status',     // 'available' atau 'occupied'
         'position_x', // Untuk koordinat denah meja (drag & drop)
-        'position_y'
+        'position_y',
     ];
 }

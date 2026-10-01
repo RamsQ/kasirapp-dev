@@ -27,10 +27,15 @@ class RoleSeeder extends Seeder
         $this->createRoleWithPermissions('reports-access', '%reports%', $guard);
         $this->createRoleWithPermissions('profits-access', '%profits%', $guard);
         $this->createRoleWithPermissions('payment-settings-access', '%payment-settings%', $guard);
+        $paymentRole = Role::firstOrCreate(['name' => 'payment-settings-access', 'guard_name' => $guard]);
+        $paymentRole->givePermissionTo(Permission::firstOrCreate([
+            'name' => 'payment-settlements-access',
+            'guard_name' => $guard,
+        ]));
 
         // 2. Create/Update super-admin role
         $superAdmin = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => $guard]);
-        
+
         // --- UPDATE PENTING ---
         // Memberikan SEMUA permission ke super-admin agar sidebar muncul semua
         $allPermissions = Permission::all();
@@ -38,7 +43,7 @@ class RoleSeeder extends Seeder
 
         // 3. Create/Update cashier role
         $cashierRole = Role::firstOrCreate(['name' => 'cashier', 'guard_name' => $guard]);
-        
+
         // Daftar Permission untuk Kasir
         $cashierPermissions = Permission::whereIn('name', [
             'dashboard.index',      // Akses masuk dashboard
@@ -48,6 +53,7 @@ class RoleSeeder extends Seeder
             'shifts.index',         // Buka/Tutup shift
             'customers-access',
             'customers-create',
+            'kitchen-display.index',
         ])->get();
 
         $cashierRole->syncPermissions($cashierPermissions);

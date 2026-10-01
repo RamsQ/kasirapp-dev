@@ -7,7 +7,7 @@ import {
     IconEdit, IconArrowBackUp, IconInfoCircle,
     IconDownload, IconFileTypeXls, IconRefresh, IconX,
     IconTrendingUp, IconChartPie, IconReceipt2, IconCategory, IconSearch,
-    IconChevronDown, IconLoader2
+    IconChevronDown, IconLoader2, IconAlertTriangle
 } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import Pagination from "@/Components/Dashboard/Pagination";
@@ -26,10 +26,17 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
     const [hppPreview, setHppPreview] = useState(0);
 
     // --- LOGIKA LABEL HPP ---
+    // Satuan salah adalah kesalahan paling mahal di halaman ini: qty 1 Kg untuk
+    // bahan yang dihitung per gram membuat HPP naik 1.000 kali. Warna "HPP
+    // Tinggi" saja terlalu halus untuk itu, jadi rasio ekstrem dan HPP yang
+    // melebihi harga jual (menu dijual rugi) ditandai keras. Urutan dari
+    // rasio tertinggi, karena setiap kondisi diperiksa berurutan.
     const getHppCategory = (hpp, sellPrice) => {
         if (!sellPrice || sellPrice === 0) return { label: 'Harga 0', color: 'slate' };
         const ratio = (hpp / sellPrice) * 100;
-        if (ratio > 50) return { label: 'HPP Tinggi', color: 'rose' };
+        if (ratio > 300) return { label: 'Cek Satuan', color: 'rose' };
+        if (ratio > 100) return { label: 'RUGI', color: 'rose' };
+        if (ratio > 50) return { label: 'HPP Tinggi', color: 'amber' };
         if (ratio >= 35) return { label: 'HPP Standar', color: 'emerald' };
         return { label: 'HPP Rendah', color: 'indigo' };
     };
@@ -51,6 +58,13 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
     }, [data.ingredients, ingredients]);
 
     const handleAddRow = () => setData('ingredients', [...data.ingredients, { ingredient_id: "", qty_needed: "" }]);
+
+    // Satuan bahan WAJIB terlihat di sebelah input takaran. HPP dihitung sebagai
+    // qty_needed x buy_price, dan buy_price adalah harga per satuan bahan.
+    // Kalau satuan tidak ditampilkan, kasir bisa mengisi kilogram untuk bahan
+    // yang dihitung per gram dan HPP meleset 1.000 kali tanpa ada peringatan.
+    const unitOf = (ingredientId) =>
+        ingredients.find(i => String(i.id) === String(ingredientId))?.unit || '??';
 
     const handleRemoveRow = (index) => {
         if (data.ingredients.length > 1) {
@@ -291,7 +305,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                                                             </div>
                                                                                         </td>
                                                                                         <td className="px-4 py-3 text-center font-bold text-slate-500">
-                                                                                            <span className="font-mono">{r.qty_needed}</span> {r.ingredient?.unit}
+                                                                                            <span className="font-mono">{r.qty_needed}</span> {r.unit || r.ingredient?.unit}
                                                                                         </td>
                                                                                         <td className="px-4 py-3 text-right">
                                                                                             <p className="font-black dark:text-white text-sm">Rp {new Intl.NumberFormat('id-ID').format(itemCost)}</p>
@@ -354,6 +368,35 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                     <span className="text-xl font-bold text-primary-600 dark:text-primary-400 font-mono">Rp {new Intl.NumberFormat('id-ID').format(hppPreview)}</span>
                                 </div>
                             </div>
+                            {(() => {
+                                // Peringatan langsung saat admin mengetik. inilah
+                                // tempat salah satuan ketahuan, sebelum resep
+                                // disimpan dan HPP meleset jadi laporan.
+                                const target = allProducts.find(p => String(p.id) === String(data.product_id));
+                                const status = target ? getHppCategory(hppPreview, target.sell_price) : null;
+                                if (!target || !hppPreview) return null;
+                                if (status.color !== 'rose' && status.color !== 'amber') return null;
+
+                                const ratio = Math.round((hppPreview / target.sell_price) * 100);
+                                return (
+                                    <div className={`flex items-start gap-3 p-4 rounded-xl border ${status.color === 'rose'
+                                        ? 'bg-rose-50 border-rose-200 dark:bg-rose-900/20 dark:border-rose-800'
+                                        : 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'}`}>
+                                        <IconAlertTriangle size={18} className={`shrink-0 mt-0.5 ${status.color === 'rose' ? 'text-rose-600' : 'text-amber-600'}`} />
+                                        <div className="text-xs">
+                                            <p className={`font-black uppercase tracking-wider ${status.color === 'rose' ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400'}`}>
+                                                {status.label === 'Cek Satuan' ? 'Kemungkinan salah satuan' : status.label === 'RUGI' ? 'Menu ini dijual rugi' : 'HPP tinggi, periksa takaran'}
+                                            </p>
+                                            <p className="text-slate-600 dark:text-slate-300 mt-1">
+                                                HPP Rp {new Intl.NumberFormat('id-ID').format(hppPreview)} = <strong>{ratio}%</strong> dari harga jual Rp {new Intl.NumberFormat('id-ID').format(target.sell_price)}.
+                                                {ratio > 100
+                                                    ? ' HPP sudah melebihi harga jual. Pastikan satuan qty sama dengan satuan bahan (misal gram, bukan Kg).'
+                                                    : ' Pastikan satuan qty sesuai satuan bahan.'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
                             <div className="space-y-4">
                                 <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest">Komposisi Bahan</label>
                                 <div className="grid gap-3">
@@ -364,7 +407,8 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                 {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
                                             </select>
                                             <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-2">
-                                                <input type="number" step="any" className="w-16 border-none p-0 text-center text-sm font-bold bg-transparent dark:text-white focus:ring-0" value={row.qty_needed} onChange={e => handleChange(index, 'qty_needed', e.target.value)} required />
+                                                <input type="number" step="any" className="w-16 border-none p-0 text-center text-sm font-bold bg-transparent dark:text-white focus:ring-0" placeholder="0" value={row.qty_needed} onChange={e => handleChange(index, 'qty_needed', e.target.value)} required />
+                                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider shrink-0">{unitOf(row.ingredient_id)}</span>
                                             </div>
                                             <button type="button" onClick={() => handleRemoveRow(index)} className="p-2 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg transition-all"><IconTrash size={18} /></button>
                                         </div>

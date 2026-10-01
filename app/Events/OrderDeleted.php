@@ -50,7 +50,7 @@ class OrderDeleted implements ShouldBroadcast
         return [
             'userId' => $this->userId,
             'status' => 'deleted',
-            'time'   => now()->toDateTimeString(),
+            'time' => now()->toDateTimeString(),
         ];
     }
 }

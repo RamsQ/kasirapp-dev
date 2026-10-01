@@ -11,8 +11,10 @@ class PaymentSetting extends Model
     use HasFactory;
 
     public const GATEWAY_MIDTRANS = 'midtrans';
+
     public const GATEWAY_XENDIT = 'xendit';
-    public const GATEWAY_QRIS = 'qris'; 
+
+    public const GATEWAY_QRIS = 'qris';
 
     protected $fillable = [
         'default_gateway',
@@ -22,6 +24,7 @@ class PaymentSetting extends Model
         'midtrans_production',
         'xendit_enabled',
         'xendit_secret_key',
+        'xendit_callback_token',
         'xendit_public_key',
         'xendit_production',
         'qris_manual_enabled',
@@ -82,9 +85,10 @@ class PaymentSetting extends Model
             self::GATEWAY_MIDTRANS => $this->midtrans_enabled
                 && filled($this->midtrans_server_key)
                 && filled($this->midtrans_client_key),
-                
+
             self::GATEWAY_XENDIT => $this->xendit_enabled
-                && filled($this->xendit_secret_key),
+                && filled($this->xendit_secret_key)
+                && filled($this->xendit_callback_token),
 
             self::GATEWAY_QRIS => $this->qris_manual_enabled
                 && filled($this->qris_manual_image),
@@ -108,6 +112,7 @@ class PaymentSetting extends Model
         return [
             'enabled' => $this->isGatewayReady(self::GATEWAY_XENDIT),
             'secret_key' => $this->xendit_secret_key,
+            'callback_token' => $this->xendit_callback_token,
             'public_key' => $this->xendit_public_key,
             'is_production' => $this->xendit_production,
         ];
@@ -120,8 +125,8 @@ class PaymentSetting extends Model
     {
         return [
             'enabled' => $this->isGatewayReady(self::GATEWAY_QRIS),
-            'image_url' => $this->qris_manual_image 
-                ? Storage::url('payments/' . $this->qris_manual_image) 
+            'image_url' => $this->qris_manual_image
+                ? Storage::url('payments/'.$this->qris_manual_image)
                 : null,
         ];
     }

@@ -5,13 +5,15 @@ namespace Tests\Feature\Transactions;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Customer;
-use App\Models\Product;
+use App\Models\Discount;
 use App\Models\PaymentSetting;
+use App\Models\Product;
+use App\Models\Shift;
 use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Inertia\Testing\AssertableInertia as Assert;
 use Spatie\Permission\Models\Permission;
 use Tests\TestCase;
@@ -39,6 +41,15 @@ class TransactionFlowTest extends TestCase
             'address' => 'Jl. Pengujian No. 1',
         ]);
         $product = $this->createProduct();
+        Discount::create([
+            'name' => 'Diskon Test',
+            'type' => 'fixed',
+            'value' => 5000,
+            'min_transaction' => 0,
+            'start_date' => now()->subDay()->toDateString(),
+            'end_date' => now()->addDay()->toDateString(),
+            'is_active' => true,
+        ]);
 
         $quantity = 2;
         $cart = Cart::create([
@@ -69,10 +80,10 @@ class TransactionFlowTest extends TestCase
         $this->assertStringStartsWith('TRX-', $transaction->invoice);
         $this->assertSame($cashier->id, $transaction->cashier_id);
         $this->assertSame($customer->id, $transaction->customer_id);
-        $this->assertSame($grandTotal, (int) $transaction->grand_total);
+        $this->assertSame((int) $grandTotal, (int) $transaction->grand_total);
         $this->assertSame($discount, (int) $transaction->discount);
         $this->assertSame($cashPaid, (int) $transaction->cash);
-        $this->assertSame($cashPaid - $grandTotal, (int) $transaction->change);
+        $this->assertSame((int) ($cashPaid - $grandTotal), (int) $transaction->change);
         $this->assertSame('cash', $transaction->payment_method);
         $this->assertSame('paid', $transaction->payment_status);
         $this->assertNull($transaction->payment_url);
@@ -81,15 +92,20 @@ class TransactionFlowTest extends TestCase
         $detail = $transaction->details->first();
         $this->assertSame($product->id, $detail->product_id);
         $this->assertSame($quantity, (int) $detail->qty);
-        $this->assertSame($cart->price, (int) $detail->price);
+        $this->assertSame((int) $cart->price, (int) $detail->price);
 
         $this->assertSame(1, $transaction->profits->count());
         $profit = $transaction->profits->first();
-        $expectedProfit = ($product->sell_price - $product->buy_price) * $quantity;
-        $this->assertSame($expectedProfit, (int) $profit->total);
+        $expectedProfit = (($product->sell_price - $product->buy_price) * $quantity) - $discount;
+        $this->assertSame((int) $expectedProfit, (int) $profit->total);
 
         $this->assertDatabaseMissing('carts', ['id' => $cart->id]);
         $this->assertSame($product->stock - $quantity, $product->fresh()->stock);
+        $this->assertSame((int) floor((int) $transaction->taxable_amount / 100), (int) $customer->fresh()->loyalty_points);
+        $this->assertDatabaseHas('loyalty_point_ledger', [
+            'transaction_id' => $transaction->id,
+            'type' => 'earn',
+        ]);
     }
 
     public function test_cashier_can_view_invoice_page_after_transaction(): void
@@ -105,7 +121,7 @@ class TransactionFlowTest extends TestCase
         $transaction = Transaction::create([
             'cashier_id' => $cashier->id,
             'customer_id' => $customer->id,
-            'invoice' => 'TRX-' . Str::upper(Str::random(8)),
+            'invoice' => 'TRX-'.Str::upper(Str::random(8)),
             'cash' => 200000,
             'change' => 50000,
             'discount' => 10000,
@@ -189,6 +205,11 @@ class TransactionFlowTest extends TestCase
         $this->assertSame('pending', $transaction->payment_status);
         $this->assertSame('https://pay.midtrans.test/invoice', $transaction->payment_url);
         $this->assertSame('TRX-MIDTRANS', $transaction->payment_reference);
+        $this->assertDatabaseHas('payment_settlements', [
+            'transaction_id' => $transaction->id,
+            'provider' => 'midtrans',
+            'status' => 'pending',
+        ]);
 
         Http::assertSent(fn ($request) => str_contains($request->url(), 'midtrans.com')
             && $request['transaction_details']['order_id'] === $transaction->invoice);
@@ -198,6 +219,12 @@ class TransactionFlowTest extends TestCase
     {
         $user = User::factory()->create();
         $user->givePermissionTo('transactions-access');
+        Shift::create([
+            'user_id' => $user->id,
+            'starting_cash' => 0,
+            'status' => 'open',
+            'opened_at' => now(),
+        ]);
 
         return $user;
     }
@@ -213,12 +240,50 @@ class TransactionFlowTest extends TestCase
         return Product::create([
             'category_id' => $category->id,
             'image' => 'product.png',
-            'barcode' => 'BRCD-' . Str::upper(Str::random(10)),
+            'barcode' => 'BRCD-'.Str::upper(Str::random(10)),
             'title' => 'Produk Uji',
             'description' => 'Deskripsi produk uji.',
             'buy_price' => 45000,
             'sell_price' => 60000,
             'stock' => 25,
         ]);
+    }
+
+    public function test_cashier_page_renders_when_payment_settings_are_missing(): void
+    {
+        // payment_settings kosong sebelumnya membuat halaman kasir crash karena
+        // frontend membaca paymentSetting.midtrans_client_key pada nilai null.
+        $this->assertSame(0, PaymentSetting::count());
+
+        $cashier = $this->createCashier();
+
+        $this->actingAs($cashier)
+            ->get(route('transactions.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Dashboard/Transactions/Index')
+                ->where('paymentSetting.midtrans_ready', false)
+                ->where('paymentSetting.xendit_ready', false)
+                ->where('paymentSetting.midtrans_production', false));
+    }
+
+    public function test_cashier_page_never_exposes_gateway_secrets(): void
+    {
+        $cashier = $this->createCashier();
+
+        PaymentSetting::create([
+            'midtrans_client_key' => 'public-client-key-ok',
+            'midtrans_server_key' => 'RAHASIA-SERVER-KEY',
+            'midtrans_production' => false,
+            'xendit_secret_key' => 'RAHASIA-XENDIT-KEY',
+        ]);
+
+        $content = $this->actingAs($cashier)
+            ->get(route('transactions.index'))
+            ->assertOk()
+            ->getContent();
+
+        $this->assertStringNotContainsString('RAHASIA-SERVER-KEY', $content);
+        $this->assertStringNotContainsString('RAHASIA-XENDIT-KEY', $content);
     }
 }

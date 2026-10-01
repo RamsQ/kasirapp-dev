@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-        $table->softDeletes(); // Menambah kolom deleted_at
+            $table->softDeletes(); // Menambah kolom deleted_at
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-        $table->dropSoftDeletes();
+            $table->dropSoftDeletes();
         });
     }
 };

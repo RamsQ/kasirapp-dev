@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 class ExpiredProductsExport implements FromCollection, WithHeadings, WithMapping
 {
     protected $startDate;
+
     protected $endDate;
 
     /**
@@ -18,7 +19,7 @@ class ExpiredProductsExport implements FromCollection, WithHeadings, WithMapping
     public function __construct($startDate, $endDate)
     {
         $this->startDate = $startDate;
-        $this->endDate   = $endDate;
+        $this->endDate = $endDate;
     }
 
     /**
@@ -57,7 +58,7 @@ class ExpiredProductsExport implements FromCollection, WithHeadings, WithMapping
             $product->stock,
             $product->unit,
             $product->expired_date->format('d-m-Y'),
-            $product->days_until_expired <= 0 ? 'KADALUARSA' : $product->days_until_expired . ' Hari',
+            $product->days_until_expired <= 0 ? 'KADALUARSA' : $product->days_until_expired.' Hari',
         ];
     }
 }

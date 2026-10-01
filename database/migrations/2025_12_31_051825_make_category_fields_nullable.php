@@ -8,9 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-    Schema::table('categories', function (Blueprint $table) {
-        $table->string('image')->nullable()->change();
-        $table->text('description')->nullable()->change();
-    });
+        Schema::table('categories', function (Blueprint $table) {
+            $table->string('image')->nullable()->change();
+            $table->text('description')->nullable()->change();
+        });
     }
 };

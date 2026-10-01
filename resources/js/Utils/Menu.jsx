@@ -17,6 +17,7 @@ import {
     IconAdjustmentsHorizontal,
     IconAlertTriangle,
     IconBusinessplan,
+    IconPigMoney,
     IconSettings,
     IconPackageImport,
     IconChartArrowsVertical,
@@ -31,14 +32,16 @@ import {
     IconToolsKitchen2,
     IconWorld,
     IconRobot,
-    IconBellRinging // Tambahkan Icon Baru untuk Laporan Otomatis
+    IconBellRinging, // Tambahkan Icon Baru untuk Laporan Otomatis
+    IconPresentationAnalytics // Analitik Grafis
 } from "@tabler/icons-react";
 import hasAnyPermission from "./Permission";
 import React from "react";
 
 export default function Menu() {
     // define use page
-    const { url } = usePage();
+    const { url, props } = usePage();
+    const kitchenDisplayEnabled = props?.kitchenDisplayEnabled ?? false;
 
     // define menu navigations
     const menuNavigation = [
@@ -53,11 +56,36 @@ export default function Menu() {
                     icon: <IconLayout2 size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["dashboard-access"]),
                 },
+                {
+                    // Ringkasan omzet, HPP, laba, jam ramai, dan performa kasir.
+                    //
+                    // Diletakkan tepat di bawah Dashboard karena ini tujuan
+                    // pertama orang membuka aplikasi: bukan "menuju laporan",
+                    // tapi "toko saya hari ini bagaimana". Laporan penjualan
+                    // di grup Laporan adalah rinciannya kalau perlu turun ke
+                    // angka per transaksi.
+                    title: "Analitik Grafis",
+                    href: route("reports.analytics"),
+                    active: url.startsWith("/dashboard/analytics"),
+                    icon: <IconPresentationAnalytics size={20} strokeWidth={1.5} className="text-cyan-500" />,
+                    permissions: hasAnyPermission(["analytics-access"]),
+                },
+                {
+                    title: "AI Business Coach",
+                    href: route("ai.index"),
+                    active: url.startsWith("/dashboard/ai-coach"),
+                    icon: <IconRobot size={20} strokeWidth={1.5} className="text-primary-500" />,
+                    permissions: hasAnyPermission(["ai-access"]),
+                },
             ],
         },
         // [2] DATA MANAGEMENT
+        // `collapsible` membuat judul grup jadi tombol buka/tutup, bukan teks
+        // pasif. Dipakai pada grup yang isinya panjang supaya sidebar tidak
+        // memanjang ke bawah tanpa perlu.
         {
             title: "Data Management",
+            collapsible: true,
             details: [
                 {
                     title: "Kategori",
@@ -101,11 +129,19 @@ export default function Menu() {
                     icon: <IconTicket size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["discounts.index", "dashboard-access"]), 
                 },
+                {
+                    title: "CRM Campaigns",
+                    href: route("crm.campaigns.index"),
+                    active: url.startsWith("/dashboard/crm/campaigns"),
+                    icon: <IconBellRinging size={20} strokeWidth={1.5} className="text-pink-500" />,
+                    permissions: hasAnyPermission(["crm-access", "crm-manage"]),
+                },
             ],
         },
         // [3] INVENTORY INTELLIGENCE
         {
             title: "Inventory Intelligence",
+            collapsible: true,
             details: [
                 {
                     title: "Bahan Baku",
@@ -140,6 +176,7 @@ export default function Menu() {
         // [4] TRANSAKSI
         {
             title: "Transaksi",
+            collapsible: true,
             details: [
                 {
                     title: "Transaksi",
@@ -147,6 +184,13 @@ export default function Menu() {
                     active: url === "/dashboard/transactions" ? true : false,
                     icon: <IconShoppingCart size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["transactions-access"]),
+                },
+                {
+                    title: "Kitchen Display",
+                    href: route("kitchen.index"),
+                    active: url.startsWith("/dashboard/kitchen"),
+                    icon: <IconToolsKitchen2 size={20} strokeWidth={1.5} className="text-orange-500" />,
+                    permissions: kitchenDisplayEnabled && hasAnyPermission(["kitchen-display.index"]),
                 },
                 {
                     title: "Riwayat Transaksi",
@@ -160,6 +204,7 @@ export default function Menu() {
         // [5] LAPORAN
         {
             title: "Laporan",
+            collapsible: true,
             details: [
                 {
                     title: "Laporan Penjualan",
@@ -204,6 +249,13 @@ export default function Menu() {
                     permissions: hasAnyPermission(["reports-access"]),
                 },
                 {
+                    title: "Modal Usaha",
+                    href: route("capitals.index"),
+                    active: url.startsWith("/dashboard/capitals"),
+                    icon: <IconPigMoney size={20} strokeWidth={1.5} className="text-emerald-500" />,
+                    permissions: hasAnyPermission(["capitals.index"]),
+                },
+                {
                     title: "Laporan Shift",
                     href: route("shifts.index"),
                     active: url.startsWith("/dashboard/shifts"),
@@ -223,6 +275,7 @@ export default function Menu() {
         // [6] USER MANAGEMENT
         {
             title: "User Management",
+            collapsible: true,
             details: [
                 {
                     title: "Hak Akses",
@@ -264,6 +317,7 @@ export default function Menu() {
         // [7] PENGATURAN
         {
             title: "Pengaturan",
+            collapsible: true,
             details: [
                 {
                     title: "System Settings",
@@ -278,6 +332,13 @@ export default function Menu() {
                     active: url === "/dashboard/settings/payments",
                     icon: <IconCreditCard size={20} strokeWidth={1.5} />,
                     permissions: hasAnyPermission(["payment_settings.index", "payment-settings-access"]),
+                },
+                {
+                    title: "Settlement Center",
+                    href: route("settings.payment-settlements.index"),
+                    active: url.startsWith("/dashboard/settings/payment-settlements"),
+                    icon: <IconRefresh size={20} strokeWidth={1.5} className="text-emerald-500" />,
+                    permissions: hasAnyPermission(["settings.index", "payment-settings-access", "payment-settlements-access"]),
                 },
                 {
                     title: "Setting Struk",

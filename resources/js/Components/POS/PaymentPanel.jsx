@@ -95,6 +95,8 @@ function PaymentMethodCard({ method, isSelected, onClick }) {
 export default function PaymentPanel({
     subtotal = 0,
     discount = 0,
+    taxEnabled = false,
+    taxRate = 0,
     discountInput = "",
     onDiscountChange,
     cash = 0,
@@ -113,7 +115,9 @@ export default function PaymentPanel({
     const quickAmounts = [10000, 20000, 50000, 100000];
 
     // Calculations
-    const payable = Math.max(subtotal - discount, 0);
+    const taxable = Math.max(subtotal - discount, 0);
+    const tax = taxEnabled ? Math.round((taxable * parseFloat(taxRate || 0)) / 100) : 0;
+    const payable = taxable + tax;
     const isCashPayment = paymentMethod === "cash";
     const change = isCashPayment ? Math.max(cash - payable, 0) : 0;
     const remaining = isCashPayment ? Math.max(payable - cash, 0) : 0;
@@ -167,6 +171,16 @@ export default function PaymentPanel({
                             - {formatPrice(discount)}
                         </span>
                     </div>
+                    {tax > 0 && (
+                        <div className="flex justify-between text-sm">
+                            <span className="text-slate-500 dark:text-slate-400">
+                                Pajak ({taxRate}%)
+                            </span>
+                            <span className="font-medium text-indigo-600 dark:text-indigo-400">
+                                + {formatPrice(tax)}
+                            </span>
+                        </div>
+                    )}
                     <div className="h-px bg-slate-200 dark:bg-slate-700 my-2" />
                     <div className="flex justify-between">
                         <span className="text-base font-semibold text-slate-800 dark:text-white">

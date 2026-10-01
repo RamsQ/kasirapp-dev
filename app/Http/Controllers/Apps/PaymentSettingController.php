@@ -47,23 +47,24 @@ class PaymentSettingController extends Controller
                 'required',
                 Rule::in(['cash', PaymentSetting::GATEWAY_MIDTRANS, PaymentSetting::GATEWAY_XENDIT, PaymentSetting::GATEWAY_QRIS]),
             ],
-            'midtrans_enabled'    => ['nullable', 'boolean'],
+            'midtrans_enabled' => ['nullable', 'boolean'],
             'midtrans_server_key' => ['nullable', 'string', 'max:255'],
             'midtrans_client_key' => ['nullable', 'string', 'max:255'],
             'midtrans_production' => ['nullable', 'boolean'],
-            
-            'xendit_enabled'    => ['nullable', 'boolean'],
+
+            'xendit_enabled' => ['nullable', 'boolean'],
             'xendit_secret_key' => ['nullable', 'string', 'max:255'],
+            'xendit_callback_token' => ['nullable', 'string', 'max:255'],
             'xendit_public_key' => ['nullable', 'string', 'max:255'],
             'xendit_production' => ['nullable', 'boolean'],
-            
+
             'qris_manual_enabled' => ['nullable', 'boolean'],
-            'qris_manual_image'   => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'qris_manual_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ]);
 
         $midtransEnabled = (bool) ($request->midtrans_enabled ?? false);
-        $xenditEnabled   = (bool) ($request->xendit_enabled ?? false);
-        $qrisEnabled     = (bool) ($request->qris_manual_enabled ?? false);
+        $xenditEnabled = (bool) ($request->xendit_enabled ?? false);
+        $qrisEnabled = (bool) ($request->qris_manual_enabled ?? false);
 
         // 2. Validasi Khusus Midtrans (Wajib Isi Key jika diaktifkan)
         if ($midtransEnabled) {
@@ -79,20 +80,23 @@ class PaymentSettingController extends Controller
         if ($xenditEnabled && empty($data['xendit_secret_key'])) {
             return back()->withErrors(['xendit_secret_key' => 'Secret Key Xendit wajib diisi jika modul diaktifkan.'])->withInput();
         }
+        if ($xenditEnabled && empty($data['xendit_callback_token']) && empty($setting->xendit_callback_token)) {
+            return back()->withErrors(['xendit_callback_token' => 'Callback token Xendit wajib diisi agar settlement dapat diverifikasi.'])->withInput();
+        }
 
         // 4. Validasi Khusus QRIS Manual (Wajib upload gambar jika belum ada di database)
-        if ($qrisEnabled && !$setting->qris_manual_image && !$request->hasFile('qris_manual_image')) {
+        if ($qrisEnabled && ! $setting->qris_manual_image && ! $request->hasFile('qris_manual_image')) {
             return back()->withErrors(['qris_manual_image' => 'Gambar QRIS wajib diunggah jika mode QRIS Manual diaktifkan.'])->withInput();
         }
 
         // 5. Proteksi Integritas: Gateway default tidak boleh dalam kondisi modul disabled
-        if ($data['default_gateway'] === PaymentSetting::GATEWAY_MIDTRANS && !$midtransEnabled) {
+        if ($data['default_gateway'] === PaymentSetting::GATEWAY_MIDTRANS && ! $midtransEnabled) {
             return back()->withErrors(['default_gateway' => 'Gagal menjadikan Midtrans sebagai default karena modul sedang non-aktif.']);
         }
-        if ($data['default_gateway'] === PaymentSetting::GATEWAY_XENDIT && !$xenditEnabled) {
+        if ($data['default_gateway'] === PaymentSetting::GATEWAY_XENDIT && ! $xenditEnabled) {
             return back()->withErrors(['default_gateway' => 'Gagal menjadikan Xendit sebagai default karena modul sedang non-aktif.']);
         }
-        if ($data['default_gateway'] === PaymentSetting::GATEWAY_QRIS && !$qrisEnabled) {
+        if ($data['default_gateway'] === PaymentSetting::GATEWAY_QRIS && ! $qrisEnabled) {
             return back()->withErrors(['default_gateway' => 'Gagal menjadikan QRIS Manual sebagai default karena modul sedang non-aktif.']);
         }
 
@@ -101,30 +105,31 @@ class PaymentSettingController extends Controller
         if ($request->hasFile('qris_manual_image')) {
             // Hapus gambar lama jika ada
             if ($setting->qris_manual_image) {
-                Storage::disk('public')->delete('payments/' . $setting->qris_manual_image);
+                Storage::disk('public')->delete('payments/'.$setting->qris_manual_image);
             }
-            
+
             $image = $request->file('qris_manual_image');
-            $filename = 'qris_' . time() . '_' . rand(100, 999) . '.' . $image->getClientOriginalExtension();
+            $filename = 'qris_'.time().'_'.rand(100, 999).'.'.$image->getClientOriginalExtension();
             $image->storeAs('payments', $filename, 'public');
         }
 
         // 7. Simpan Seluruh Perubahan ke Database
         $setting->update([
-            'default_gateway'     => $data['default_gateway'],
-            
-            'midtrans_enabled'    => $midtransEnabled,
+            'default_gateway' => $data['default_gateway'],
+
+            'midtrans_enabled' => $midtransEnabled,
             'midtrans_server_key' => $data['midtrans_server_key'],
             'midtrans_client_key' => $data['midtrans_client_key'],
             'midtrans_production' => (bool) ($data['midtrans_production'] ?? false),
-            
-            'xendit_enabled'    => $xenditEnabled,
+
+            'xendit_enabled' => $xenditEnabled,
             'xendit_secret_key' => $data['xendit_secret_key'],
+            'xendit_callback_token' => $data['xendit_callback_token'] ?? $setting->xendit_callback_token,
             'xendit_public_key' => $data['xendit_public_key'],
             'xendit_production' => (bool) ($data['xendit_production'] ?? false),
-            
+
             'qris_manual_enabled' => $qrisEnabled,
-            'qris_manual_image'   => $filename,
+            'qris_manual_image' => $filename,
         ]);
 
         return redirect()

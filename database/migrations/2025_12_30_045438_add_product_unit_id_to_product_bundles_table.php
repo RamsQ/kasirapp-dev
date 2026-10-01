@@ -8,8 +8,8 @@ return new class extends Migration
 {
     public function up()
     {
-    Schema::table('product_bundles', function (Blueprint $table) {
-        $table->foreignId('product_unit_id')->nullable()->after('qty')->constrained('product_units')->onDelete('cascade');
-    });
+        Schema::table('product_bundles', function (Blueprint $table) {
+            $table->foreignId('product_unit_id')->nullable()->after('qty')->constrained('product_units')->onDelete('cascade');
+        });
     }
 };

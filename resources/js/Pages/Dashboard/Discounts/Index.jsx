@@ -4,8 +4,9 @@ import DashboardLayout from "@/Layouts/DashboardLayout";
 import Pagination from "@/Components/Dashboard/Pagination";
 import { IconPlus, IconTicket, IconTrash, IconPackage, IconTag, IconGift, IconInfoCircle } from "@tabler/icons-react";
 import Swal from "sweetalert2";
+import LoyaltyRules from "@/Pages/Dashboard/Settings/LoyaltyRules";
 
-export default function Index({ discounts }) {
+export default function Index({ discounts, products = [], categories = [], loyaltyRules = [], canManageLoyalty = false }) {
     const handleDelete = (id) => {
         Swal.fire({
             title: "Hapus Promo?",
@@ -38,30 +39,36 @@ export default function Index({ discounts }) {
                     </Link>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-                    <table className="w-full text-sm text-left border-collapse">
+                {/* `overflow-x-auto`, bukan `overflow-hidden`. Tabel ini punya
+                    7 kolom; pada layar 375px total padding sel saja sudah
+                    336px. Dengan `overflow-hidden` kolom Tipe, Periode, dan
+                    Status terpotong dan TIDAK punya scrollbar untuk
+                    dijangkau — promo aktif jadi tidak pernah bisa dilihat
+                    atau dimatikan dari HP. */}
+                <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-x-auto shadow-sm">
+                    <table className="w-full min-w-[720px] text-sm text-left border-collapse">
                         <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 uppercase font-bold text-[11px] tracking-wider">
                             <tr>
-                                <th className="px-6 py-4">Nama Promo</th>
-                                <th className="px-6 py-4">Target / Syarat</th>
-                                <th className="px-6 py-4">Tipe</th>
-                                <th className="px-6 py-4">Potongan / Hadiah</th>
-                                <th className="px-6 py-4">Kriteria Aktivasi</th>
-                                <th className="px-6 py-4">Periode</th>
-                                <th className="px-6 py-4 text-center">Aksi</th>
+                                <th className="px-4 sm:px-4 sm:px-6 py-4">Nama Promo</th>
+                                <th className="px-4 sm:px-4 sm:px-6 py-4">Target / Syarat</th>
+                                <th className="px-4 sm:px-4 sm:px-6 py-4">Tipe</th>
+                                <th className="px-4 sm:px-6 py-4">Potongan / Hadiah</th>
+                                <th className="px-4 sm:px-6 py-4">Kriteria Aktivasi</th>
+                                <th className="px-4 sm:px-6 py-4">Periode</th>
+                                <th className="px-4 sm:px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {discounts.data.map((item) => (
                                 <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                    <td className="px-6 py-4 font-bold text-slate-900 dark:text-white">
+                                    <td className="px-4 sm:px-6 py-4 font-bold text-slate-900 dark:text-white">
                                         <div className="flex flex-col">
                                             <span>{item.name}</span>
                                             {item.description && <span className="text-[10px] font-normal text-slate-400 italic">{item.description}</span>}
                                         </div>
                                     </td>
                                     
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 sm:px-6 py-4">
                                         {item.product ? (
                                             <div className="flex flex-col">
                                                 <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-bold text-[10px] uppercase">
@@ -78,7 +85,7 @@ export default function Index({ discounts }) {
                                         )}
                                     </td>
 
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 sm:px-6 py-4">
                                         <span className={`text-[10px] font-black px-2 py-1 rounded-md uppercase ${
                                             item.type === 'percentage' 
                                             ? 'bg-indigo-100 text-indigo-700' 
@@ -90,7 +97,7 @@ export default function Index({ discounts }) {
                                         </span>
                                     </td>
 
-                                    <td className="px-6 py-4 font-black">
+                                    <td className="px-4 sm:px-6 py-4 font-black">
                                         {item.type === 'buy_get' ? (
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] text-emerald-600 uppercase flex items-center gap-1">
@@ -110,7 +117,7 @@ export default function Index({ discounts }) {
                                         )}
                                     </td>
 
-                                    <td className="px-6 py-4">
+                                    <td className="px-4 sm:px-6 py-4">
                                         {item.type === 'buy_get' ? (
                                             /* FIX: Menampilkan kolom minimum_item untuk tipe buy_get */
                                             <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
@@ -128,14 +135,14 @@ export default function Index({ discounts }) {
                                         )}
                                     </td>
 
-                                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-[10px] font-medium uppercase tracking-tighter">
+                                    <td className="px-4 sm:px-6 py-4 text-slate-500 dark:text-slate-400 text-[10px] font-medium uppercase tracking-tighter">
                                         <div className="flex flex-col">
                                             <span>Start: {item.start_date}</span>
                                             <span>End: {item.end_date}</span>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-4 text-center">
+                                    <td className="px-4 sm:px-6 py-4 text-center">
                                         <button 
                                             onClick={() => handleDelete(item.id)} 
                                             className="text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 p-2 rounded-xl transition-all active:scale-95"
@@ -159,6 +166,20 @@ export default function Index({ discounts }) {
                 
                 <div className="flex justify-center">
                     <Pagination links={discounts.links} />
+                </div>
+
+                <div className="border-t border-slate-200 pt-8 dark:border-slate-800">
+                    <div className="mb-5">
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white">Rule Loyalty</h2>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Atur minimum belanja dan poin yang diberikan admin.</p>
+                    </div>
+                    <LoyaltyRules
+                        rules={loyaltyRules}
+                        products={products}
+                        categories={categories}
+                        canManage={canManageLoyalty}
+                        embedded
+                    />
                 </div>
             </div>
         </>

@@ -19,7 +19,7 @@ class Ingredient extends Model
         'unit', // Sekarang menyimpan teks langsung (kg, gr, dll)
         'buy_price',
         'stock',
-        'min_stock'
+        'min_stock',
     ];
 
     /**
@@ -29,7 +29,7 @@ class Ingredient extends Model
      */
     protected $casts = [
         'buy_price' => 'float',
-        'stock'     => 'float',
+        'stock' => 'float',
         'min_stock' => 'float',
     ];
 
@@ -39,12 +39,12 @@ class Ingredient extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_ingredients')
-                    ->withPivot('amount')
-                    ->withTimestamps();
+            ->withPivot('amount')
+            ->withTimestamps();
     }
-    
+
     /**
-     * Catatan: Relasi unit() dihapus karena kita sudah beralih 
+     * Catatan: Relasi unit() dihapus karena kita sudah beralih
      * dari unit_id (integer) ke unit (string manual).
      */
 }

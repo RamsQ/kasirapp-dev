@@ -113,7 +113,13 @@ export function ProductImage({
         full: "w-full aspect-square",
     };
 
-    const src = image ? `/storage/products/${image}` : null;
+    // `image` bisa berupa nama file relatif ("foto.jpg") atau URL absolut.
+    // Tanpa pemeriksaan ini URL absolut akan diprefix dua kali dan 404.
+    const src = image
+        ? (String(image).startsWith("http") || String(image).startsWith("data:")
+            ? image
+            : `/storage/products/${image}`)
+        : null;
 
     return (
         <LazyImage

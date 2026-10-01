@@ -1,4 +1,5 @@
 import EscPosEncoder from 'esc-pos-encoder';
+import { paymentLabel as sharedPaymentLabel, isSelfPaidGateway } from '@/Utils/PaymentLabels';
 
 // --- FUNGSI INTERNAL: KONVERSI GAMBAR KE BINARY ---
 // Tetap dipertahankan untuk kebutuhan cetak Logo jika diperlukan di masa depan
@@ -56,15 +57,9 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
         const details = Array.isArray(transaction.details) ? transaction.details : [];
         const noAntrean = transaction.queue_number || details[0]?.queue_number || (transaction.customer_name?.match(/Q-\d+/)?.[0]) || "----";
 
-        // Helper Label Metode
-        const getPaymentLabel = (method) => {
-            const m = method?.toLowerCase();
-            if (m === 'cash') return "TUNAI";
-            if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
-            if (m === 'qris_manual') return "QRIS STATIS"; 
-            if (m === 'transfer') return "TRANSFER";
-            return (method || "CASH").toUpperCase();
-        };
+        // Helper Label Metode. Satu sumber kebenaran di Utils/PaymentLabels,
+        // supaya struk printer dan struk di layar tidak berbeda nama.
+        const getPaymentLabel = (method) => sharedPaymentLabel(method);
 
         // HEADER (CENTER)
         result.raw([0x1b, 0x61, 0x01]); 
@@ -127,20 +122,39 @@ export const printUsbRaw = async (transaction, receiptSetting) => {
         });
 
         const grandTotal = parseFloat(transaction.grand_total || 0);
-        const actualDiscount = Math.max(0, calculatedSubtotal - grandTotal);
+        const taxAmount = parseFloat(transaction.tax_amount || 0);
+         const taxRate = parseFloat(transaction.tax_rate || 0);
+         const actualDiscount = Math.max(0, calculatedSubtotal - (grandTotal - taxAmount));
         const cashReceived = parseFloat(transaction.cash || grandTotal);
         const changeAmount = Math.max(0, cashReceived - grandTotal);
 
         result.line("-".repeat(C_WIDTH));
-        if (actualDiscount > 0) {
+        if (actualDiscount > 0 || taxAmount > 0) {
             result.line(formatRow("SUBTOTAL", Math.round(calculatedSubtotal).toLocaleString('id-ID')));
-            result.line(formatRow("DISKON TOTAL", `-${Math.round(actualDiscount).toLocaleString('id-ID')}`));
+            if (actualDiscount > 0) {
+                result.line(formatRow("DISKON TOTAL", `-${Math.round(actualDiscount).toLocaleString('id-ID')}`));
+            }
+            if (taxAmount > 0) {
+                result.line(formatRow(`PAJAK ${taxRate}%`, Math.round(taxAmount).toLocaleString('id-ID')));
+            }
         }
 
-        result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
-        result.line(formatRow("BAYAR", Math.round(cashReceived).toLocaleString('id-ID')));
-        result.line(formatRow("KEMBALI", Math.round(changeAmount).toLocaleString('id-ID')));
+         result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
+        // Pembayaran non-tunai tidak punya kembalian. Untuk order menu QR yang
+        // dibayar pelanggan sendiri, field `cash` bernilai 0, sehingga
+        // "KEMBALI 0" yang dicetak akan menyesatkan.
+        const isCashPayment = (transaction.payment_method || '').toLowerCase() === 'cash';
+        if (isCashPayment || parseFloat(transaction.cash || 0) > 0) {
+            result.line(formatRow("BAYAR", Math.round(cashReceived).toLocaleString('id-ID')));
+            result.line(formatRow("KEMBALI", Math.round(changeAmount).toLocaleString('id-ID')));
+        } else {
+            result.line(formatRow("SUDAH DIBAYAR", Math.round(grandTotal).toLocaleString('id-ID')));
+        }
         result.line(formatRow("METODE", getPaymentLabel(transaction.payment_method)));
+
+        if (isSelfPaidGateway(transaction)) {
+            result.line(formatRow("BAYAR PELANGGAN", "QRIS"));
+        }
         
         if (transaction.online_platform) {
             result.line(formatRow("PLATFORM", clean(transaction.online_platform).toUpperCase()));
@@ -222,14 +236,22 @@ export const printBillUsb = async (transaction, receiptSetting) => {
         });
 
         const totalBill = parseFloat(transaction.grand_total || transaction.total || 0);
-        const discBill = Math.max(0, subtotalBill - totalBill);
+        const taxBill = parseFloat(transaction.tax_amount || 0);
+         const taxRateBill = parseFloat(transaction.tax_rate || 0);
+         const discBill = Math.max(0, subtotalBill - (totalBill - taxBill));
 
         result.raw([0x1b, 0x61, 0x01]).line("-".repeat(C_WIDTH)).raw([0x1b, 0x61, 0x00]);
-        if (discBill > 0) {
+        if (discBill > 0 || taxBill > 0) {
             result.line(formatRow("SUBTOTAL", Math.round(subtotalBill).toLocaleString('id-ID')));
-            result.line(formatRow("DISKON", `-${Math.round(discBill).toLocaleString('id-ID')}`));
+            if (discBill > 0) {
+                result.line(formatRow("DISKON", `-${Math.round(discBill).toLocaleString('id-ID')}`));
+            }
+            if (taxBill > 0) {
+                result.line(formatRow(`PAJAK ${taxRateBill}%`, Math.round(taxBill).toLocaleString('id-ID')));
+            }
         }
-        result.bold(true).line(formatRow("TOTAL BILL", `Rp ${Math.round(totalBill).toLocaleString('id-ID')}`)).bold(false);
+
+         result.bold(true).line(formatRow("TOTAL BILL", `Rp ${Math.round(totalBill).toLocaleString('id-ID')}`)).bold(false);
         result.line(formatRow("METODE", "BELUM BAYAR"));
         
         result.raw([0x1b, 0x61, 0x01]);

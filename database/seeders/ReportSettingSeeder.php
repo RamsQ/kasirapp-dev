@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\ReportSetting;
+use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
@@ -31,10 +31,10 @@ class ReportSettingSeeder extends Seeder
         ReportSetting::updateOrCreate(
             ['id' => 1],
             [
-                'is_active'  => false,
-                'method'     => 'whatsapp',
-                'target'     => '08123456789',
-                'send_at'    => '21:00',
+                'is_active' => false,
+                'method' => 'whatsapp',
+                'target' => '08123456789',
+                'send_at' => '21:00',
                 'wa_api_key' => null,
             ]
         );

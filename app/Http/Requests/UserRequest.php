@@ -11,7 +11,7 @@ class UserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; 
+        return true;
     }
 
     /**
@@ -23,15 +23,15 @@ class UserRequest extends FormRequest
         $userId = $this->route('user') ? $this->route('user')->id : null;
 
         return [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|email|unique:users,email,' . $userId,
-            'password'  => $this->isMethod('POST') 
-                            ? 'required|min:8|confirmed' 
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$userId,
+            'password' => $this->isMethod('POST')
+                            ? 'required|min:8|confirmed'
                             : 'nullable|min:8|confirmed',
-            'roles'             => 'nullable|array',
-            'selectedRoles'     => 'nullable|array',
+            'roles' => 'nullable|array',
+            'selectedRoles' => 'nullable|array',
             // Pastikan is_face_mandatory divalidasi sebagai boolean
-            'is_face_mandatory' => 'nullable|boolean', 
+            'is_face_mandatory' => 'nullable|boolean',
         ];
     }
 }

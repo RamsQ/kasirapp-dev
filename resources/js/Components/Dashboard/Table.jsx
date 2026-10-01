@@ -18,7 +18,13 @@ const Card = ({ icon, title, className, children }) => {
 
 const Table = ({ children }) => {
     return (
-        <div className="w-full overflow-hidden overflow-x-auto border-collapse rounded-b-lg border border-t-0 dark:border-gray-900">
+        // `overflow-hidden` sebelumnya ikut ditulis di sini berdampingan dengan
+        // `overflow-x-auto`. Dua-duanya tidak bisa berlaku: yang menang
+        // menentukan sumbu apa yang bisa digeser. Karena `Td` memakai
+        // `whitespace-nowrap`, tabel dengan kolom banyak SELALU lebih lebar
+        // dari layar HP — jadi yang menang harus x, kalau tidak kolom
+        // terakhirnya terpotong dan tidak pernah bisa dijangkau.
+        <div className="w-full overflow-x-auto border-collapse rounded-b-lg border border-t-0 dark:border-gray-900">
             <table className="w-full text-sm">
                 {children}
             </table>
@@ -42,8 +48,12 @@ const Tbody = ({ className, children }) => {
 
 const Td = ({ className, children }) => {
     return (
+        // `px-3 sm:px-4` menggantikan padding tetap 1rem. Di layar 375px,
+        // selisih padding 16px per sel menentukan berapa banyak kolom yang muat
+        // sebelum harus digeser, dan tabel 9 kolom seperti Laporan Shift
+        // sangat terbantu oleh selisih itu.
         <td
-            className={`${className} whitespace-nowrap p-4 align-middle text-gray-700 dark:text-gray-400`}
+            className={`${className} whitespace-nowrap px-3 sm:px-4 py-3 sm:py-4 align-middle text-gray-700 dark:text-gray-400`}
         >
             {children}
         </td>

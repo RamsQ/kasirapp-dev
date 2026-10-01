@@ -42,7 +42,7 @@ export default function Managed({ setting }) {
 
     return (
         <Layout>
-            <Head title="Managed Reports - POS System" />
+            <Head title="Managed Reports - LakuPOS" />
             
             <div className="p-4 md:p-8">
                 <div className="max-w-4xl mx-auto">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ExpenseController extends Controller
 {
@@ -15,11 +16,15 @@ class ExpenseController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'name'   => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0',
-            'date'   => 'required|date',
-            'source' => 'required|string', // Kas Laci, Modal Luar, Hutang Dagang
-            'image'  => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Max 2MB
+            'date' => 'required|date',
+            // Source dibatasi ke daftar resmi. Nilai ini menentukan account
+            // mana di neraca yang bergerak, jadi kalau bebas diisi, salah ketik
+            // akan membuat expense memotong laba tanpa mengurangi kas atau
+            // hutang, dan selisih neraca muncul tanpa penjelasan.
+            'source' => ['required', 'string', Rule::in(Expense::SOURCES)],
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048', // Max 2MB
         ]);
 
         // 2. Proses Upload Foto Nota (jika ada)
@@ -36,14 +41,14 @@ class ExpenseController extends Controller
          * Kolom 'category' digunakan untuk menandai transaksi khusus seperti Pelunasan Hutang.
          */
         Expense::create([
-            'user_id'  => auth()->id(),
-            'name'     => $request->name,
-            'amount'   => $request->amount,
-            'date'     => $request->date,
-            'source'   => $request->source,
+            'user_id' => auth()->id(),
+            'name' => $request->name,
+            'amount' => $request->amount,
+            'date' => $request->date,
+            'source' => $request->source,
             'category' => $request->category ?? 'Operasional',
-            'image'    => $imagePath,
-            'note'     => $request->note,
+            'image' => $imagePath,
+            'note' => $request->note,
         ]);
 
         // 4. Redirect balik dengan pesan sukses

@@ -12,10 +12,18 @@ import {
     IconUser,
     IconPhone,
     IconMapPin,
+    IconStar,
+    IconGift,
 } from "@tabler/icons-react";
 import Search from "@/Components/Dashboard/Search";
 import Table from "@/Components/Dashboard/Table";
 import Pagination from "@/Components/Dashboard/Pagination";
+
+const formatCurrency = (value = 0) => new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+}).format(Number(value || 0));
 
 // Customer Card for Grid View
 function CustomerCard({ customer }) {
@@ -31,6 +39,9 @@ function CustomerCard({ customer }) {
                         <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
                             {customer.name}
                         </h3>
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-300">
+                            {customer.loyalty_tier || "bronze"} · {customer.loyalty_points || 0} poin
+                        </p>
                     </div>
                 </div>
             </div>
@@ -57,6 +68,13 @@ function CustomerCard({ customer }) {
             {/* Actions */}
             <div className="flex gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                 <Link
+                    href={route("customers.loyalty", customer.id)}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/50 dark:text-emerald-300 text-sm font-medium transition-colors"
+                >
+                    <IconStar size={16} />
+                    <span>Loyalty</span>
+                </Link>
+                <Link
                     href={route("customers.edit", customer.id)}
                     className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg bg-warning-100 text-warning-600 hover:bg-warning-200 dark:bg-warning-900/50 dark:text-warning-400 text-sm font-medium transition-colors"
                 >
@@ -77,7 +95,7 @@ function CustomerCard({ customer }) {
     );
 }
 
-export default function Index({ customers }) {
+export default function Index({ customers, topCustomers = [], birthdayCustomers = [] }) {
     const { roles, permissions, errors } = usePage().props;
     const [viewMode, setViewMode] = useState("grid");
 
@@ -108,6 +126,40 @@ export default function Index({ customers }) {
                     />
                 </div>
             </div>
+
+            {(topCustomers.length > 0 || birthdayCustomers.length > 0) && (
+                <div className="mb-6 grid gap-4 lg:grid-cols-2">
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center justify-between">
+                            <div><h2 className="text-sm font-black uppercase tracking-wider">Pelanggan Loyal</h2><p className="mt-1 text-xs text-slate-500">Berdasarkan omzet valid pelanggan</p></div>
+                            <IconStar size={20} className="text-amber-500" />
+                        </div>
+                        <div className="mt-4 space-y-2">
+                            {topCustomers.slice(0, 5).map((customer) => (
+                                <Link key={customer.id} href={route("customers.loyalty", customer.id)} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs transition hover:bg-primary-50 dark:bg-slate-800 dark:hover:bg-primary-950/30">
+                                    <span className="font-black text-slate-700 dark:text-slate-200">{customer.name}</span>
+                                    <span className="text-slate-500">{formatCurrency(customer.crm_spend)} · {customer.crm_transactions} transaksi</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center justify-between">
+                            <div><h2 className="text-sm font-black uppercase tracking-wider">Ulang Tahun Hari Ini</h2><p className="mt-1 text-xs text-slate-500">Siapkan penawaran spesial pelanggan</p></div>
+                            <IconGift size={20} className="text-pink-500" />
+                        </div>
+                        <div className="mt-4 space-y-2">
+                            {birthdayCustomers.length === 0 && <p className="text-xs text-slate-400">Tidak ada ulang tahun hari ini.</p>}
+                            {birthdayCustomers.map((customer) => (
+                                <Link key={customer.id} href={route("customers.loyalty", customer.id)} className="flex items-center justify-between rounded-xl bg-pink-50 px-3 py-2 text-xs transition hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-950/40">
+                                    <span className="font-black text-pink-700 dark:text-pink-300">{customer.name}</span>
+                                    <span className="text-pink-500">Loyal {customer.loyalty_points || 0} poin</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Toolbar */}
             <div className="mb-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
@@ -164,6 +216,7 @@ export default function Index({ customers }) {
                                     <Table.Th className="w-10">No</Table.Th>
                                     <Table.Th>Pelanggan</Table.Th>
                                     <Table.Th>No. Telepon</Table.Th>
+                                    <Table.Th>Loyalty</Table.Th>
                                     <Table.Th>Alamat</Table.Th>
                                     <Table.Th></Table.Th>
                                 </tr>
@@ -195,6 +248,10 @@ export default function Index({ customers }) {
                                             <span className="text-sm text-slate-600 dark:text-slate-400">
                                                 {customer.no_telp || "-"}
                                             </span>
+                                        </Table.Td>
+                                        <Table.Td>
+                                            <p className="text-xs font-black uppercase text-primary-600 dark:text-primary-300">{customer.loyalty_tier || "bronze"}</p>
+                                            <p className="text-[10px] text-slate-400">{customer.loyalty_points || 0} poin</p>
                                         </Table.Td>
                                         <Table.Td>
                                             <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">

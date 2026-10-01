@@ -1,4 +1,5 @@
 import React from "react";
+import { paymentLabel, isPaid, isSelfPaidGateway } from "@/Utils/PaymentLabels";
 
 // Helper format uang khusus struk
 const formatPriceReceipt = (value) => {
@@ -57,16 +58,19 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
         ? rawName.split('#')[1]?.trim().split(' ')[0] 
         : null;
 
+    const taxAmount = parseFloat(transaction.tax_amount || 0);
+    const taxRate = parseFloat(transaction.tax_rate || 0);
+
     // --- LOGIKA HITUNG HEMAT TOTAL ---
     const calculateFinalSavings = () => {
         let totalHargaNormalBarang = 0;
         (transaction.details || []).forEach((item) => {
             const qty = parseFloat(item.qty) || 0;
-            const priceNormal = parseFloat(item.buy_price || item.product?.sell_price || (parseFloat(item.price) / qty));
+            const priceNormal = parseFloat(item.product?.sell_price || (parseFloat(item.price) / qty));
             totalHargaNormalBarang += (priceNormal * qty);
         });
         const grandTotal = parseFloat(transaction.grand_total) || 0;
-        const totalHemat = totalHargaNormalBarang - grandTotal;
+        const totalHemat = totalHargaNormalBarang - (grandTotal - taxAmount);
         return totalHemat > 0 ? Math.round(totalHemat) : 0;
     };
 
@@ -97,12 +101,20 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
 
             {/* INFO TRANSAKSI */}
             <div className="border-b border-black border-dashed py-1.5 mb-1.5 uppercase text-[10px] space-y-0.5">
-                {/* Penanda Belum Bayar */}
-                {(isTemporary || !transaction.cash) && (
+                {/* Penanda lunas/belum.
+                    Dulu pakai `!transaction.cash`, tapi field `cash` hanya berisi
+                    uang tunai yang diterima. Untuk QRIS field itu 0 walaupun
+                    pelanggan sudah bayar, jadi struk mencetak "BELUM LUNAS"
+                    untuk order yang lunas. Yang benar: payment_status. */}
+                {isTemporary ? (
                     <div className="text-center bg-black text-white py-1 my-1 font-black text-[10px] tracking-widest">
                         *** BELUM LUNAS ***
                     </div>
-                )}
+                ) : !isPaid(transaction) ? (
+                    <div className="text-center bg-black text-white py-1 my-1 font-black text-[10px] tracking-widest">
+                        *** BELUM LUNAS ***
+                    </div>
+                ) : null}
 
                 <div className="flex justify-between gap-1">
                     <span className="truncate flex-1">No: {transaction.invoice || 'DRAFT'}</span>
@@ -192,6 +204,13 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                     </div>
                 )}
 
+                {taxAmount > 0 && (
+                    <div className="flex justify-between text-[10px] italic">
+                        <span>PAJAK {taxRate}%</span>
+                        <span>{formatPriceReceipt(taxAmount)}</span>
+                    </div>
+                )}
+
                 <div className="flex justify-between font-bold border-y border-black py-1.5 my-1">
                     <span className="text-[11px]">TOTAL AKHIR</span>
                     <span className={isSmall ? 'text-[14px]' : 'text-base'}>
@@ -199,17 +218,29 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                     </span>
                 </div>
 
-                {!isTemporary && (transaction.cash > 0 || transaction.payment_method !== 'cash') ? (
+                {!isTemporary && isPaid(transaction) ? (
                     <div className="text-[10px] space-y-0.5">
-                        <div className="flex justify-between">
-                            <span>BAYAR</span>
-                            <span>{formatPriceReceipt(transaction.cash || transaction.grand_total)}</span>
-                        </div>
-                        <div className="flex justify-between font-bold">
-                            <span>KEMBALI</span>
-                            <span>{formatPriceReceipt(transaction.change || 0)}</span>
-                        </div>
-                        
+                        {/* Pembayaran non-tunai tidak punya kembalian. Menulis
+                            "KEMBALI 0" untuk order QRIS yang sudah lunas hanya
+                            membingungkan pelanggan dan kasir alike. */}
+                        {transaction.payment_method === 'cash' || Number(transaction.cash || 0) > 0 ? (
+                            <>
+                                <div className="flex justify-between">
+                                    <span>BAYAR</span>
+                                    <span>{formatPriceReceipt(transaction.cash || transaction.grand_total)}</span>
+                                </div>
+                                <div className="flex justify-between font-bold">
+                                    <span>KEMBALI</span>
+                                    <span>{formatPriceReceipt(transaction.change || 0)}</span>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex justify-between font-bold">
+                                <span>SUDAH DIBAYAR</span>
+                                <span>{formatPriceReceipt(transaction.grand_total)}</span>
+                            </div>
+                        )}
+
                         {totalSavings > 0 && (
                             <div className="flex justify-between mt-2 font-bold italic text-[10px] border-t border-black border-dotted pt-1 uppercase tracking-tighter bg-gray-50 px-1">
                                 <span>ANDA HEMAT:</span>
@@ -218,8 +249,17 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                         )}
 
                         <div className="text-right text-[8px] mt-1.5 uppercase opacity-70">
-                            Metode: {transaction.payment_method?.toUpperCase()}
+                            Metode: {paymentLabel(transaction.payment_method)}
                         </div>
+
+                        {/* Pesanan dari menu QR dibayar pelanggan sendiri sebelum
+                            sampai di kasir. Kasir perlu tahu nominalnya sudah
+                            masuk dan tidak boleh diminta bayar lagi. */}
+                        {isSelfPaidGateway(transaction) && (
+                            <div className="text-[8px] mt-0.5 uppercase opacity-70 text-right">
+                                Dibayar pelanggan via QRIS
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="text-center py-1 border border-black my-1 font-bold uppercase italic text-[10px]">
@@ -228,8 +268,11 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                 )}
             </div>
 
-            {/* SCAN QRIS */}
-            {!isTemporary && qrisImage && (transaction.payment_method === 'qris') && (
+            {/* Bukti QRIS statis.
+                Nilai `payment_method` yang dipakai adalah `qris_manual`, bukan
+                `qris`. Pemeriksaan lama memakai 'qris' sehingga bagian ini tidak
+                pernah tampil sama sekali. */}
+            {!isTemporary && qrisImage && (transaction.payment_method === 'qris_manual') && (
                 <div className="text-center my-4 border-t border-black border-dashed pt-4">
                     <p className="text-[9px] font-bold mb-2 uppercase tracking-widest">Bukti Bayar QRIS</p>
                     <img src={qrisImage} className="w-32 h-32 mx-auto grayscale" alt="QRIS" />

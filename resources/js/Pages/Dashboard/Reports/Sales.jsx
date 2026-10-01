@@ -17,7 +17,8 @@ import {
     IconSearch,
     IconCalendar,
     IconWorld,
-    IconCash
+    IconCash,
+    IconPercentage
 } from "@tabler/icons-react";
 
 // Summary Card Component
@@ -163,17 +164,24 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
     const safeSummary = {
         orders_count: summary?.orders_count ?? 0,
         revenue_total: summary?.revenue_total ?? 0,
+        net_sales_total: summary?.net_sales_total ?? 0,
+        tax_total: summary?.tax_total ?? 0,
         discount_total: summary?.discount_total ?? 0,
         items_sold: summary?.items_sold ?? 0,
         profit_total: summary?.profit_total ?? 0,
+        net_profit: summary?.net_profit ?? summary?.profit_total ?? 0,
+        operating_expense: summary?.operating_expense ?? 0,
+        hpp: summary?.hpp ?? 0,
+        profit_variance: summary?.profit_variance ?? 0,
+        net_profit_basis: summary?.net_profit_basis ?? 'period',
         average_order: summary?.average_order ?? 0,
         markup_total: summary?.markup_total ?? 0,
         fee_total: summary?.fee_total ?? 0,
     };
 
-    // Kalkulasi Pendapatan Riil (Setelah potong jatah aplikasi)
+    // Kalkulasi Pendapatan Riil (setelah pajak dan potongan platform)
     const totalPotonganPlatform = safeSummary.markup_total + safeSummary.fee_total;
-    const realCashReceived = safeSummary.revenue_total - totalPotonganPlatform;
+    const realCashReceived = safeSummary.net_sales_total - totalPotonganPlatform;
 
     const summaryCards = [
         {
@@ -184,6 +192,13 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
             gradient: "from-primary-500 to-primary-700",
         },
         {
+            title: "Pajak Terkumpul",
+            value: formatCurrency(safeSummary.tax_total),
+            description: "Pajak pasif, bukan laba",
+            icon: <IconPercentage />,
+            gradient: "from-violet-500 to-violet-700",
+        },
+        {
             title: "Uang Diterima Toko",
             value: formatCurrency(realCashReceived),
             description: "Netto (Potong platform)",
@@ -191,9 +206,11 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
             gradient: "from-emerald-500 to-teal-700",
         },
         {
-            title: "Profit Riil",
-            value: formatCurrency(safeSummary.profit_total),
-            description: "Bersih potong HPP & App",
+            title: safeSummary.net_profit_basis === 'period' ? "Laba Bersih" : "Laba Kontribusi",
+            value: formatCurrency(safeSummary.net_profit),
+            description: safeSummary.net_profit_basis === 'period'
+                ? "Setelah HPP, platform, dan beban operasional"
+                : "Beban operasional belum dialokasikan",
             icon: <IconCoin />,
             gradient: "from-success-500 to-success-700",
         },
@@ -242,7 +259,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
                     {summaryCards.map((card) => (
                         <SummaryCard key={card.title} {...card} />
                     ))}
@@ -311,7 +328,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                         <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Beban App</th>
                                         <th className="px-4 py-4 text-center text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Item</th>
                                         <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Total Transaksi</th>
-                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase border-l dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-950/10">Profit Bersih</th>
+                                        <th className="px-4 py-4 text-right text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase border-l dark:border-slate-800 bg-emerald-50/30 dark:bg-emerald-950/10">Kontribusi/Transaksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -348,7 +365,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                                 <div className="text-sm font-black text-emerald-600 dark:text-emerald-400">
                                                     {formatCurrency(trx.total_profit ?? 0)}
                                                 </div>
-                                                <div className="text-[8px] text-slate-400 font-medium italic">Riil di Terima</div>
+                                                <div className="text-[8px] text-slate-400 font-medium italic">Setelah HPP & platform</div>
                                             </td>
                                         </tr>
                                     ))}

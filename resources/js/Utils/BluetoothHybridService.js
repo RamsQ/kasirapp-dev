@@ -122,7 +122,9 @@ const encodeReceipt = (transaction, receiptSetting) => {
 
     const grandTotal = parseFloat(transaction.grand_total || 0);
     const totalDiscount = parseFloat(transaction.discount || 0);
-    const subtotalGross = grandTotal + totalDiscount;
+    const taxAmount = parseFloat(transaction.tax_amount || 0);
+     const taxRate = parseFloat(transaction.tax_rate || 0);
+     const subtotalGross = (grandTotal - taxAmount) + totalDiscount;
 
     // Header
     result.raw([0x1b, 0x61, 0x01]) // Center
@@ -162,9 +164,14 @@ const encodeReceipt = (transaction, receiptSetting) => {
     result.line("-".repeat(C_WIDTH));
     
     // Rincian Pembayaran & Diskon
-    if (totalDiscount > 0) {
+    if (totalDiscount > 0 || taxAmount > 0) {
         result.line(formatRow("SUBTOTAL", Math.round(subtotalGross).toLocaleString('id-ID')));
-        result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
+        if (totalDiscount > 0) {
+            result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
+        }
+        if (taxAmount > 0) {
+            result.italic(true).line(formatRow(`PAJAK ${taxRate}%`, Math.round(taxAmount).toLocaleString('id-ID'))).italic(false);
+        }
     }
 
     result.bold(true).line(formatRow("TOTAL", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);

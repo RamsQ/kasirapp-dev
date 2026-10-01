@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Apps;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -31,37 +32,42 @@ class ProfileController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'name'  => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048', 
+            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
+        $emailChanged = $user->email !== $request->email;
         $user->name = $request->name;
         $user->email = $request->email;
 
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
+
         // Logika Upload Foto Profil
         if ($request->hasFile('image')) {
-            
+
             // 1. Hapus foto lama jika ada (Gunakan getRawOriginal untuk ambil nama file asli)
-            if ($user->getRawOriginal('image') && !str_contains($user->image, 'http')) {
-                Storage::disk('public')->delete('users/' . $user->getRawOriginal('image'));
+            if ($user->getRawOriginal('image') && ! str_contains($user->image, 'http')) {
+                Storage::disk('public')->delete('users/'.$user->getRawOriginal('image'));
             }
 
             // 2. Ambil file dan generate nama unik
             $image = $request->file('image');
             $filename = $image->hashName();
-            
+
             // 3. Simpan ke: storage/app/public/users menggunakan disk 'public'
             // FIX: Cukup gunakan path 'users', jangan tambahkan awalan 'public/' lagi
             $image->storeAs('users', $filename, 'public');
-            
+
             // 4. Simpan nama filenya saja ke database
             $user->image = $filename;
         }
 
         $user->save();
 
-        return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
+        return redirect()->route('profile.edit')->with('success', 'Profil berhasil diperbarui!');
     }
 
     /**
@@ -71,13 +77,13 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password'         => 'required|min:8|confirmed',
+            'password' => 'required|min:8|confirmed',
         ]);
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'Password saat ini tidak cocok.']);
         }
 
@@ -85,6 +91,25 @@ class ProfileController extends Controller
         $user->save();
 
         return back()->with('success', 'Password berhasil diubah!');
+    }
+
+    /**
+     * Menghapus akun pengguna yang sedang login.
+     */
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = auth()->user();
+        Auth::logout();
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 
     /**
@@ -99,10 +124,10 @@ class ProfileController extends Controller
 
         /** @var \App\Models\User $user */
         $user = auth()->user();
-        
+
         // Simpan array koordinat wajah ke database
         $user->update([
-            'face_data' => $request->face_data
+            'face_data' => $request->face_data,
         ]);
 
         return redirect()->back()->with('success', 'Data verifikasi wajah berhasil didaftarkan! Keamanan biometrik kini aktif.');

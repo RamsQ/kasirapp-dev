@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers\Apps;
 
-use App\Http\Controllers\Controller;
-use App\Models\Product;
-use App\Models\Expense; 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB; 
-use Barryvdh\DomPDF\Facade\Pdf;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ExpiredProductsExport;
+use App\Http\Controllers\Controller;
+use App\Models\Expense;
+use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ExpiredProductController extends Controller
 {
@@ -21,7 +21,7 @@ class ExpiredProductController extends Controller
     public function index(Request $request)
     {
         $startDate = $request->start_date ?? Carbon::now()->format('Y-m-d');
-        $endDate   = $request->end_date   ?? Carbon::now()->addDays(30)->format('Y-m-d');
+        $endDate = $request->end_date ?? Carbon::now()->addDays(30)->format('Y-m-d');
 
         $products = Product::with('category')
             ->whereNotNull('expired_date')
@@ -30,11 +30,11 @@ class ExpiredProductController extends Controller
             ->get();
 
         return Inertia::render('Dashboard/Reports/Expired', [
-            'products'   => $products,
-            'filter'     => [
+            'products' => $products,
+            'filter' => [
                 'start_date' => $startDate,
-                'end_date'   => $endDate,
-            ]
+                'end_date' => $endDate,
+            ],
         ]);
     }
 
@@ -51,22 +51,22 @@ class ExpiredProductController extends Controller
 
         DB::transaction(function () use ($product) {
             $qtyExpired = $product->stock;
-            $totalLoss  = $product->buy_price * $qtyExpired;
+            $totalLoss = $product->buy_price * $qtyExpired;
 
             // 1. Catat Otomatis ke Keuangan
             Expense::create([
-                'name'         => "Penyusutan Stok (Expired)", // Menambah field 'name' agar tidak error
+                'name' => 'Penyusutan Stok (Expired)', // Menambah field 'name' agar tidak error
                 'account_name' => 'Beban Penurunan Nilai Persediaan',
-                'category'     => 'Kerugian Stok',
-                'amount'       => $totalLoss,
-                'description'  => "Otomatis (Expired): Penghapusan stok {$product->title} sebanyak {$qtyExpired} pcs.",
-                'date'         => now(),
-                'user_id'      => auth()->id(),
+                'category' => 'Kerugian Stok',
+                'amount' => $totalLoss,
+                'description' => "Otomatis (Expired): Penghapusan stok {$product->title} sebanyak {$qtyExpired} pcs.",
+                'date' => now(),
+                'user_id' => auth()->id(),
             ]);
 
             // 2. Nolkan Stok Produk
             $product->update([
-                'stock' => 0
+                'stock' => 0,
             ]);
         });
 
@@ -76,7 +76,7 @@ class ExpiredProductController extends Controller
     public function exportPdf(Request $request)
     {
         $startDate = $request->start_date ?? Carbon::now()->format('Y-m-d');
-        $endDate   = $request->end_date   ?? Carbon::now()->addDays(30)->format('Y-m-d');
+        $endDate = $request->end_date ?? Carbon::now()->addDays(30)->format('Y-m-d');
 
         $products = Product::whereBetween('expired_date', [$startDate, $endDate])
             ->orderBy('expired_date', 'asc')
@@ -91,10 +91,10 @@ class ExpiredProductController extends Controller
     public function exportExcel(Request $request)
     {
         $startDate = $request->start_date ?? Carbon::now()->format('Y-m-d');
-        $endDate   = $request->end_date   ?? Carbon::now()->addDays(30)->format('Y-m-d');
+        $endDate = $request->end_date ?? Carbon::now()->addDays(30)->format('Y-m-d');
 
         return Excel::download(
-            new ExpiredProductsExport($startDate, $endDate), 
+            new ExpiredProductsExport($startDate, $endDate),
             "laporan-expired-{$startDate}-to-{$endDate}.xlsx"
         );
     }

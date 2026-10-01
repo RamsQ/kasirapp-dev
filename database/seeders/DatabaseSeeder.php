@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Artisan;
 use Spatie\Permission\PermissionRegistrar;
@@ -15,10 +14,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // --- BERSIHKAN CACHE PERMISSION SEBELUM SEEDING ---
-        // Hal ini sangat penting agar tidak terjadi error 403 
+        // Hal ini sangat penting agar tidak terjadi error 403
         // akibat cache lama yang masih tersimpan di sistem Spatie.
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
-        
+
         // Opsional: Menjalankan command clear lewat Artisan
         Artisan::call('permission:cache-reset');
 
@@ -29,7 +28,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,            // 3. Buat pengguna & tempelkan role (Pemegang Kunci)
             PaymentSettingSeeder::class,  // 4. Konfigurasi pembayaran (Fix)
             ReportSettingSeeder::class,
-            //SampleDataSeeder::class,      // 5. Data dummy untuk testing (Fix)
+            // SampleDataSeeder::class,      // 5. Data dummy untuk testing (Fix)
         ]);
 
         $this->command->info('Database seeding completed and permission cache cleared!');

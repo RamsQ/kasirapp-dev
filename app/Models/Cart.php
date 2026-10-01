@@ -15,14 +15,17 @@ class Cart extends Model
      * @var array
      */
     protected $fillable = [
-        'cashier_id', 
-        'product_id', 
+        'cashier_id',
+        'product_id',
         'product_unit_id', // Pastikan ini dapat diisi untuk menyimpan pilihan satuan
-        'qty', 
+        'online_platform_id',
+        'qty',
         'price',           // Menyimpan harga final (setelah markup & diskon dashboard)
-        'notes', 
-        'hold_id', 
-        'hold_label', 
+        'platform_markup',
+        'platform_fee',
+        'notes',
+        'hold_id',
+        'hold_label',
         'held_at',
         'table_id',
     ];
@@ -34,8 +37,10 @@ class Cart extends Model
      */
     protected $casts = [
         'held_at' => 'datetime',
-        'qty'     => 'float', // Mendukung angka desimal untuk berat/satuan tertentu
-        'price'   => 'float', // Cast ke float agar sinkron dengan tipe decimal di database
+        'qty' => 'float', // Mendukung angka desimal untuk berat/satuan tertentu
+        'price' => 'float', // Cast ke float agar sinkron dengan tipe decimal di database
+        'platform_markup' => 'float',
+        'platform_fee' => 'float',
     ];
 
     /**
@@ -50,6 +55,7 @@ class Cart extends Model
 
     /**
      * Relasi ke ProductUnit
+     *
      * * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function unit()

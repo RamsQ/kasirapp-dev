@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\RoleRequest;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RoleController extends Controller
 {
@@ -22,7 +21,7 @@ class RoleController extends Controller
         // get all role data
         $roles = Role::query()
             ->with('permissions')
-            ->when($request->search, fn($query) => $query->where('name', 'like', '%' . $request->search . '%'))
+            ->when($request->search, fn ($query) => $query->where('name', 'like', '%'.$request->search.'%'))
             ->select('id', 'name')
             ->latest()
             // [MODIFIKASI] Menggunakan variabel dinamis $per_page
@@ -75,14 +74,34 @@ class RoleController extends Controller
     }
 
     /**
+     * Role yang tidak boleh dihapus karena sistem bergantung padanya.
+     * Menghapus super-admin akan mengunci refund, gateway, dan seluruh
+     * middleware izin yang ditugaskan ke role tersebut.
+     *
+     * @var list<string>
+     */
+    private const PROTECTED_ROLES = ['super-admin'];
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Role $role)
     {
+        if (in_array($role->name, self::PROTECTED_ROLES, true)) {
+            return back()->with('error', 'Role "'.$role->name.'" adalah role sistem dan tidak boleh dihapus.');
+        }
+
+        // Role yang masih dipakai user tidak boleh dihapus, karena tabel pivot
+        // Spatie tidak memakai FK constraint sehingga assignment-nya akan
+        // yatim diam-diam tanpa error.
+        if ($role->users()->exists()) {
+            return back()->with('error', 'Role "'.$role->name.'" masih dipakai oleh '.$role->users()->count().' pengguna. Pindahkan pengguna dulu.');
+        }
+
         // delete role data
         $role->delete();
 
         // render view
-        return back();
+        return back()->with('success', 'Role berhasil dihapus.');
     }
 }

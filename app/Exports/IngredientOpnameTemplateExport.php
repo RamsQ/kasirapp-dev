@@ -4,23 +4,23 @@ namespace App\Exports;
 
 use App\Models\Ingredient;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 
-class IngredientOpnameTemplateExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class IngredientOpnameTemplateExport implements FromCollection, ShouldAutoSize, WithHeadings, WithMapping
 {
     /**
-    * Mengambil data bahan baku
-    */
+     * Mengambil data bahan baku
+     */
     public function collection()
     {
         return Ingredient::select('id', 'name', 'unit', 'stock')->get();
     }
 
     /**
-    * Header Excel
-    */
+     * Header Excel
+     */
     public function headings(): array
     {
         return [
@@ -34,12 +34,12 @@ class IngredientOpnameTemplateExport implements FromCollection, WithHeadings, Wi
     }
 
     /**
-    * Mapping data ke kolom Excel
-    */
+     * Mapping data ke kolom Excel
+     */
     public function map($ingredient): array
     {
         return [
-            'ING-' . $ingredient->id, 
+            'ING-'.$ingredient->id,
             $ingredient->name,
             $ingredient->unit,
             $ingredient->stock,

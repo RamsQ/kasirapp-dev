@@ -16,7 +16,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1 style="margin:0; color:white; text-transform:uppercase; letter-spacing: 2px;">POS SYSTEM</h1>
+            <h1 style="margin:0; color:white; text-transform:uppercase; letter-spacing: 2px;">LakuPOS</h1>
         </div>
         <div class="content">
             <h1>Halo, {{ $name }}!</h1>
@@ -30,7 +30,7 @@
             </p>
         </div>
         <div class="footer">
-            &copy; {{ date('Y') }} POS System Cloud. Akses Keamanan Terintegrasi.
+            &copy; {{ date('Y') }} LakuPOS Cloud. Akses Keamanan Terintegrasi.
         </div>
     </div>
 </body>

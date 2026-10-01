@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-public function up()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->boolean('is_face_mandatory')->default(false)->after('face_data');
-    });
-}
+    public function up()
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('is_face_mandatory')->default(false)->after('face_data');
+        });
+    }
 };

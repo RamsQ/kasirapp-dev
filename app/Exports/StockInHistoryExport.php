@@ -33,7 +33,7 @@ class StockInHistoryExport implements FromCollection, WithHeadings, WithMapping
             $row->qty,
             $row->price,
             $row->qty * $row->price,
-            $row->reference
+            $row->reference,
         ];
     }
 }

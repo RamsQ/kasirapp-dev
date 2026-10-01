@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class RefundReportController extends Controller
@@ -30,12 +31,13 @@ class RefundReportController extends Controller
 
         // 3. Filter Berdasarkan No. Invoice (Tambahan agar lebih pro)
         if ($request->invoice) {
-            $query->where('invoice', 'like', '%' . $request->invoice . '%');
+            $query->where('invoice', 'like', '%'.$request->invoice.'%');
         }
 
         // 4. Hitung Total Uang yang Dikembalikan
         // Menggunakan clone agar query utama tidak terganggu untuk pagination
-        $totalRefund = (clone $query)->sum('grand_total');
+        $totalRefund = (clone $query)->sum(DB::raw('COALESCE(grand_total, 0)'));
+        $taxRefund = (clone $query)->sum(DB::raw('COALESCE(tax_amount, 0)'));
 
         // 5. Ambil Data dengan Pagination
         // Diurutkan berdasarkan 'updated_at' (waktu admin klik tombol refund)
@@ -44,9 +46,10 @@ class RefundReportController extends Controller
             ->withQueryString();
 
         return Inertia::render('Dashboard/Reports/Refund', [
-            'refunds'     => $refunds,
+            'refunds' => $refunds,
             'totalRefund' => (int) $totalRefund,
-            'filters'     => $request->only(['start_date', 'end_date', 'invoice']),
+            'taxRefund' => (int) $taxRefund,
+            'filters' => $request->only(['start_date', 'end_date', 'invoice']),
         ]);
     }
 }

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('price', 15, 2)->change();
 
             // 2. Tambah product_unit_id HANYA jika belum ada
-            if (!Schema::hasColumn('carts', 'product_unit_id')) {
+            if (! Schema::hasColumn('carts', 'product_unit_id')) {
                 $table->unsignedBigInteger('product_unit_id')->nullable()->after('product_id');
             }
         });
@@ -25,12 +25,12 @@ return new class extends Migration
         // Perbaikan Tabel Discounts
         Schema::table('discounts', function (Blueprint $table) {
             // Tambah product_id jika belum ada
-            if (!Schema::hasColumn('discounts', 'product_id')) {
+            if (! Schema::hasColumn('discounts', 'product_id')) {
                 $table->unsignedBigInteger('product_id')->nullable()->after('id');
             }
-            
+
             // Tambah bonus_product_id jika belum ada
-            if (!Schema::hasColumn('discounts', 'bonus_product_id')) {
+            if (! Schema::hasColumn('discounts', 'bonus_product_id')) {
                 $table->unsignedBigInteger('bonus_product_id')->nullable()->after('product_id');
             }
         });

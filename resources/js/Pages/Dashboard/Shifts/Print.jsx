@@ -140,7 +140,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
                         
                         {/* HEADER */}
                         <header className="flex flex-col items-center text-center uppercase w-full mb-3">
-                            <div className="font-black text-[14px] leading-tight mb-1">{receiptSetting?.store_name || "POS System"}</div>
+                            <div className="font-black text-[14px] leading-tight mb-1">{receiptSetting?.store_name || "LakuPOS"}</div>
                             <div className="text-[8px] leading-tight opacity-70 mb-3">{receiptSetting?.store_address}</div>
                             <div className="w-full border-b border-dashed border-black/30 mb-2"></div>
                             <div className="font-black tracking-tighter text-[12px]">LAPORAN SHIFT</div>

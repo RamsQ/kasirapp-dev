@@ -9,9 +9,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('discounts', function (Blueprint $table) {
-            // Mengubah kolom type menjadi string agar lebih fleksibel 
+            // Mengubah kolom type menjadi string agar lebih fleksibel
             // ATAU mengupdate ENUM-nya jika Anda ingin tetap pakai ENUM
-            $table->string('type')->change(); 
+            $table->string('type')->change();
         });
     }
 

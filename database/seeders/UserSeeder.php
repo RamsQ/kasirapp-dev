@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
         $user = User::updateOrCreate(
             ['email' => 'admin@gmail.com'], // Cari berdasarkan email ini
             [
-                'name'     => 'Super Administrator',
+                'name' => 'Super Administrator',
                 'password' => Hash::make('password'), // Password default: password
             ]
         );

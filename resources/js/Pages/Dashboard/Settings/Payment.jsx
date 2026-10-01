@@ -37,6 +37,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
         // Xendit Data
         xendit_enabled: !!setting?.xendit_enabled,
         xendit_secret_key: setting?.xendit_secret_key ?? "",
+        xendit_callback_token: setting?.xendit_callback_token ?? "",
         xendit_public_key: setting?.xendit_public_key ?? "",
         xendit_production: !!setting?.xendit_production,
         
@@ -72,8 +73,8 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
     const isGatewaySelectable = (gatewayValue) => {
         if (gatewayValue === "cash") return true;
-        if (gatewayValue === "midtrans") return data.midtrans_enabled;
-        if (gatewayValue === "xendit") return data.xendit_enabled;
+        if (gatewayValue === "midtrans") return data.midtrans_enabled && data.midtrans_server_key && data.midtrans_client_key;
+        if (gatewayValue === "xendit") return data.xendit_enabled && data.xendit_secret_key && data.xendit_callback_token;
         if (gatewayValue === "qris") return data.qris_manual_enabled;
         return false;
     };
@@ -236,6 +237,36 @@ export default function Payment({ setting, supportedGateways = [] }) {
                                     onChange={(e) => setData("midtrans_client_key", e.target.value)}
                                     errors={errors?.midtrans_client_key}
                                 />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* XENDIT SECTION */}
+                <div className={`rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-slate-900 ${data.xendit_enabled ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className={`rounded-lg p-2 ${data.xendit_enabled ? 'bg-primary-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                <IconCreditCard size={20} />
+                            </div>
+                            <div>
+                                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Xendit Invoice</h3>
+                                <p className="text-xs text-slate-500">Callback settlement diverifikasi dengan callback token.</p>
+                            </div>
+                        </div>
+                        <Checkbox checked={data.xendit_enabled} onChange={(e) => setData("xendit_enabled", e.target.checked)} />
+                    </div>
+                    {data.xendit_enabled && (
+                        <div className="mt-6 space-y-4">
+                            <div className="flex flex-wrap items-center gap-4 rounded-xl bg-primary-50 p-3 text-xs dark:bg-primary-950/30">
+                                <span className="font-bold text-slate-600 dark:text-slate-300">Mode:</span>
+                                <label className="flex items-center gap-2"><input type="radio" name="xendit_mode" checked={!data.xendit_production} onChange={() => setData("xendit_production", false)} /> Sandbox</label>
+                                <label className="flex items-center gap-2"><input type="radio" name="xendit_mode" checked={data.xendit_production} onChange={() => setData("xendit_production", true)} /> Production</label>
+                            </div>
+                            <div className="grid gap-4 md:grid-cols-2">
+                                <Input label="Secret Key" type="password" value={data.xendit_secret_key} onChange={(e) => setData("xendit_secret_key", e.target.value)} errors={errors?.xendit_secret_key} />
+                                <Input label="Callback Token" type="password" value={data.xendit_callback_token} onChange={(e) => setData("xendit_callback_token", e.target.value)} errors={errors?.xendit_callback_token} placeholder="Token dari dashboard Xendit" />
+                                <Input label="Public Key" type="password" value={data.xendit_public_key} onChange={(e) => setData("xendit_public_key", e.target.value)} errors={errors?.xendit_public_key} />
                             </div>
                         </div>
                     )}

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import { Head, router, Link, usePage } from "@inertiajs/react";
 import DashboardLayout from "@/Layouts/DashboardLayout";
 import Swal from "sweetalert2";
 import Pagination from "@/Components/Dashboard/Pagination";
+import PaymentTimeline from "@/Components/Dashboard/PaymentTimeline";
 import {
     IconSearch,
     IconHistory,
@@ -110,10 +111,24 @@ const History = ({ transactions, filters }) => {
     const perPage = transactions?.per_page ? Number(transactions?.per_page) : rows.length || 1;
     const hasActiveFilters = filterData.invoice || filterData.start_date || filterData.end_date || filterData.payment_method;
 
+    // Baris riwayat pembayaran yang sedang dibuka. Set dipakai supaya beberapa
+    // baris bisa dibuka bersamaan tanpa saling menimpa.
+    const [openTimelines, setOpenTimelines] = useState(new Set());
+
+    const toggleTimeline = (id) => {
+        setOpenTimelines((previous) => {
+            const next = new Set(previous);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
     const getPaymentBadge = (method) => {
         const m = method?.toLowerCase();
         if (m === 'cash') return <span className="flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconCash size={12}/> Tunai</span>;
-        if (m === 'midtrans' || m === 'xendit') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QR Auto</span>;
+        if (m === 'midtrans') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QRIS Midtrans</span>;
+        if (m === 'xendit') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QRIS Xendit</span>;
         if (m === 'qris_manual') return <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconQrcode size={12}/> QRIS Statis</span>;
         if (m === 'transfer') return <span className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconCreditCard size={12}/> Transfer</span>;
         return <span className="text-slate-400">-{m}-</span>;
@@ -121,7 +136,7 @@ const History = ({ transactions, filters }) => {
 
     return (
         <>
-            <Head title="Riwayat Transaksi | POS SYSTEM AJA" />
+            <Head title="Riwayat Transaksi | LakuPOS AJA" />
             <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
@@ -205,7 +220,8 @@ const History = ({ transactions, filters }) => {
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {rows.length > 0 ? rows.map((transaction, index) => (
-                                    <tr key={transaction.id} className={`hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors group ${transaction.status === 'refunded' ? 'opacity-60 bg-red-50/20' : ''}`}>
+                                    <Fragment key={transaction.id}>
+                                    <tr className={`hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors group ${transaction.status === 'refunded' ? 'opacity-60 bg-red-50/20' : ''}`}>
                                         <td className="px-6 py-5 text-sm text-slate-500 font-bold">{index + 1 + (currentPage - 1) * perPage}</td>
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
@@ -240,7 +256,12 @@ const History = ({ transactions, filters }) => {
                                         </td>
 
                                         <td className="px-6 py-5 text-right font-black text-slate-900 dark:text-white">
-                                            {formatCurrency(transaction.grand_total)}
+                                            <div>{formatCurrency(transaction.grand_total)}</div>
+                                             {parseFloat(transaction.tax_amount || 0) > 0 && (
+                                                 <div className="text-[9px] font-bold text-violet-500 dark:text-violet-400 mt-1">
+                                                     Pajak {formatCurrency(transaction.tax_amount)}
+                                                 </div>
+                                             )}
                                         </td>
                                         <td className="px-6 py-5 text-right font-black text-emerald-500 italic">
                                             {transaction.status === 'refunded' ? 'REFUND' : formatCurrency(transaction.total_profit ?? 0)}
@@ -254,12 +275,44 @@ const History = ({ transactions, filters }) => {
                                                 >
                                                     <IconPrinter size={20}/>
                                                 </Link>
-                                                
+
+                                                {/* Struk digital pelanggan. Hanya
+                                                    ada untuk pesanan dari menu QR;
+                                                    transaksi kasir biasa tidak
+                                                    punya, jadi tombolnya tidak
+                                                    muncul. */}
+                                                {transaction.receipt_url && (
+                                                    <a
+                                                        href={transaction.receipt_url}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-all active:scale-90"
+                                                        title="Struk Digital Pelanggan"
+                                                    >
+                                                        <IconQrcode size={20}/>
+                                                    </a>
+                                                )}
+
+                                                {/* Riwayat pembayaran. Satu-satunya
+                                                    cara menjawab "sudah bayar?"
+                                                    dan "kenapa ditolak?" tanpa
+                                                    harus menggali log. */}
+                                                {(transaction.payment_timeline?.length > 0) && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => toggleTimeline(transaction.id)}
+                                                        className={`p-2 rounded-xl transition-all active:scale-90 ${openTimelines.has(transaction.id) ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'}`}
+                                                        title="Riwayat Pembayaran"
+                                                    >
+                                                        <IconHistory size={20}/>
+                                                    </button>
+                                                )}
+
                                                 {/* TOMBOL REFUND: HANYA SUPER ADMIN & BELUM DIREVUND */}
                                                 {auth.user.roles.some(role => role.name === 'super-admin') && transaction.status !== "refunded" ? (
-                                                    <button 
-                                                        onClick={() => handleRefund(transaction.id)} 
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all active:scale-90" 
+                                                    <button
+                                                        onClick={() => handleRefund(transaction.id)}
+                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all active:scale-90"
                                                         title="Refund"
                                                     >
                                                         <IconRefresh size={20}/>
@@ -274,6 +327,15 @@ const History = ({ transactions, filters }) => {
                                             </div>
                                         </td>
                                     </tr>
+
+                                    {openTimelines.has(transaction.id) && (
+                                        <tr className="bg-slate-50/70 dark:bg-slate-950/40">
+                                            <td colSpan="8" className="px-6 py-5">
+                                                <PaymentTimeline transaction={transaction} />
+                                            </td>
+                                        </tr>
+                                    )}
+                                    </Fragment>
                                 )) : (
                                     <tr>
                                         <td colSpan="8" className="px-6 py-20 text-center">

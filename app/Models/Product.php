@@ -2,38 +2,37 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $fillable = [
-        'image', 
-        'barcode', 
-        'title', 
-        'description', 
-        'buy_price', 
-        'sell_price', 
+        'image',
+        'barcode',
+        'title',
+        'description',
+        'buy_price',
+        'sell_price',
         'cost_price', // Field HPP dari resep (untuk produk olahan)
-        'category_id', 
+        'category_id',
         'stock',
-        'unit', 
+        'unit',
         'expired_date',
         'type',
     ];
 
     protected $casts = [
         'expired_date' => 'date',
-        'buy_price'    => 'float',
-        'sell_price'   => 'float',
-        'cost_price'   => 'float', 
-        'stock'        => 'float',
+        'buy_price' => 'float',
+        'sell_price' => 'float',
+        'cost_price' => 'float',
+        'stock' => 'float',
     ];
 
     /**
@@ -42,7 +41,7 @@ class Product extends Model
     protected $appends = [
         'days_until_expired',
         'final_hpp',
-        'online_price' // Menambahkan atribut harga online
+        'online_price', // Menambahkan atribut harga online
     ];
 
     /**
@@ -55,12 +54,13 @@ class Product extends Model
             get: function () {
                 // Mengambil pengaturan online aktif pertama (ID 1)
                 $setting = \App\Models\OnlineSetting::where('is_active', true)->first();
-                
-                if (!$setting) {
+
+                if (! $setting) {
                     return $this->sell_price;
                 }
 
                 $markupValue = ($this->sell_price * $setting->markup_percent) / 100;
+
                 return (float) ($this->sell_price + $markupValue + $setting->additional_fee);
             }
         );
@@ -93,11 +93,13 @@ class Product extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->expired_date) return null;
-                
+                if (! $this->expired_date) {
+                    return null;
+                }
+
                 $now = Carbon::now()->startOfDay();
                 $expiry = Carbon::parse($this->expired_date)->startOfDay();
-                
+
                 return (int) $now->diffInDays($expiry, false);
             }
         );
@@ -136,10 +138,14 @@ class Product extends Model
     {
         return Attribute::make(
             get: function ($value) {
-                if (!$value) return null;
-                if (filter_var($value, FILTER_VALIDATE_URL)) return $value;
+                if (! $value) {
+                    return null;
+                }
+                if (filter_var($value, FILTER_VALIDATE_URL)) {
+                    return $value;
+                }
 
-                return asset('/storage/products/' . $value);
+                return asset('/storage/products/'.$value);
             }
         );
     }
@@ -150,8 +156,8 @@ class Product extends Model
     public function bundle_items()
     {
         return $this->belongsToMany(Product::class, 'product_bundles', 'product_id', 'item_id')
-                ->withPivot('qty', 'product_unit_id')
-                ->with(['units']);
+            ->withPivot('qty', 'product_unit_id')
+            ->with(['units']);
     }
 
     public function bundles()

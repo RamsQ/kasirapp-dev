@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import Chart from "chart.js/auto";
 import {
     IconBox,
+    IconPackage,
     IconCategory,
     IconMoneybag,
     IconUsers,
@@ -24,7 +25,8 @@ import {
     IconQrcode,
     IconChartPie,
     IconLayoutDashboard,
-    IconUser
+    IconUser,
+    IconPercentage
 } from "@tabler/icons-react";
 
 const formatCurrency = (value = 0) =>
@@ -58,11 +60,11 @@ function StatCard({ title, value, subtitle, icon: Icon, gradient, trend }) {
                 </div>
                 <p className="text-3xl font-black tracking-tighter">{value}</p>
                 {subtitle && (
-                    <p className="mt-3 text-[10px] font-bold uppercase tracking-tight opacity-70 flex items-center gap-1.5 leading-none">
+                    <div className="mt-3 text-[10px] font-bold uppercase tracking-tight opacity-70 flex items-center gap-1.5 leading-none">
                         {trend === "up" && <div className="p-0.5 bg-white/20 rounded-full"><IconArrowUpRight size={12} /></div>}
                         {trend === "down" && <div className="p-0.5 bg-white/20 rounded-full"><IconArrowDownRight size={12} /></div>}
                         {subtitle}
-                    </p>
+                    </div>
                 )}
             </div>
         </div>
@@ -142,11 +144,20 @@ export default function Dashboard({
     totalUsers,
     revenueTrend,
     totalRevenue,
+    totalTaxCollected = 0,
     totalProfit,
+    totalHpp = 0,
+    totalAppExpenses = 0,
+    totalOperatingExpenses = 0,
     averageOrder,
     todayTransactions,
+    todayBilledRevenue = 0,
+    todayNetRevenue = 0,
     todayCashRevenue,
     todayDigitalRevenue,
+    todayOtherRevenue = 0,
+    lowStockProducts = [],
+    lowStockIngredients = [],
     topProducts = [],
     recentTransactions = [],
     topCustomers = [],
@@ -159,6 +170,14 @@ export default function Dashboard({
     const methodInstance = useRef(null);
 
     const chartData = useMemo(() => revenueTrend ?? [], [revenueTrend]);
+    const paymentBreakdown = useMemo(
+        () => [
+            { label: 'Tunai', value: Number(todayCashRevenue || 0), color: '#10b981' },
+            { label: 'Digital', value: Number(todayDigitalRevenue || 0), color: '#4f46e5' },
+            { label: 'Lainnya', value: Number(todayOtherRevenue || 0), color: '#f59e0b' },
+        ].filter((item) => item.value > 0),
+        [todayCashRevenue, todayDigitalRevenue, todayOtherRevenue]
+    );
 
     useEffect(() => {
         // --- CHART 1: TREN PENDAPATAN (LINE) ---
@@ -208,10 +227,10 @@ export default function Dashboard({
             methodInstance.current = new Chart(methodChartRef.current, {
                 type: "doughnut",
                 data: {
-                    labels: ['Tunai', 'Digital'],
+                    labels: paymentBreakdown.map((item) => item.label),
                     datasets: [{
-                        data: [todayCashRevenue, todayDigitalRevenue],
-                        backgroundColor: ['#10b981', '#4f46e5'], // Emerald & Indigo
+                        data: paymentBreakdown.map((item) => item.value),
+                        backgroundColor: paymentBreakdown.map((item) => item.color),
                         borderWidth: 0,
                         hoverOffset: 4
                     }]
@@ -239,7 +258,7 @@ export default function Dashboard({
             trendInstance.current?.destroy();
             methodInstance.current?.destroy();
         };
-    }, [chartData, todayCashRevenue, todayDigitalRevenue]);
+    }, [chartData, paymentBreakdown]);
 
     const renderMethodBadge = (method) => {
         const m = method?.toLowerCase();
@@ -249,7 +268,7 @@ export default function Dashboard({
 
     return (
         <>
-            <Head title="Dashboard | POS SYSTEM AJA" />
+            <Head title="Dashboard | LakuPOS AJA" />
 
             <div className="space-y-6 pb-10">
                 {/* Header Row */}
@@ -262,7 +281,7 @@ export default function Dashboard({
                             Dashboard
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-1">
-                            Ringkasan aktivitas bisnis Anda hari ini
+                            Ringkasan aktivitas bisnis Anda hari ini · transaksi lunas bertanggal hari ini
                         </p>
                     </div>
                     <Link
@@ -275,11 +294,12 @@ export default function Dashboard({
                 </div>
 
                 {/* Main Stat Cards Row 1 */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard title="Total Omzet" value={formatCurrency(totalRevenue)} subtitle="Akumulasi Seluruh Waktu" icon={IconMoneybag} gradient="from-indigo-600 to-indigo-800" />
-                    <StatCard title="Total Profit" value={formatCurrency(totalProfit)} subtitle="Laba Bersih Valid" icon={IconTrendingUp} gradient="from-emerald-600 to-emerald-800" trend="up" />
-                    <StatCard title="Rata-Rata" value={formatCurrency(averageOrder)} subtitle="Nilai Transaksi Per Struk" icon={IconReceipt} gradient="from-slate-800 to-slate-950" />
-                    <StatCard title="Total Antrean" value={todayTransactions} subtitle="Pesanan Masuk Hari Ini" icon={IconClock} gradient="from-orange-500 to-orange-700" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+                    <StatCard title="Omzet Bersih Hari Ini" value={formatCurrency(totalRevenue)} subtitle="Tanpa pajak pasif" icon={IconMoneybag} gradient="from-indigo-600 to-indigo-800" />
+                     <StatCard title="Pajak Hari Ini" value={formatCurrency(totalTaxCollected)} subtitle="Kewajiban pasif" icon={IconPercentage} gradient="from-violet-600 to-violet-800" />
+                    <StatCard title="Laba Bersih Hari Ini" value={formatCurrency(totalProfit)} subtitle="Setelah HPP, platform, dan beban" icon={IconTrendingUp} gradient="from-emerald-600 to-emerald-800" trend="up" />
+                    <StatCard title="Rata-rata Hari Ini" value={formatCurrency(averageOrder)} subtitle="Omzet bersih per transaksi" icon={IconReceipt} gradient="from-slate-800 to-slate-950" />
+                    <StatCard title="Transaksi Lunas" value={todayTransactions} subtitle="Hari ini" icon={IconClock} gradient="from-orange-500 to-orange-700" />
                 </div>
 
                 {/* --- SEKSI GRAFIK METODE PEMBAYARAN HARI INI --- */}
@@ -295,26 +315,34 @@ export default function Dashboard({
                                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
                                     <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Payment Breakdown Today</span>
                                 </div>
-                                <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-2">Total Pendapatan Hari Ini</h4>
-                                <p className="text-5xl font-black italic tracking-tighter text-indigo-400 mb-8 drop-shadow-xl">
-                                    {formatCurrency(todayCashRevenue + todayDigitalRevenue)}
+                                <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-2">Total Tagihan Hari Ini</h4>
+                                <p className="text-5xl font-black italic tracking-tighter text-indigo-400 mb-2 drop-shadow-xl">
+                                    {formatCurrency(todayBilledRevenue)}
+                                </p>
+                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-8">
+                                    Omzet bersih {formatCurrency(todayNetRevenue)} + pajak {formatCurrency(totalTaxCollected)}
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
                                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-md">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                            <span className="text-[10px] font-black uppercase text-slate-400">Transaksi Tunai</span>
+                                            <span className="text-[10px] font-black uppercase text-slate-400">Tunai (bruto)</span>
                                         </div>
                                         <p className="text-lg font-black text-white">{formatCurrency(todayCashRevenue)}</p>
                                     </div>
                                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-md">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                                            <span className="text-[10px] font-black uppercase text-slate-400">Transaksi Digital</span>
+                                            <span className="text-[10px] font-black uppercase text-slate-400">Digital (bruto)</span>
                                         </div>
                                         <p className="text-lg font-black text-white">{formatCurrency(todayDigitalRevenue)}</p>
                                     </div>
                                 </div>
+                                {todayOtherRevenue > 0 && (
+                                    <p className="mt-3 text-[10px] font-black uppercase text-amber-400">
+                                        Metode lainnya: {formatCurrency(todayOtherRevenue)}
+                                    </p>
+                                )}
                             </div>
 
                             <div className="w-56 h-56 shrink-0 z-10 relative">
@@ -329,10 +357,10 @@ export default function Dashboard({
                     
                     {/* Ringkasan Master Data */}
                     <div className="grid grid-cols-2 gap-4">
-                        <InfoCard title="Kategori" value={totalCategories} icon={IconCategory} />
-                        <InfoCard title="Produk" value={totalProducts} icon={IconBox} />
-                        <InfoCard title="Transaksi" value={totalTransactions} icon={IconMoneybag} />
-                        <InfoCard title="Pengguna" value={totalUsers} icon={IconUsers} />
+                        <InfoCard title="Kategori (total)" value={totalCategories} icon={IconCategory} />
+                        <InfoCard title="Produk (total)" value={totalProducts} icon={IconBox} />
+                        <InfoCard title="Transaksi Hari Ini" value={totalTransactions} icon={IconMoneybag} />
+                        <InfoCard title="Pengguna (total)" value={totalUsers} icon={IconUsers} />
                         <div className="col-span-2 mt-2">
                              <div className="p-5 rounded-[1.5rem] bg-indigo-600 text-white shadow-lg flex items-center justify-between group overflow-hidden relative">
                                 <div className="absolute -right-4 -bottom-4 opacity-10 group-hover:rotate-12 transition-transform">
@@ -347,6 +375,36 @@ export default function Dashboard({
                         </div>
                     </div>
                 </div>
+
+                {(lowStockProducts.length > 0 || lowStockIngredients.length > 0) && (
+                    <ListCard
+                        title="Stock Intelligence"
+                        subtitle="Peringatan stok menipis"
+                        icon={IconPackage}
+                        emptyMessage="Stok aman"
+                    >
+                        <div className="grid gap-3 md:grid-cols-2">
+                            {lowStockProducts.map((item) => (
+                                <div key={`product-${item.id}`} className="flex items-center justify-between rounded-xl border border-amber-100 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20 px-4 py-3">
+                                    <div>
+                                        <p className="text-xs font-black text-amber-800 dark:text-amber-300">Product · {item.title}</p>
+                                        <p className="text-[10px] text-amber-600 dark:text-amber-400">Sisa {Number(item.stock).toLocaleString('id-ID')} {item.unit || 'unit'}</p>
+                                    </div>
+                                    <span className="text-[9px] font-black uppercase text-amber-600 dark:text-amber-300">Low stock</span>
+                                </div>
+                            ))}
+                            {lowStockIngredients.map((item) => (
+                                <div key={`ingredient-${item.id}`} className="flex items-center justify-between rounded-xl border border-orange-100 dark:border-orange-900/40 bg-orange-50/50 dark:bg-orange-950/20 px-4 py-3">
+                                    <div>
+                                        <p className="text-xs font-black text-orange-800 dark:text-orange-300">Bahan · {item.name}</p>
+                                        <p className="text-[10px] text-orange-600 dark:text-orange-400">Sisa {Number(item.stock).toLocaleString('id-ID')} / min {Number(item.min_stock).toLocaleString('id-ID')} {item.unit || ''}</p>
+                                    </div>
+                                    <span className="text-[9px] font-black uppercase text-orange-600 dark:text-orange-300">Low stock</span>
+                                </div>
+                            ))}
+                        </div>
+                    </ListCard>
+                )}
 
                 {/* Expired Notifications Section */}
                 {(expiredProducts.length > 0 || expiringProducts.length > 0) && (
@@ -400,10 +458,10 @@ export default function Dashboard({
 
                 {/* Charts and Lists Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ListCard title="Tren Pendapatan Bisnis" subtitle="Analisis 12 periode terakhir" icon={IconChartBar} emptyMessage="Belum ada data pendapatan terkumpul">
+                    <ListCard title="Tren Pendapatan Bisnis" subtitle="Omzet bersih · 12 hari terakhir" icon={IconChartBar} emptyMessage="Belum ada data pendapatan terkumpul">
                         {chartData.length > 0 && <div className="h-72"><canvas ref={trendChartRef} /></div>}
                     </ListCard>
-                    <ListCard title="Produk Terlaris (Hero)" subtitle="Top performa berdasarkan volume" icon={IconBox} emptyMessage="Belum ada data produk terjual">
+                    <ListCard title="Produk Terlaris Hari Ini" subtitle="Volume dan omzet line hari ini" icon={IconBox} emptyMessage="Belum ada produk terjual hari ini">
                         {topProducts.length > 0 && (
                             <ul className="space-y-4">
                                 {topProducts.map((product, index) => (
@@ -425,7 +483,7 @@ export default function Dashboard({
 
                 {/* Bottom Row */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <ListCard title="Transaksi Terbaru" subtitle="Log aktivitas operasional kasir" icon={IconReceipt} emptyMessage="Belum ada transaksi tersimpan">
+                    <ListCard title="Transaksi Hari Ini" subtitle="Transaksi lunas hari ini" icon={IconReceipt} emptyMessage="Belum ada transaksi lunas hari ini">
                         {recentTransactions.length > 0 && (
                             <div className="space-y-3">
                                 {recentTransactions.map((trx, index) => (
@@ -453,7 +511,7 @@ export default function Dashboard({
                         )}
                     </ListCard>
 
-                    <ListCard title="Pelanggan Loyal" subtitle="Analisis retensi belanja" icon={IconUsers} emptyMessage="Belum ada database pelanggan">
+                    <ListCard title="Pelanggan Hari Ini" subtitle="Belanja bersih hari ini" icon={IconUsers} emptyMessage="Belum ada transaksi pelanggan hari ini">
                         {topCustomers.length > 0 && (
                             <ul className="space-y-4">
                                 {topCustomers.map((customer, index) => (

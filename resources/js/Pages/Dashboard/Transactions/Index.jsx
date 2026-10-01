@@ -10,11 +10,13 @@ import {
     IconCashOff, IconLayoutGrid, IconList, IconCategory, IconUser, IconLoader,
     IconChevronUp, IconChevronDown, IconArmchair, IconArrowsExchange, IconGitMerge, 
     IconDeviceFloppy, IconInfoCircle, IconBoxSeam, IconCheck, IconWorld, IconPoint,
-    IconToolsKitchen2, IconPhoto, IconDeviceMobileVibration, IconCreditCard
+    IconToolsKitchen2, IconPhoto, IconDeviceMobileVibration, IconCreditCard,
+    IconHistory
 } from "@tabler/icons-react";
 import Swal from "sweetalert2";
 import ThermalReceipt from "@/Components/Receipt/ThermalReceipt";
 import ShiftReceipt from "@/Components/Receipt/ShiftReceipt";
+import useMediaQuery from "@/Hooks/useMediaQuery";
 import { printBillUsb } from "@/Utils/UsbRawPrinter";
 import { smartPrint } from "@/Utils/BluetoothHybridService"; 
 import toast from "react-hot-toast";
@@ -98,9 +100,15 @@ const CartItem = ({ c, updateCartItem, deleteCart }) => {
                     </div>
                 )}
 
-                {showNoteInput && (
+                {!showNoteInput && c.notes && (
+                     <div className="mt-2 px-2 py-1.5 rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-100 dark:border-orange-900/40 text-[9px] font-black uppercase text-orange-600 dark:text-orange-300 truncate">
+                         Catatan: {c.notes}
+                     </div>
+                 )}
+
+                 {showNoteInput && (
                     <div className="mt-2 flex gap-1 animate-in slide-in-from-top-1 duration-200">
-                        <input type="text" value={noteValue} onChange={(e) => setNoteValue(e.target.value)} placeholder="Catatan..." className="flex-1 text-[9px] font-bold uppercase bg-slate-50 dark:bg-slate-900 border-none rounded-lg focus:ring-1 focus:ring-primary-500 p-2 dark:text-white" />
+                        <input type="text" maxLength={200} value={noteValue} onChange={(e) => setNoteValue(e.target.value)} placeholder="Contoh: tidak pedas..." className="flex-1 text-[9px] font-bold uppercase bg-slate-50 dark:bg-slate-900 border-none rounded-lg focus:ring-1 focus:ring-primary-500 p-2 dark:text-white" />
                         <button type="button" onClick={handleSaveNote} className="bg-primary-500 text-white p-1.5 rounded-lg active:scale-90 transition-transform"><IconCheck size={14} /></button>
                     </div>
                 )}
@@ -109,7 +117,10 @@ const CartItem = ({ c, updateCartItem, deleteCart }) => {
     );
 };
 
-const Index = ({ carts = [], products: initialProducts, customers = [], discounts = [], paymentSetting = {}, activeShift = null, holds = [], tables = [], categories = [], filters = {}, onlineSettings = [] }) => {
+const Index = ({ carts = [], products: initialProducts, customers = [], discounts = [], paymentSetting: paymentSettingProp, taxSetting = { enabled: false, rate: 0 }, activeShift = null, lastClosedShift = null, holds = [], tables = [], categories = [], filters = {}, onlineSettings = [] }) => {
+    // Inertia bisa mengirim `null` ketika pengaturan belum diisi. Default
+    // parameter hanya berlaku untuk `undefined`, jadi normalisasi di sini.
+    const paymentSetting = paymentSettingProp ?? {};
     const { auth, receiptSetting, flash } = usePage().props;
     const [productList, setProductList] = useState(initialProducts.data || []);
     const [nextPageUrl, setNextPageUrl] = useState(initialProducts.next_page_url);
@@ -119,13 +130,37 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const [viewMode, setViewMode] = useState("grid"); 
     const [cash, setCash] = useState(0);
 
-    const [selectedCustomer, setSelectedCustomer] = useState(""); 
+    const [selectedCustomer, setSelectedCustomer] = useState("");
+    const [voucherCode, setVoucherCode] = useState("");
+    const [voucherDiscount, setVoucherDiscount] = useState(0);
+    const [voucherError, setVoucherError] = useState("");
+    const [voucherLoading, setVoucherLoading] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(localStorage.getItem('theme') === 'dark');
     const [showModalHold, setShowModalHold] = useState(false);
     const [showCashOut, setShowCashOut] = useState(false);
     const [showCloseShift, setShowCloseShift] = useState(false);
     const [activeHoldId, setActiveHoldId] = useState(null); 
     const [showCartDrawer, setShowCartDrawer] = useState(false);
+
+    // Lebar >= 1024px (titik henti `lg`) memakai nilai ini, bukan
+    // `window.innerWidth` yang dibaca di dalam render.
+    //
+    // Alasannya reaktif. Nilai `window.innerWidth` hanya dievaluasi saat
+    // komponen me-render, dan tidak ada yang memaksa render ulang ketika
+    // kasir memutar tablet atau menarik jendela browser. Akibatnya state
+    // "keranjang disembunyikan" bisa tertinggal dari lebar layar yang baru:
+    // panelnya melayang sebagai kolom tetap sementara isinya `invisible`,
+    // atau sebaliknya panelnya jadi kolom sempit berisi keranjang kosong.
+    const isWideScreen = useMediaQuery("(min-width: 1024px)");
+
+    // Di layar lebar keranjang tidak pernah dalam keadaan "tertutup" —
+    // tidak ada yang menutupnya, jadi memaksa `true` mencegah keranjang
+    // kosong muncul setelah kasir sempat menutupnya di HP lalu memutar
+    // tablet ke landscape.
+    useEffect(() => {
+        if (isWideScreen) setShowCartDrawer(false);
+    }, [isWideScreen]);
+
     const [selectedTable, setSelectedTable] = useState("");
     const [searchHold, setSearchHold] = useState("");
     const [selectedPlatform, setSelectedPlatform] = useState(null);
@@ -138,7 +173,13 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const [showManualQrisModal, setShowManualQrisModal] = useState(false);
     const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
-    const { data: shiftData, setData: setShiftData, post: postShift } = useForm({ starting_cash: 0 });
+    // Float laci berputar, bukan tambahan baru: shift berikutnya dimulai dari
+    // sisa yang SUDAH DIHITUNG pada shift sebelumnya. Kalau dikosongkan, isi
+    // modal awal setiap hari, uang yang tertinggal di laci akan terhitung dua
+    // kali di neraca sementara Modal Disetor cuma tercatat sekali.
+    const { data: shiftData, setData: setShiftData, post: postShift } = useForm({
+        starting_cash: lastClosedShift?.total_cash_actual ?? 0,
+    });
     const { data: closeShiftData, setData: setCloseShiftData, post: postCloseShift, processing: processingCloseShift } = useForm({ total_cash_physical: 0 });
     
     const [cashOutName, setCashOutName] = useState("");
@@ -312,11 +353,50 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             .sort((a, b) => parseFloat(b.min_transaction) - parseFloat(a.min_transaction))[0];
 
         if (!globalPromo) return { amount: 0, name: null };
-        let discountValue = globalPromo.type === 'percentage' ? cartSubtotal * (parseFloat(globalPromo.value) / 100) : parseFloat(globalPromo.value);
-        return { amount: discountValue, name: globalPromo.name };
+        const discountValue = globalPromo.type === 'percentage'
+            ? cartSubtotal * (parseFloat(globalPromo.value) / 100)
+            : parseFloat(globalPromo.value);
+        return { amount: Math.round(Math.min(cartSubtotal, Math.max(0, discountValue))), name: globalPromo.name };
     }, [cartSubtotal, discounts]);
 
-    const grandTotal = cartSubtotal - activeGlobalDiscount.amount;
+    const taxableBeforeVoucher = Math.max(cartSubtotal - activeGlobalDiscount.amount, 0);
+    const taxRate = parseFloat(taxSetting?.rate || 0);
+    useEffect(() => {
+        const code = voucherCode.trim();
+        if (typeof selectedCustomer !== 'number' || !code || taxableBeforeVoucher <= 0) {
+            setVoucherDiscount(0);
+            setVoucherError("");
+            setVoucherLoading(false);
+            return undefined;
+        }
+
+        let cancelled = false;
+        setVoucherLoading(true);
+        setVoucherError("");
+        axios.get(route("customers.voucher-preview", selectedCustomer), {
+            params: { code, amount: Math.round(taxableBeforeVoucher) },
+        }).then((response) => {
+            if (cancelled) return;
+            if (response.data?.success) {
+                setVoucherDiscount(Number(response.data.discount || 0));
+            } else {
+                setVoucherDiscount(0);
+                setVoucherError(response.data?.message || "Voucher tidak valid.");
+            }
+        }).catch(() => {
+            if (cancelled) return;
+            setVoucherDiscount(0);
+            setVoucherError("Voucher tidak valid atau sudah digunakan.");
+        }).finally(() => {
+            if (!cancelled) setVoucherLoading(false);
+        });
+
+        return () => { cancelled = true; };
+    }, [selectedCustomer, voucherCode, taxableBeforeVoucher]);
+
+    const taxableTotal = Math.max(taxableBeforeVoucher - voucherDiscount, 0);
+    const taxAmount = taxSetting?.enabled ? Math.round(taxableTotal * taxRate / 100) : 0;
+    const grandTotal = taxableTotal + taxAmount;
     const change = cash - grandTotal;
 
     const addToCart = (product) => {
@@ -344,10 +424,21 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     clearInterval(interval);
                     Swal.close();
                     setShowManualQrisModal(false);
+                    setIsPaymentLoading(false);
                     toast.success("Pembayaran Terverifikasi!");
                     router.visit(route('transactions.print', invoice));
+                } else if (['failed', 'cancelled'].includes(res.data.status)) {
+                    clearInterval(interval);
+                    setIsPaymentLoading(false);
+                    Swal.fire("Pembayaran Gagal", res.data.last_error || "Status pembayaran tidak berhasil. Cek Settlement Center.", "error");
                 }
-            } catch (err) { console.error("Polling error", err); }
+            } catch (err) {
+                if (err.response?.status === 404) {
+                    clearInterval(interval);
+                    setIsPaymentLoading(false);
+                }
+                console.error("Polling error", err);
+            }
         }, 3000);
         return interval;
     };
@@ -360,8 +451,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
         let finalMethod = method;
         if (method === 'auto_gateway') {
-            if (paymentSetting.midtrans_enabled) finalMethod = 'midtrans';
-            else if (paymentSetting.xendit_enabled) finalMethod = 'xendit';
+            if (paymentSetting.midtrans_ready) finalMethod = 'midtrans';
+            else if (paymentSetting.xendit_ready) finalMethod = 'xendit';
             else {
                 return Swal.fire("Gagal", "Modul Gateway (Midtrans/Xendit) belum diaktifkan!", "error");
             }
@@ -380,8 +471,11 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
         const payload = {
             customer_name: finalCustomerName || "UMUM",
             customer_id: typeof selectedCustomer === 'number' ? selectedCustomer : null,
-            grand_total: grandTotal, 
-            cash: paidAmount, 
+            voucher_code: voucherCode.trim() || null,
+            grand_total: grandTotal,
+            tax_rate: taxAmount > 0 ? taxRate : null,
+            tax_amount: taxAmount,
+            cash: paidAmount,
             change: change, 
             payment_gateway: finalMethod, 
             hold_id: finalHoldId, 
@@ -395,29 +489,37 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             if (['midtrans', 'xendit'].includes(finalMethod) && response.data.payment_url) {
                 if (response.data.token && window.snap) {
                     window.snap.pay(response.data.token, {
-                        onSuccess: () => router.visit(route('transactions.print', response.data.invoice)),
+                        onSuccess: () => {
+                            setIsPaymentLoading(false);
+                            Swal.fire({ title: 'Memverifikasi Pembayaran', text: 'Menunggu settlement provider.', icon: 'info', showConfirmButton: false });
+                            startPaymentPolling(response.data.invoice);
+                        },
                         onPending: () => { 
                             setIsPaymentLoading(false);
                             Swal.fire({ title: 'Menunggu Pembayaran', text: 'Selesaikan transaksi di HP pelanggan.', icon: 'info', showConfirmButton: false });
                             startPaymentPolling(response.data.invoice);
                         },
-                        // --- FIX BUG AUTO BAYAR ---
-                        // Jika kasir menutup pop-up (X), panggil backend untuk menghapus data pending agar tidak masuk laporan
                         onClose: () => {
                             setIsPaymentLoading(false);
-                            // Mengirim perintah ke backend untuk menghapus transaksi 'sampah' tersebut
                             axios.post(route('transactions.cancel_gateway'), {
                                 invoice: response.data.invoice
                             }).then(() => {
-                                toast.error("Pembayaran Dibatalkan & Antrean Dihapus");
+                                toast.error("Pembayaran Dibatalkan; settlement tetap dapat direkonsiliasi.");
                             }).catch(err => {
                                 console.error("Gagal batalkan otomatis:", err);
-                                toast.error("Gagal membersihkan data pembatalan.");
+                                toast.error("Gagal menandai pembatalan.");
                             });
                         }
                     });
                 } else {
-                    window.location.href = response.data.payment_url;
+                    const paymentWindow = window.open(response.data.payment_url, '_blank', 'noopener,noreferrer');
+                    if (!paymentWindow) {
+                        window.location.href = response.data.payment_url;
+                        return;
+                    }
+                    setIsPaymentLoading(false);
+                    Swal.fire({ title: 'Menunggu Pembayaran', text: 'Selesaikan pembayaran di tab Xendit.', icon: 'info', showConfirmButton: false });
+                    startPaymentPolling(response.data.invoice);
                 }
             } else {
                 setIsPaymentLoading(false);
@@ -484,14 +586,31 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
     return (
         <div className="bg-slate-50 dark:bg-slate-950 min-h-screen">
-            <Head title="POS System" />
+            <Head title="LakuPOS" />
             
             {!activeShift && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 text-center">
                     <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl">
                         <IconDoorEnter size={48} className="mx-auto text-primary-500 mb-4" />
                         <h2 className="text-xl font-black dark:text-white uppercase mb-6 tracking-tighter">Buka Shift Kasir</h2>
+                        {lastClosedShift && (
+                            <div className="mb-4 text-left bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Shift sebelumnya ({new Date(lastClosedShift.closed_at).toLocaleString('id-ID')})</p>
+                                <p className="text-lg font-black text-slate-800 dark:text-white mt-1">
+                                    Rp {Number(lastClosedShift.total_cash_actual).toLocaleString('id-ID')}
+                                </p>
+                                {Number(lastClosedShift.difference) !== 0 && (
+                                    <p className={`text-[10px] font-black mt-1 ${Number(lastClosedShift.difference) < 0 ? 'text-rose-500' : 'text-emerald-500'}`}>
+                                        Selisih {Number(lastClosedShift.difference) < 0 ? ' kurang' : ' lebih'}: Rp {Math.abs(Number(lastClosedShift.difference)).toLocaleString('id-ID')}
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                        <label className="block text-left text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Modal Awal Laci (sisa shift lalu)</label>
                         <input type="number" className="w-full pt-8 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none" value={shiftData.starting_cash} onChange={e => setShiftData('starting_cash', e.target.value)} required />
+                        <p className="text-left text-[9px] text-slate-400 mt-2 leading-relaxed">
+                            Isi dengan uang yang benar-benar ada di laci sekarang. Jangan diisi nominal tetap setiap hari, karena akan membuat selisih neraca naik terus.
+                        </p>
                         <button type="button" onClick={() => postShift(route('shifts.store'))} className="w-full py-4 mt-6 bg-primary-600 text-white rounded-2xl font-black uppercase shadow-lg">Mulai Bertugas</button>
                         <Link 
                         href={route('dashboard')} 
@@ -505,13 +624,47 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             )}
 
             <div id="main-app-content" className={`flex flex-col h-[100dvh] w-full transition-colors ${isDarkMode ? 'bg-slate-950 text-slate-200' : 'bg-slate-100 text-slate-800'} overflow-hidden print:hidden ${!activeShift ? 'blur-xl pointer-events-none' : ''}`}>
-                <header className="h-16 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between px-4 shrink-0 z-20 shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <Link href={route('dashboard')} className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary-500 active:scale-90 transition-transform"><IconLayoutDashboard size={22} /></Link>
-                        <h1 className="text-sm md:text-lg font-black dark:text-white uppercase tracking-tighter italic">{auth?.user?.name}</h1>
+                <header className="h-16 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between gap-2 px-3 sm:px-4 shrink-0 z-20 shadow-sm">
+                    <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                        <Link href={route('dashboard')} aria-label="Kembali ke dashboard" className="p-2 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary-500 active:scale-90 transition-transform"><IconLayoutDashboard size={22} /></Link>
+                        {/*
+                            Nama kasir disembunyikan di bawah 640px. Satu header
+                            POS pernah melebar jadi 427px di layar 375px, dan
+                            karena akarnya `overflow-hidden`, dua tombol paling
+                            kanan (tema dan tutup shift) terpotong dan tidak
+                            bisa ditekan sama sekali.
+                        */}
+                        <h1 className="hidden sm:block text-sm md:text-lg font-black dark:text-white uppercase tracking-tighter italic truncate">{auth?.user?.name}</h1>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => setShowCashOut(true)} className="flex px-4 py-2 bg-orange-100 text-orange-600 dark:bg-orange-950/30 rounded-xl text-[10px] font-black uppercase items-center gap-2 border border-orange-200 shadow-sm"><IconCashOff size={16}/> <span className="hidden sm:inline">Kas Keluar</span></button>
+                    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                        <button type="button" onClick={() => setShowCashOut(true)} className="flex px-3 sm:px-4 py-2 bg-orange-100 text-orange-600 dark:bg-orange-950/30 rounded-xl text-[10px] font-black uppercase items-center gap-2 border border-orange-200 shadow-sm"><IconCashOff size={16}/> <span className="hidden sm:inline">Kas Keluar</span></button>
+                        {/*
+                            Pintu masuk ke Riwayat Transaksi dari dalam kasir.
+
+                            Kasir sering perlu melihat transaksi yang barusan
+                            dicetak, atau mencari kembali struk milik meja
+                            lain, dan halaman ini full-screen tanpa sidebar.
+                            Sebelumnya satu-satunya jalan keluar dari kasir
+                            adalah tombol Dashboard di kiri atas, lalu mencari
+                            menu Riwayat Transaksi di sidebar.
+
+                            Membuka versi kasir (full-screen, padat), bukan
+                            yang di sidebar. Halaman yang penuh kartu besar
+                            terasa seperti sedang keluar dari kasir, padahal
+                            kasir hanya mau cek satu struk dan langsung
+                            kembali bertransaksi.
+
+                            Hanya ikon di layar kecil supaya tidak memenuhi
+                            header di HP; teksnya muncul begitu ada ruang.
+                        */}
+                        <Link
+                            href={route('transactions.history.cashier')}
+                            className="flex px-3 py-2.5 bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300 rounded-xl items-center gap-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white transition-all active:scale-95"
+                            title="Riwayat Transaksi"
+                        >
+                            <IconHistory size={20} />
+                            <span className="hidden md:inline text-[10px] font-black uppercase tracking-wider">Riwayat</span>
+                        </Link>
                         <button type="button" onClick={() => setShowModalHold(true)} className="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 border dark:border-slate-700">
                             <IconClockPause size={20} />
                             {holds?.length > 0 && <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-[9px] font-black flex items-center justify-center rounded-full animate-bounce">{holds.length}</span>}
@@ -561,7 +714,15 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                             </div>
                                             {isDisc && <div className="absolute -top-1 -left-1 z-10 bg-emerald-500 text-white p-1.5 rounded-xl shadow-lg border-2 border-white dark:border-slate-900 animate-pulse"><IconGift size={12} /></div>}
                                             <div className={`relative overflow-hidden bg-slate-50 dark:bg-slate-800 shrink-0 ${viewMode === 'list' ? 'w-14 h-14 rounded-xl' : 'aspect-square rounded-xl md:rounded-2xl mb-2'}`}>
-                                                <img src={p.image ? (p.image.startsWith('http') ? p.image : `/storage/products/${p.image}`) : `https://ui-avatars.com/api/?name=${p.title}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy" />
+                                                <img
+                                                    src={p.image
+                                                        ? (p.image.startsWith('http') ? p.image : `/storage/products/${p.image}`)
+                                                        : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.title)}`}
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.title)}`; }}
+                                                    className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                                    loading="lazy"
+                                                    alt={p.title}
+                                                />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-black dark:text-white uppercase text-[10px] line-clamp-1 leading-none">{p.title}</h3>
@@ -582,19 +743,27 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     </div>
 
                     <aside className={`fixed inset-x-0 bottom-0 z-40 lg:relative lg:inset-auto lg:z-auto w-full lg:w-[380px] xl:w-[420px] bg-white dark:bg-slate-900 border-t lg:border-t-0 lg:border-l dark:border-slate-800 flex flex-col shadow-2xl transition-all duration-500 ease-in-out ${showCartDrawer ? 'h-[90vh]' : 'h-16 lg:h-full'}`}>
-                        <div onClick={() => window.innerWidth < 1024 && setShowCartDrawer(!showCartDrawer)} className="h-16 p-4 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50 cursor-pointer lg:cursor-default shrink-0">
+                        <div onClick={() => !isWideScreen && setShowCartDrawer(!showCartDrawer)} className="h-16 p-4 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50 cursor-pointer lg:cursor-default shrink-0">
                              <div className="flex items-center gap-3"><IconShoppingCart size={24} className="text-primary-500"/><span className="font-black dark:text-white uppercase text-xs italic tracking-tighter">Keranjang Belanja</span></div>
                              {!showCartDrawer && <div className="lg:hidden font-black text-primary-600 tracking-tighter">{formatPrice(grandTotal)}</div>}
                              <div className="lg:hidden">{showCartDrawer ? <IconChevronDown /> : <IconChevronUp className="animate-bounce" />}</div>
                         </div>
 
-                        <div className={`flex flex-col flex-1 overflow-hidden transition-opacity duration-300 ${!showCartDrawer && window.innerWidth < 1024 ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
+                        <div className={`flex flex-col flex-1 overflow-hidden transition-opacity duration-300 ${!showCartDrawer && !isWideScreen ? 'opacity-0 invisible' : 'opacity-100 visible'}`}>
                             <div className="p-4 border-b dark:border-slate-800 space-y-3 bg-slate-50/50 dark:bg-slate-800/30 shrink-0">
-                                <select value={typeof selectedCustomer === 'number' ? selectedCustomer : ""} onChange={(e) => setSelectedCustomer(e.target.value ? Number(e.target.value) : "")} className="w-full pl-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase shadow-sm focus:ring-primary-500">
+                                <select value={typeof selectedCustomer === 'number' ? selectedCustomer : ""} onChange={(e) => { const value = e.target.value ? Number(e.target.value) : ""; setSelectedCustomer(value); setVoucherCode(""); setVoucherDiscount(0); setVoucherError(""); }} className="w-full pl-4 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase shadow-sm focus:ring-primary-500">
                                     <option value="">Pelanggan Umum</option>
-                                    {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                                    {customers.map((c) => <option key={c.id} value={c.id}>{c.name} {c.loyalty_points ? `(${c.loyalty_points} poin)` : ""}</option>)}
                                 </select>
-                                <select value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)} className={`w-full pl-4 py-2 border-none rounded-xl text-[10px] font-black uppercase shadow-sm ${selectedTable ? 'bg-primary-50 text-primary-600 font-black' : 'bg-white dark:bg-slate-800'}`}>
+                                {typeof selectedCustomer === 'number' && (
+                                     <div className="relative">
+                                         <input value={voucherCode} onChange={(e) => setVoucherCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ''))} placeholder="Kode voucher (opsional)" maxLength={50} className={`w-full pl-4 pr-10 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase shadow-sm focus:ring-primary-500 ${voucherError ? 'ring-1 ring-rose-400' : ''}`} />
+                                         {voucherLoading && <IconLoader size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary-500" />}
+                                         {!voucherLoading && voucherDiscount > 0 && <IconCheck size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500" />}
+                                         {voucherError && <p className="mt-1 text-[9px] font-bold text-rose-500">{voucherError}</p>}
+                                     </div>
+                                 )}
+                                 <select value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)} className={`w-full pl-4 py-2 border-none rounded-xl text-[10px] font-black uppercase shadow-sm ${selectedTable ? 'bg-primary-50 text-primary-600 font-black' : 'bg-white dark:bg-slate-800'}`}>
                                     <option value="">-- Pilih Tipe Pesanan --</option>
                                     <option value="take_away">Bawa Pulang (Take Away)</option>
                                     {(tables || []).filter(t => t.status === 'available' || t.id == (currentActiveHold?.table_id)).map((t) => <option key={t.id} value={t.id}>Meja: {t.name}</option>)}
@@ -610,6 +779,20 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                     <div className="flex justify-between items-center p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 rounded-xl animate-pulse">
                                         <div className="flex items-center gap-2"><IconTag size={16} className="text-emerald-500" /><span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Diskon Transaksi</span></div>
                                         <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400">-{formatPrice(activeGlobalDiscount.amount)}</span>
+                                    </div>
+                                )}
+
+                                {voucherDiscount > 0 && (
+                                     <div className="flex justify-between items-center p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 rounded-xl">
+                                         <div className="flex items-center gap-2"><IconTicket size={16} className="text-amber-500" /><span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-tighter">Voucher Pelanggan</span></div>
+                                         <span className="text-[10px] font-black text-amber-600 dark:text-amber-400">-{formatPrice(voucherDiscount)}</span>
+                                     </div>
+                                 )}
+
+                                 {taxAmount > 0 && (
+                                    <div className="flex justify-between items-center p-3 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900 rounded-xl">
+                                        <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">Pajak ({taxRate}%)</span>
+                                        <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400">+{formatPrice(taxAmount)}</span>
                                     </div>
                                 )}
 
@@ -697,6 +880,28 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                             <IconArmchair size={14} /><span className="text-[10px] font-black uppercase italic tracking-widest">{h.table?.name || 'TAKE AWAY'}</span>
                                         </div>
                                     </div>
+                                    {h.payment_status === 'paid' ? (
+                                        <div className="-mt-2 mb-3 flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider">
+                                            <span>✅</span> Sudah Lunas
+                                            {h.paid_amount ? ` · Rp ${Number(h.paid_amount).toLocaleString('id-ID')}` : ''}
+                                        </div>
+                                    ) : h.payment_status === 'pending' ? (
+                                        <div className="-mt-2 mb-3 flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider">
+                                            <span>⏳</span> Menunggu Pembayaran QRIS
+                                        </div>
+                                    ) : h.payment_status === 'failed' || h.payment_status === 'expired' ? (
+                                        <div className="-mt-2 mb-3 flex items-center gap-1.5 bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-900 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider">
+                                            <span>⚠️</span> Bayar Sendiri Gagal — Tagih di Kasir
+                                        </div>
+                                    ) : h.requested_payment_method === 'qris_manual' ? (
+                                        <div className="-mt-2 mb-3 flex items-center gap-1.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-900 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider">
+                                            <span>📱</span> Pelanggan Bayar QRIS
+                                        </div>
+                                    ) : h.requested_payment_method === 'midtrans' || h.requested_payment_method === 'xendit' ? (
+                                        <div className="-mt-2 mb-3 flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider">
+                                            <span>⚡</span> Niat Bayar Sendiri — Belum Bayar
+                                        </div>
+                                    ) : null}
                                     <h4 className="font-black dark:text-white uppercase mb-4 text-base line-clamp-1 italic leading-tight group-hover:text-primary-500 transition-colors">{h.customer_name}</h4>
                                     <div className="flex-1 space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-[1.5rem] overflow-y-auto max-h-[180px] custom-scrollbar shadow-inner border dark:border-slate-700/50">
                                         {(h.cart_data || []).map((item, idx) => (
@@ -715,6 +920,21 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                         >
                                             <IconPrinter size={20}/>
                                         </Link>
+
+                                        {/* Struk digital pelanggan. Kasir
+                                            membukanya untuk memeriksa
+                                            pembayaran, atau untuk
+                                            menunjukkannya kalau layar
+                                            pelanggan sedang rusak. */}
+                                        <a
+                                            href={h.receipt_url}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="p-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-2xl hover:bg-primary-50 active:scale-90 transition-all border dark:border-slate-700"
+                                            title="Buka Struk Digital Pelanggan"
+                                        >
+                                            <IconQrcode size={20}/>
+                                        </a>
 
                                         <button type="button" onClick={() => handleResumeHold(h.id)} className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black uppercase text-[11px] shadow-lg active:scale-95 hover:bg-primary-700 transition-all flex items-center justify-center gap-2"><IconCash size={18} /> BAYAR</button>
                                         <button type="button" onClick={() => { 

@@ -9,10 +9,10 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-        public function up()
-{
-    Schema::table('ingredients', function (Blueprint $table) {
-        $table->double('buy_price')->default(0)->after('unit_id');
-    });
-}
+    public function up()
+    {
+        Schema::table('ingredients', function (Blueprint $table) {
+            $table->double('buy_price')->default(0)->after('unit_id');
+        });
+    }
 };

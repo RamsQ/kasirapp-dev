@@ -8,21 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class TransactionDetail extends Model
 {
     use HasFactory;
-    
+
     /**
      * fillable
      *
      * @var array
      */
     protected $fillable = [
-        'transaction_id', 
-        'product_id', 
-        'qty', 
+        'transaction_id',
+        'product_id',
+        'qty',
         'price',
         'buy_price',       // <--- TAMBAHKAN INI AGAR HPP TERSIMPAN
         'unit',            // Kolom teks: Menyimpan "Sachet", "Box", dll.
         'product_unit_id',  // Foreign Key: ID referensi ke tabel product_units
-        'notes'
+        'notes',
     ];
 
     /**
@@ -47,6 +47,7 @@ class TransactionDetail extends Model
 
     /**
      * Relasi ke ProductUnit (Satuan Kustom Konversi)
+     *
      * * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function product_unit()

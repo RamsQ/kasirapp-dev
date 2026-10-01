@@ -196,12 +196,12 @@ export default function Index({ products, search }) {
                                         <td className="px-6 py-4">
                                             <div className="w-12 h-12 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm bg-slate-50 dark:bg-slate-800">
                                                 <img 
-                                                    src={product.image 
-                                                        ? `/storage/products/${product.image}` 
+                                                    src={product.image
+                                                        ? (String(product.image).startsWith('http') ? product.image : `/storage/products/${product.image}`)
                                                         : `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random`} 
                                                     className="w-full h-full object-cover"
                                                     alt={product.title}
-                                                    onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random` }}
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random` }}
                                                 />
                                             </div>
                                         </td>

@@ -4,26 +4,26 @@ namespace App\Exports;
 
 use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithMapping;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-class ProductTemplateExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithColumnFormatting
+class ProductTemplateExport implements FromCollection, ShouldAutoSize, WithColumnFormatting, WithHeadings, WithMapping
 {
     /**
-    * Mengambil data produk jadi
-    * Menambahkan ID ke select untuk fallback jika barcode kosong
-    */
+     * Mengambil data produk jadi
+     * Menambahkan ID ke select untuk fallback jika barcode kosong
+     */
     public function collection()
     {
         return Product::select('id', 'barcode', 'title', 'unit', 'stock', 'buy_price')->get();
     }
 
     /**
-    * Header Excel
-    */
+     * Header Excel
+     */
     public function headings(): array
     {
         return [
@@ -37,13 +37,13 @@ class ProductTemplateExport implements FromCollection, WithHeadings, WithMapping
     }
 
     /**
-    * Mapping data ke kolom Excel
-    * Logika Fallback: Jika barcode kosong, gunakan ID Produk
-    */
+     * Mapping data ke kolom Excel
+     * Logika Fallback: Jika barcode kosong, gunakan ID Produk
+     */
     public function map($product): array
     {
         return [
-            $product->barcode ? $product->barcode : $product->id, 
+            $product->barcode ? $product->barcode : $product->id,
             $product->title,
             $product->unit,
             $product->stock,
@@ -53,9 +53,9 @@ class ProductTemplateExport implements FromCollection, WithHeadings, WithMapping
     }
 
     /**
-    * Memastikan kolom A (Identifier) dibaca sebagai TEXT
-    * Menghindari angka barcode berubah menjadi format scientific (E+12)
-    */
+     * Memastikan kolom A (Identifier) dibaca sebagai TEXT
+     * Menghindari angka barcode berubah menjadi format scientific (E+12)
+     */
     public function columnFormats(): array
     {
         return [

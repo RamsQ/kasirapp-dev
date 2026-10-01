@@ -125,20 +125,35 @@ const ProfitReport = ({
         profit_total: summary?.profit_total ?? 0,
         gross_margin: summary?.gross_margin ?? 0,
         revenue_total: summary?.gross_sales ?? 0,
+        billed_sales: summary?.billed_sales ?? 0,
+        tax_collected: summary?.tax_collected ?? 0,
         platform_fees: summary?.app_expenses ?? 0,
         operating_expense: summary?.operating_expense ?? 0,
         net_revenue: summary?.net_revenue ?? 0,
         total_hpp: summary?.total_hpp ?? 0,
+        gross_profit: summary?.gross_profit ?? 0,
+        stored_profit: summary?.stored_profit ?? 0,
+        profit_variance: summary?.profit_variance ?? 0,
+        net_profit_basis: summary?.net_profit_basis ?? 'period',
         margin_perc: summary?.margin_percentage ?? 0,
     };
 
     const summaryCards = [
         {
-            title: "Laba Bersih Final",
+            title: stats.net_profit_basis === 'period' ? "Laba Bersih Final" : "Laba Kontribusi",
             value: formatCurrency(stats.profit_total),
-            description: "Setelah potong biaya operasional",
+            description: stats.net_profit_basis === 'period'
+                ? "Setelah potong biaya operasional"
+                : "Beban operasional belum dialokasikan",
             icon: <IconCoin />,
             gradient: "from-emerald-500 to-emerald-700",
+        },
+        {
+            title: "Pajak Terkumpul",
+            value: formatCurrency(stats.tax_collected),
+            description: "Kewajiban pasif",
+            icon: <IconPercentage />,
+            gradient: "from-violet-500 to-violet-700",
         },
         {
             title: "Beban Kas Keluar",
@@ -165,7 +180,7 @@ const ProfitReport = ({
 
     return (
         <>
-            <Head title="Laporan Laba Rugi | POS SYSTEM AJA" />
+            <Head title="Laporan Laba Rugi | LakuPOS AJA" />
 
             <div className="space-y-6">
                 {/* Header Section */}
@@ -198,7 +213,7 @@ const ProfitReport = ({
                 </div>
 
                 {/* Summary Statistics Cards */}
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-5">
                     {summaryCards.map((card) => (
                         <SummaryCard key={card.title} {...card} />
                     ))}
@@ -230,8 +245,16 @@ const ProfitReport = ({
                                 <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800"></div>
                             </div>
                             <div className="flex justify-between items-center py-4 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/20 px-2 transition-colors rounded-xl">
-                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Total Penjualan Bruto (Sales)</span>
+                                <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Penjualan Bersih (tanpa pajak)</span>
                                 <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">{formatCurrency(stats.revenue_total)}</span>
+                             </div>
+                             <div className="flex justify-between items-center py-3 px-2 text-sm text-slate-500 dark:text-slate-400">
+                                 <span>Total tagihan pelanggan</span>
+                                 <span className="font-black text-slate-700 dark:text-slate-300">{formatCurrency(stats.billed_sales)}</span>
+                             </div>
+                             <div className="flex justify-between items-center py-3 px-2 text-sm text-violet-600 dark:text-violet-400">
+                                 <span>Pajak terkumpul</span>
+                                 <span className="font-black">{formatCurrency(stats.tax_collected)}</span>
                             </div>
                         </section>
 
@@ -252,6 +275,15 @@ const ProfitReport = ({
                                     </div>
                                     <span className="font-black text-lg">-{formatCurrency(stats.platform_fees)}</span>
                                 </div>
+                                <div className="flex justify-between items-center py-3 px-2 border-b border-slate-100 dark:border-slate-800/50">
+                                    <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Laba Kotor / Kontribusi</span>
+                                    <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(stats.gross_profit - stats.platform_fees)}</span>
+                                </div>
+                                {stats.profit_variance !== 0 && (
+                                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-300 text-[9px] font-black uppercase">
+                                        <IconAlertCircle size={14} /> Selisih data profit legacy: {formatCurrency(stats.profit_variance)}
+                                    </div>
+                                )}
                             </div>
                         </section>
 

@@ -10,10 +10,10 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up()
-{
-    Schema::table('report_settings', function (Blueprint $table) {
-        $table->boolean('is_weekly')->default(false)->after('is_active');
-        $table->boolean('is_monthly')->default(false)->after('is_weekly');
-    });
-}
+    {
+        Schema::table('report_settings', function (Blueprint $table) {
+            $table->boolean('is_weekly')->default(false)->after('is_active');
+            $table->boolean('is_monthly')->default(false)->after('is_weekly');
+        });
+    }
 };

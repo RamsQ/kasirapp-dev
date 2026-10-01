@@ -1,4 +1,5 @@
 import EscPosEncoder from 'esc-pos-encoder';
+import { paymentLabel as sharedPaymentLabel, isSelfPaidGateway } from '@/Utils/PaymentLabels';
 
 // --- KONFIGURASI ---
 const C_WIDTH = 32; 
@@ -106,15 +107,7 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         const details = Array.isArray(transaction.details) ? transaction.details : [];
         const isBill = !!transaction.is_bill; // Deteksi mode draf/bill
 
-        const getPaymentLabel = (method) => {
-            if (isBill) return "BELUM BAYAR";
-            const m = method?.toLowerCase();
-            if (m === 'cash') return "TUNAI";
-            if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
-            if (m === 'qris_manual') return "QRIS STATIS";
-            if (m === 'transfer') return "TRANSFER";
-            return (method || "CASH").toUpperCase();
-        };
+        const getPaymentLabel = (method) => (isBill ? "BELUM BAYAR" : sharedPaymentLabel(method));
 
         const queueNum = transaction.queue_number || "----";
         const orderCode = transaction.reference_code 
@@ -123,7 +116,9 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         
         const grandTotal = parseFloat(transaction.grand_total || 0);
         const totalDiscount = parseFloat(transaction.discount || 0);
-        const subtotalGross = grandTotal + totalDiscount;
+        const taxAmount = parseFloat(transaction.tax_amount || 0);
+        const taxRate = parseFloat(transaction.tax_rate || 0);
+        const subtotalGross = (grandTotal - taxAmount) + totalDiscount;
 
         // HEADER
         result.raw([0x1b, 0x61, 0x01]) // Center
@@ -162,21 +157,38 @@ export const printTransactionBluetooth = async (transaction, receiptSetting) => 
         // TOTALS
         result.line("-".repeat(C_WIDTH));
         
-        if (totalDiscount > 0) {
+        if (totalDiscount > 0 || taxAmount > 0) {
             result.line(formatRow("SUBTOTAL", Math.round(subtotalGross).toLocaleString('id-ID')));
-            result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
+            if (totalDiscount > 0) {
+                result.italic(true).line(formatRow("DISKON TOTAL", "-" + Math.round(totalDiscount).toLocaleString('id-ID'))).italic(false);
+            }
+            if (taxAmount > 0) {
+                result.italic(true).line(formatRow(`PAJAK ${taxRate}%`, Math.round(taxAmount).toLocaleString('id-ID'))).italic(false);
+            }
         }
 
-        result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
+         result.bold(true).line(formatRow("TOTAL AKHIR", `Rp ${Math.round(grandTotal).toLocaleString('id-ID')}`)).bold(false);
         
         // Sembunyikan Bayar & Kembali jika ini Bill Draf
         if (!isBill) {
-            result.line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
-                  .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')));
+            // Pembayaran non-tunai tidak punya kembalian. Order menu QR yang
+            // dibayar pelanggan sendiri punya `cash` = 0, sehingga "KEMBALI 0"
+            // yang dicetak akan membingungkan.
+            const isCash = (transaction.payment_method || '').toLowerCase() === 'cash';
+            if (isCash || parseFloat(transaction.cash || 0) > 0) {
+                result.line(formatRow("BAYAR", Math.round(transaction.cash || grandTotal).toLocaleString('id-ID')))
+                      .line(formatRow("KEMBALI", Math.round((transaction.cash || grandTotal) - grandTotal).toLocaleString('id-ID')));
+            } else {
+                result.line(formatRow("SUDAH DIBAYAR", Math.round(grandTotal).toLocaleString('id-ID')));
+            }
         }
 
         result.line(formatRow("METODE", getPaymentLabel(transaction.payment_method)))
               .line("-".repeat(C_WIDTH));
+
+        if (!isBill && isSelfPaidGateway(transaction)) {
+            result.line(formatRow("PELANGGAN BAYAR", "QRIS"));
+        }
 
         // QRCODE PEMBAYARAN (JIKA ADA & BUKAN BILL)
         if (transaction.payment_url && !isBill) {

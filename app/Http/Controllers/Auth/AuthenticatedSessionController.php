@@ -44,7 +44,7 @@ class AuthenticatedSessionController extends Controller
          * - DAN User sudah punya data wajah (face_data tidak kosong)
          * Jika wajah belum didaftarkan, user masih boleh masuk via password untuk setup awal.
          */
-        if ($userAttempt && $userAttempt->is_face_mandatory && !empty($userAttempt->face_data)) {
+        if ($userAttempt && $userAttempt->is_face_mandatory && ! empty($userAttempt->face_data)) {
             throw ValidationException::withMessages([
                 'email' => 'Pintu Masuk Terkunci: Anda sudah mendaftarkan Face ID. Silakan gunakan tombol Verifikasi Wajah untuk login.',
             ]);
@@ -86,6 +86,6 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect()->route('login');
+        return redirect('/');
     }
 }

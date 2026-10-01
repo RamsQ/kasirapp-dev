@@ -25,12 +25,12 @@ class StockMovement extends Model
     ];
 
     /**
-     * Casting tipe data agar konsisten. 
+     * Casting tipe data agar konsisten.
      * Menggunakan float agar mendukung satuan desimal (contoh: 1.5 liter).
      */
     protected $casts = [
-        'qty'        => 'float',
-        'price'      => 'float',
+        'qty' => 'float',
+        'price' => 'float',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -41,7 +41,7 @@ class StockMovement extends Model
      * Relasi ke model Product.
      * Mengembalikan data produk jika record ini adalah stok barang jadi.
      */
-    public function product() 
+    public function product()
     {
         return $this->belongsTo(Product::class);
     }
@@ -50,7 +50,7 @@ class StockMovement extends Model
      * Relasi ke model Ingredient.
      * Mengembalikan data bahan baku jika record ini adalah stok dapur.
      */
-    public function ingredient() 
+    public function ingredient()
     {
         return $this->belongsTo(Ingredient::class);
     }
@@ -59,7 +59,7 @@ class StockMovement extends Model
      * Relasi ke model User.
      * Mengetahui siapa yang melakukan input stok.
      */
-    public function user() 
+    public function user()
     {
         return $this->belongsTo(User::class);
     }

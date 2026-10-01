@@ -21,10 +21,10 @@ return new class extends Migration
             $table->bigInteger('price');
             $table->timestamps();
 
-            //relationship users
+            // relationship users
             $table->foreign('cashier_id')->references('id')->on('users');
 
-            //relationship products
+            // relationship products
             $table->foreign('product_id')->references('id')->on('products');
         });
     }

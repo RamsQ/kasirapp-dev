@@ -15,21 +15,31 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         channels: __DIR__.'/../routes/channels.php',
-        web: __DIR__ . '/../routes/web.php',
-        api: __DIR__ . '/../routes/api.php', 
-        commands: __DIR__ . '/../routes/console.php',
+        web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        
+
         // 1. [FIXED] Bypass Keamanan CSRF untuk rute krusial
         $middleware->validateCsrfTokens(except: [
             '/face-auth/login',
             '/face-auth/fetch-user',
-            'menu/order', 
-            'api/payment/notification', 
+            'menu/order',
+            'api/payment/notification',
+            'api/payment/xendit/notification',
             'dashboard/transactions/store', // [ADD] Tambahkan ini agar simpan transaksi lancar
             'dashboard/transactions/addToCart', // [ADD] Tambahkan ini juga untuk jaga-jaga
+
+            // Pembayaran mandiri dari menu QR. Dipanggil browser pelanggan
+            // yang tidak punya sesi login, jadi tidak ada token CSRF untuk
+            // dikirim. Risikonya tidak berarti: nominal tagihan diambil dari
+            // server (Hold::total), bukan dari request, jadi tidak ada yang
+            // bisa dimanipulasi. HoldPaymentService juga menolak membuat
+            // tagihan kedua selama QR masih berlaku, jadi endpoint ini tidak
+            // bisa dipakai untuk membuat tagihan berulang.
+            'api/payment/menu/*',
         ]);
 
         // 2. Middleware default untuk Inertia
@@ -40,15 +50,15 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // 3. Alias Spatie
         $middleware->alias([
-            'role'               => RoleMiddleware::class,
-            'permission'         => PermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
             'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
-        
+
         $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        
+
         // --- Handle Error Permission Spatie (403) ---
         $exceptions->render(function (UnauthorizedException $e, Request $request) {
             return Inertia::render('Error', ['status' => 403])

@@ -153,8 +153,16 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <div className="min-h-screen flex bg-white dark:bg-slate-950 transition-colors duration-300 font-sans overflow-hidden">
-            <Head title="Login | POS System Aja" />
+        // `overflow-hidden` pernah ada di sini. Berpasangan dengan
+        // `min-h-screen`, itu membuat halaman login TIDAK bisa digeser sama
+        // sekali: di HP pendek atau keyboard virtual terbuka) bagian bawah
+        // form — tombol masuk, dan terutama tautan "ingat saya" — berada di
+        // luar jangkauan dan tidak ada cara lain untuk mencapainya. Karena
+        // `min-h-screen` (bukan `h-screen`) sudah menjamin konten boleh
+        // lebih panjang dari layar, `overflow-hidden` di sini tidak punya
+        // alasan apa pun.
+        <div className="min-h-screen flex bg-white dark:bg-slate-950 transition-colors duration-300 font-sans">
+            <Head title="Login | LakuPOS Aja" />
             
             {/* SISI KIRI: FORM LOGIN */}
             <div className="flex-1 flex flex-col items-center justify-center p-8 sm:p-16 bg-white dark:bg-slate-900 z-20 relative transition-colors duration-300">
@@ -166,7 +174,7 @@ export default function Login({ status, canResetPassword }) {
                                     <IconShoppingCart size={28} className="text-white" />
                                 </div>
                                 <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
-                                    POS SYSTEM <br/> <span className="text-indigo-600 text-sm tracking-[0.3em]">AJA</span>
+                                    LakuPOS <br/> <span className="text-indigo-600 text-sm tracking-[0.3em]">AJA</span>
                                 </span>
                             </Link>
                         </div>
@@ -251,7 +259,7 @@ export default function Login({ status, canResetPassword }) {
                         </form>
                     )}
                 </div>
-                <div className="absolute bottom-8 text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">© 2026 POS SYSTEM AJA • MANGKUJAGAD TECH</div>
+                <div className="absolute bottom-8 text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">© 2026 LakuPOS AJA • MANGKUJAGAD TECH</div>
             </div>
 
             {/* SISI KANAN: ANIME SCENERY + MODERN ORGANIC CURVE */}
@@ -275,7 +283,7 @@ export default function Login({ status, canResetPassword }) {
                 <div className="relative z-10 w-full max-w-3xl px-24 text-left">
                     <div className="mb-10 inline-flex items-center gap-3 px-6 py-3 bg-white/5 backdrop-blur-2xl rounded-full border border-white/20 shadow-2xl animate-pulse-subtle">
                         <IconSparkles className="text-yellow-400" size={20} />
-                        <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Advanced POS System</span>
+                        <span className="text-[11px] font-black uppercase tracking-[0.4em] text-white">Advanced LakuPOS</span>
                     </div>
 
                     <h2 className="text-8xl font-black uppercase leading-[0.85] tracking-tighter mb-12 italic text-white drop-shadow-[0_15px_40px_rgba(0,0,0,0.6)]">

@@ -21,6 +21,7 @@ class PermissionSeeder extends Seeder
             // --- DASHBOARD & SISTEM ---
             'dashboard.index',
             'dashboard-access',
+            'ai-access',
 
             // --- MANAJEMEN USER & AKSES ---
             'users.index', 'users-access', 'users-create', 'users-update', 'users-delete',
@@ -35,7 +36,7 @@ class PermissionSeeder extends Seeder
 
             // --- OPERASIONAL KASIR, SHIFT & DISKON ---
             'transactions.index', 'transactions-access', 'transactions-create', 'transactions-delete',
-            'transactions.history', 
+            'transactions.history',
             'shifts.index', 'shifts-access',
             'discounts.index', 'discounts-access', 'discounts-create', 'discounts-edit', 'discounts-delete',
 
@@ -46,18 +47,23 @@ class PermissionSeeder extends Seeder
             'stock_opnames.index', 'stock_opnames.create', 'stock_opnames.delete',
 
             // --- LAPORAN & FINANCE ---
-            'reports.index', 'reports-access', 
+            'analytics-access',
+            'reports.index', 'reports-access',
             'reports.sales.index', 'reports.products.index', 'reports.expired.index', 'reports.profits.index', 'reports.refund',
-            'expired-access', 
+            'expired-access',
             'finance-access', 'report.finance',
             'profits-access',
+            'capitals.index',
 
             // --- PENGATURAN SISTEM ---
-            'settings.index', 'settings.update',
+            'settings.index', 'settings.update', 'settings.cgos',
             'online_settings.index',
             'payment-settings-access', 'payment_settings.index', 'payment-settings-update',
+            'payment-settlements-access',
             'receipt_settings.index', 'receipt_settings.update',
             'settings.bluetooth',
+            'kitchen-display.index',
+            'crm-access', 'crm-manage',
         ];
 
         // Looping untuk Insert atau Update data

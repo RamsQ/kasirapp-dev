@@ -4,6 +4,11 @@
 /public/hot
 /public/storage
 /storage/*.key
+# Dump SQL hasil backup database. Berisi seluruh isi tabel -- termasuk
+# payment_settings (midtrans_server_key, xendit_secret) dan hash password
+# pengguna. Tidak boleh masuk riwayat git: file yang sudah ter-commit tidak
+# bisa dihapus bersih, dan token di dalamnya harus dirotasi.
+/storage/backups
 /vendor
 .env
 .env.backup
@@ -18,3 +23,7 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Launcher Windows untuk Task Scheduler. Berisi path absolut mesin ini,
+# jadi tidak berguna di komputer lain dan tidak boleh ikut ter-commit.
+/run-scheduler.bat

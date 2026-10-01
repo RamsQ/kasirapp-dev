@@ -17,7 +17,7 @@ class ReportSettingController extends Controller
         $setting = ReportSetting::first();
 
         return Inertia::render('Dashboard/Reports/Managed', [
-            'setting' => $setting
+            'setting' => $setting,
         ]);
     }
 
@@ -28,12 +28,12 @@ class ReportSettingController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'is_active'  => 'required|boolean',
-            'is_weekly'  => 'required|boolean',
+            'is_active' => 'required|boolean',
+            'is_weekly' => 'required|boolean',
             'is_monthly' => 'required|boolean',
-            'method'     => 'required|in:whatsapp,email',
-            'target'     => 'required',
-            'send_at'    => 'required',
+            'method' => 'required|in:whatsapp,email',
+            'target' => 'required',
+            'send_at' => 'required',
             'wa_api_key' => 'nullable|string',
         ]);
 
@@ -41,12 +41,12 @@ class ReportSettingController extends Controller
         ReportSetting::updateOrCreate(
             ['id' => 1],
             [
-                'is_active'  => $request->is_active,
-                'is_weekly'  => $request->is_weekly,
+                'is_active' => $request->is_active,
+                'is_weekly' => $request->is_weekly,
                 'is_monthly' => $request->is_monthly,
-                'method'     => $request->method,
-                'target'     => $request->target,
-                'send_at'    => $request->send_at,
+                'method' => $request->method,
+                'target' => $request->target,
+                'send_at' => $request->send_at,
                 'wa_api_key' => $request->wa_api_key,
             ]
         );

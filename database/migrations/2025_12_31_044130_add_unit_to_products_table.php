@@ -8,16 +8,16 @@ return new class extends Migration
 {
     public function up(): void
     {
-    Schema::table('products', function (Blueprint $table) {
-        // Kita beri default 'Pcs' agar data produk lama otomatis memiliki satuan
-        $table->string('unit', 20)->default('Pcs')->after('stock');
-    });
+        Schema::table('products', function (Blueprint $table) {
+            // Kita beri default 'Pcs' agar data produk lama otomatis memiliki satuan
+            $table->string('unit', 20)->default('Pcs')->after('stock');
+        });
     }
 
     public function down(): void
     {
-    Schema::table('products', function (Blueprint $table) {
-        $table->dropColumn('unit');
-    });
+        Schema::table('products', function (Blueprint $table) {
+            $table->dropColumn('unit');
+        });
     }
 };

@@ -90,7 +90,7 @@ export default function CustomerHistoryPanel({
 
     if (!data) return null;
 
-    const { stats, recent_transactions, frequent_products } = data;
+    const { stats, recent_transactions, frequent_products, customer } = data;
 
     return (
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden">
@@ -117,6 +117,9 @@ export default function CustomerHistoryPanel({
                 <p className="text-base font-semibold text-slate-900 dark:text-white">
                     {customerName}
                 </p>
+                <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-300">
+                    {customer?.loyalty_tier || 'Bronze'} · {customer?.loyalty_points || 0} poin
+                </p>
             </div>
 
             {/* Stats Grid */}
@@ -137,7 +140,7 @@ export default function CustomerHistoryPanel({
                     <p className="text-sm font-bold text-success-600 dark:text-success-400">
                         {formatPrice(stats.total_spent)}
                     </p>
-                    <p className="text-xs text-slate-500">Total Belanja</p>
+                    <p className="text-xs text-slate-500">Total Belanja (tanpa pajak)</p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 text-center">
                     <div className="flex items-center justify-center mb-1">

@@ -16,11 +16,11 @@ class StockBatch extends Model
      */
     protected $fillable = [
         'product_id',
-        'ingredient_id', 
-        'qty_in',        
-        'qty_remaining', 
-        'buy_price',     
-        'serial_number', 
+        'ingredient_id',
+        'qty_in',
+        'qty_remaining',
+        'buy_price',
+        'serial_number',
     ];
 
     /**
@@ -28,11 +28,11 @@ class StockBatch extends Model
      * Memastikan perhitungan desimal (seperti gram ke kg) tetap presisi.
      */
     protected $casts = [
-        'qty_in'        => 'float',
+        'qty_in' => 'float',
         'qty_remaining' => 'float',
-        'buy_price'     => 'float',
-        'created_at'    => 'datetime',
-        'updated_at'    => 'datetime',
+        'buy_price' => 'float',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // --- RELATIONSHIPS ---
@@ -51,6 +51,11 @@ class StockBatch extends Model
     public function ingredient()
     {
         return $this->belongsTo(Ingredient::class);
+    }
+
+    public function allocations()
+    {
+        return $this->hasMany(StockBatchAllocation::class);
     }
 
     // --- QUERY SCOPES ---

@@ -14,7 +14,7 @@ class PermissionController extends Controller
     public function index()
     {
         $permissions = Permission::query()
-            ->when(request()->search, fn($query) => $query->where('name', 'like', '%' . request()->search . '%'))
+            ->when(request()->search, fn ($query) => $query->where('name', 'like', '%'.request()->search.'%'))
             ->select('id', 'name')
             ->latest()
             ->paginate(7)
@@ -22,7 +22,7 @@ class PermissionController extends Controller
 
         // render view
         return Inertia::render('Dashboard/Permissions/Index', [
-            'permissions' => $permissions
+            'permissions' => $permissions,
         ]);
     }
 

@@ -28,8 +28,8 @@ class RoleRequest extends FormRequest
 
         return [
             // Nama wajib diisi & harus unik di tabel roles, kecuali untuk ID ini sendiri
-            'name' => 'required|unique:roles,name,' . $id,
-            
+            'name' => 'required|unique:roles,name,'.$id,
+
             // Permissions bersifat opsional tapi jika ada harus berupa array
             'permissions' => 'nullable|array',
         ];

@@ -60,7 +60,11 @@ return [
                 'useTLS' => env('PUSHER_SCHEME', 'https') === 'https',
             ],
             'client_options' => [
-                // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html
+                // Notifikasi antrean hanya pelengkap, bukan data kritis.
+                // Tanpa batas ini, DNS Pusher yang gagal membuat setiap order
+                // QR menunggu 10 detik (curl error 28) lalu tetap diproses.
+                'timeout' => (float) env('PUSHER_TIMEOUT', 3),
+                'connect_timeout' => (float) env('PUSHER_TIMEOUT', 3),
             ],
         ],
 

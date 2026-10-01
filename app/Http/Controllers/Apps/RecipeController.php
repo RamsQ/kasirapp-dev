@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Apps;
 
+use App\Exports\RecipeTemplateExport;
 use App\Http\Controllers\Controller;
-use App\Models\Product;
+use App\Imports\RecipeImport;
 use App\Models\Ingredient;
+use App\Models\Product;
 use App\Models\Recipe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
-use App\Exports\RecipeTemplateExport; 
-use App\Imports\RecipeImport;         
 use Maatwebsite\Excel\Facades\Excel;
 
 class RecipeController extends Controller
@@ -24,7 +24,7 @@ class RecipeController extends Controller
             ->has('recipes')
             ->with(['recipes.ingredient'])
             ->when($request->search, function ($query, $search) {
-                $query->where('title', 'like', '%' . $search . '%');
+                $query->where('title', 'like', '%'.$search.'%');
             })
             // Pastikan sell_price diambil untuk perhitungan di Frontend
             ->select('id', 'title', 'type', 'sell_price', 'cost_price')
@@ -42,15 +42,15 @@ class RecipeController extends Controller
         $stats = [
             'total_menu' => Product::has('recipes')->count(),
             'avg_hpp' => Product::has('recipes')->avg('cost_price') ?? 0,
-            'total_ingredients' => $ingredients->count()
+            'total_ingredients' => $ingredients->count(),
         ];
-        
+
         return Inertia::render('Dashboard/Recipes/Index', [
-            'products'    => $products,    
-            'allProducts' => $allProducts, 
+            'products' => $products,
+            'allProducts' => $allProducts,
             'ingredients' => $ingredients,
-            'stats'       => $stats,
-            'filters'     => $request->all(['search'])
+            'stats' => $stats,
+            'filters' => $request->all(['search']),
         ]);
     }
 
@@ -64,7 +64,30 @@ class RecipeController extends Controller
             'ingredients' => 'required|array|min:1',
             'ingredients.*.ingredient_id' => 'required|exists:ingredients,id',
             'ingredients.*.qty_needed' => 'required|numeric|min:0.00001',
+            // Konfirmasi eksplisit untuk menu yang memang dijual di bawah
+            // harga beli. Tanpa ini, salah satuan yang membuat HPP melebihi
+            // harga jual akan ditolak tanpa jalan keluar.
+            'confirm_loss_leader' => 'nullable|boolean',
         ]);
+
+        $product = Product::with('recipes.ingredient')->findOrFail($request->product_id);
+        $estimatedHpp = $this->estimateHpp($request->ingredients);
+        $sellPrice = (float) $product->sell_price;
+
+        // HPP di atas harga jual hampir selalu salah satuan: qty 1 Kg untuk
+        // bahan yang dihitung per gram membuat HPP naik 1.000 kali. Menu
+        // rugi disengaja tetap bisa disimpan, tapi harus dikonfirmasi.
+        if ($sellPrice > 0 && $estimatedHpp > $sellPrice && ! $request->boolean('confirm_loss_leader')) {
+            $ratio = round(($estimatedHpp / $sellPrice) * 100);
+
+            return back()
+                ->withInput()
+                ->with('error', 'HPP resep Rp '.number_format($estimatedHpp, 0, ',', '.')
+                    .' lebih besar dari harga jual Rp '.number_format($sellPrice, 0, ',', '.').' ('.$ratio.'%). '
+                    .'Biasanya ini karena satuan takaran salah: qty harus memakai satuan bahan '
+                    .'(contoh "gram", bukan "Kg"). Kalau memang mau dijual di bawah harga beli, '
+                    .'kirim ulang dengan confirm_loss_leader=1.');
+        }
 
         try {
             DB::transaction(function () use ($request) {
@@ -72,10 +95,15 @@ class RecipeController extends Controller
                 Recipe::where('product_id', $product->id)->delete();
 
                 foreach ($request->ingredients as $item) {
+                    $ingredient = Ingredient::find($item['ingredient_id']);
+
                     Recipe::create([
-                        'product_id'    => $product->id,
+                        'product_id' => $product->id,
                         'ingredient_id' => $item['ingredient_id'],
-                        'qty_needed'    => $item['qty_needed'],
+                        'qty_needed' => $item['qty_needed'],
+                        // Satuan bahan disalin saat resep disimpan supaya satuan
+                        // yang dipakai eksplisit dan bisa ditinjau ulang.
+                        'unit' => $ingredient?->unit,
                     ]);
                 }
 
@@ -84,8 +112,24 @@ class RecipeController extends Controller
 
             return back()->with('success', 'Struktur resep berhasil diperbarui!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: '.$e->getMessage());
         }
+    }
+
+    /**
+     * @param  array<int, array{ingredient_id:int|string, qty_needed:float|int|string}>  $ingredients
+     */
+    private function estimateHpp(array $ingredients): float
+    {
+        $prices = Ingredient::whereIn('id', collect($ingredients)->pluck('ingredient_id'))
+            ->pluck('buy_price', 'id');
+
+        $total = 0.0;
+        foreach ($ingredients as $item) {
+            $total += (float) $item['qty_needed'] * (float) ($prices[$item['ingredient_id']] ?? 0);
+        }
+
+        return $total;
     }
 
     public function destroy(Request $request, $id)
@@ -95,18 +139,19 @@ class RecipeController extends Controller
                 if ($request->type == 'massal') {
                     Recipe::where('product_id', $id)->delete();
                     Product::where('id', $id)->update(['cost_price' => 0]);
-                    $this->msg = "Daftar resep berhasil dikosongkan.";
+                    $this->msg = 'Daftar resep berhasil dikosongkan.';
                 } else {
                     $recipe = Recipe::findOrFail($id);
                     $productId = $recipe->product_id;
                     $recipe->delete();
                     $this->calculateProductHpp($productId);
-                    $this->msg = "Bahan baku berhasil dihapus.";
+                    $this->msg = 'Bahan baku berhasil dihapus.';
                 }
             });
+
             return back()->with('success', $this->msg);
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: '.$e->getMessage());
         }
     }
 
@@ -114,9 +159,10 @@ class RecipeController extends Controller
     {
         try {
             $this->syncAllHpp();
+
             return back()->with('success', 'Sinkronisasi modal selesai!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: '.$e->getMessage());
         }
     }
 
@@ -131,9 +177,10 @@ class RecipeController extends Controller
         try {
             Excel::import(new RecipeImport, $request->file('file'));
             $this->syncAllHpp();
+
             return back()->with('success', 'Import resep selesai!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal: ' . $e->getMessage());
+            return back()->with('error', 'Gagal: '.$e->getMessage());
         }
     }
 
@@ -142,7 +189,7 @@ class RecipeController extends Controller
         $product = Product::with('recipes.ingredient')->find($productId);
         if ($product) {
             $totalHpp = $product->recipes->sum(function ($recipe) {
-                return (float)$recipe->qty_needed * (float)($recipe->ingredient->buy_price ?? 0);
+                return (float) $recipe->qty_needed * (float) ($recipe->ingredient->buy_price ?? 0);
             });
             $product->update(['cost_price' => $totalHpp]);
         }
@@ -153,7 +200,7 @@ class RecipeController extends Controller
         $products = Product::has('recipes')->with('recipes.ingredient')->get();
         foreach ($products as $product) {
             $totalHpp = $product->recipes->sum(function ($recipe) {
-                return (float)$recipe->qty_needed * (float)($recipe->ingredient->buy_price ?? 0);
+                return (float) $recipe->qty_needed * (float) ($recipe->ingredient->buy_price ?? 0);
             });
             $product->update(['cost_price' => $totalHpp]);
         }

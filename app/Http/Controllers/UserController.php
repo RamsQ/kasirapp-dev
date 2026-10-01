@@ -2,13 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Requests\UserRequest;
+use App\Models\User;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Role;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -19,9 +16,9 @@ class UserController extends Controller
     {
         $users = User::query()
             ->with('roles')
-            ->when(request()->search, function($query) {
-                $query->where('name', 'like', '%' . request()->search . '%')
-                      ->orWhere('email', 'like', '%' . request()->search . '%');
+            ->when(request()->search, function ($query) {
+                $query->where('name', 'like', '%'.request()->search.'%')
+                    ->orWhere('email', 'like', '%'.request()->search.'%');
             })
             // DISESUAIKAN: Mengganti 'avatar' menjadi 'image' agar sinkron dengan Model & ProfileController
             ->select('id', 'name', 'image', 'email', 'face_data', 'is_face_mandatory', 'created_at')
@@ -39,13 +36,14 @@ class UserController extends Controller
      */
     public function create()
     {
-        if (!auth()->user()->can('users.create')) {
+        if (! auth()->user()->can('users.create')) {
             abort(403, 'Anda tidak memiliki izin untuk menambah pengguna.');
         }
 
         $roles = Role::query()->select('id', 'name')->orderBy('name')->get();
+
         return Inertia::render('Dashboard/Users/Create', [
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -54,14 +52,14 @@ class UserController extends Controller
      */
     public function store(UserRequest $request)
     {
-        if (!auth()->user()->can('users.create')) {
+        if (! auth()->user()->can('users.create')) {
             return back()->withErrors(['error' => 'Akses ditolak.']);
         }
 
         $user = User::create([
-            'name'              => $request->name,
-            'email'             => $request->email,
-            'password'          => bcrypt($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
             // Owner mengatur apakah user wajib menggunakan Face ID
             'is_face_mandatory' => $request->is_face_mandatory ?? false,
         ]);
@@ -76,7 +74,7 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        if (!auth()->user()->can('users.edit')) {
+        if (! auth()->user()->can('users.edit')) {
             abort(403, 'Anda tidak memiliki izin untuk mengedit pengguna.');
         }
 
@@ -84,8 +82,8 @@ class UserController extends Controller
         $user->load(['roles']);
 
         return Inertia::render('Dashboard/Users/Edit', [
-            'roles' => $roles, 
-            'user'  => $user
+            'roles' => $roles,
+            'user' => $user,
         ]);
     }
 
@@ -94,19 +92,19 @@ class UserController extends Controller
      */
     public function update(UserRequest $request, User $user)
     {
-        if (!auth()->user()->can('users.edit')) {
+        if (! auth()->user()->can('users.edit')) {
             return back()->withErrors(['error' => 'Akses ditolak.']);
         }
 
         $data = [
-            'name'              => $request->name, 
-            'email'             => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             // Update status mandatory Face ID dari Owner
             'is_face_mandatory' => $request->is_face_mandatory ?? false,
         ];
-        
-        if ($request->password) { 
-            $data['password'] = bcrypt($request->password); 
+
+        if ($request->password) {
+            $data['password'] = bcrypt($request->password);
         }
 
         $user->update($data);
@@ -120,12 +118,12 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        if (!auth()->user()->can('users.delete')) {
+        if (! auth()->user()->can('users.delete')) {
             return back()->withErrors(['error' => 'Anda tidak memiliki izin untuk menghapus akun!']);
         }
 
         $ids = explode(',', $id);
-        
+
         if (in_array(auth()->id(), $ids)) {
             return back()->withErrors(['error' => 'Tindakan ditolak! Anda tidak bisa menghapus akun Anda sendiri.']);
         }

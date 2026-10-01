@@ -21,7 +21,24 @@
         <env name="APP_ENV" value="testing"/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
+        <!--
+            Test TIDAK BOLEH menyentuh jaringan. OrderPlaced/OrderDeleted adalah
+            ShouldBroadcast dengan QUEUE_CONNECTION=sync, jadi tanpa override
+            ini setiap pesanan QR mencoba koneksi Pusher sungguhan. Di mesin
+            tanpa internet itu menggantung ~10 detik lalu order balas 500, dan
+            seluruh suite jadi flaky.
+        -->
+        <env name="BROADCAST_CONNECTION" value="null"/>
         <env name="CACHE_STORE" value="array"/>
+        <!--
+            Broker Kafka sengaja dikosongkan di test. Producer rdkafka mencoba
+            10x flush 1000ms ke IP jaringan internal, jadi setiap transaksi
+            menunggu ~11 detik dan log terisi "brokers are down". Dengan broker
+            kosong, SendTransactionToKafka langsung skip tanpa jaringan.
+            Hanya berlaku di test; .env produksi dan config/kafka.php tidak
+            disentuh.
+        -->
+        <env name="KAFKA_BROKERS" value=""/>
         <env name="DB_CONNECTION" value="sqlite"/>
         <env name="DB_DATABASE" value=":memory:"/>
         <env name="MAIL_MAILER" value="array"/>

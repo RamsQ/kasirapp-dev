@@ -21,15 +21,15 @@ return new class extends Migration
             $table->string('barcode')->nullable();
             $table->string('title');
             $table->text('description')->nullable();
-            
+
             $table->bigInteger('buy_price');
             $table->bigInteger('sell_price');
             $table->integer('stock');
             // Pastikan kolom expired_date ada jika Anda pakai fitur expired
-            $table->date('expired_date')->nullable(); 
+            $table->date('expired_date')->nullable();
             $table->timestamps();
 
-            //relationship categories
+            // relationship categories
             $table->foreign('category_id')->references('id')->on('categories');
         });
     }

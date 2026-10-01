@@ -17,7 +17,12 @@ export default function Edit({ customer }) {
         id: customer.id,
         name: customer.name,
         no_telp: customer.no_telp,
+        email: customer.email || "",
         address: customer.address,
+        birthday: customer.birthday || "",
+        loyalty_enabled: customer.loyalty_enabled !== false,
+        marketing_opt_in: !!customer.marketing_opt_in,
+        notes: customer.notes || "",
         _method: "PUT",
     });
 
@@ -73,6 +78,14 @@ export default function Edit({ customer }) {
                                     }
                                     value={data.no_telp}
                                 />
+                                <Input
+                                    type="email"
+                                    label="Email (opsional)"
+                                    placeholder="nama@email.com"
+                                    errors={errors.email}
+                                    onChange={(e) => setData("email", e.target.value)}
+                                    value={data.email}
+                                />
                             </div>
                             <Textarea
                                 label="Alamat"
@@ -84,6 +97,18 @@ export default function Edit({ customer }) {
                                 value={data.address}
                                 rows={3}
                             />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input type="date" label="Tanggal Lahir" errors={errors.birthday} onChange={(e) => setData("birthday", e.target.value)} value={data.birthday} />
+                                <label className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3 mt-5">
+                                    <input type="checkbox" checked={data.loyalty_enabled} onChange={(e) => setData("loyalty_enabled", e.target.checked)} />
+                                    <span className="text-sm font-semibold">Aktifkan Loyalty</span>
+                                </label>
+                                <label className="flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-3">
+                                    <input type="checkbox" checked={data.marketing_opt_in} onChange={(e) => setData("marketing_opt_in", e.target.checked)} />
+                                    <span className="text-sm font-semibold">Izinkan promo/marketing</span>
+                                </label>
+                            </div>
+                            <Textarea label="Catatan CRM" placeholder="Preferensi atau catatan internal" errors={errors.notes} onChange={(e) => setData("notes", e.target.value)} value={data.notes} rows={2} />
                         </div>
 
                         <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">

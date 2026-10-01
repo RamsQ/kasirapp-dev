@@ -11,8 +11,14 @@ import Swal from "sweetalert2";
 
 const SettingIndex = ({ auth, settings, canManageCgos }) => {
     // Form handling menggunakan Inertia useForm
-    const { data, setData, post, processing } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         cogs_method: settings?.cogs_method || 'AVERAGE',
+        tax_enabled: settings?.tax_enabled === true || settings?.tax_enabled === 1 || settings?.tax_enabled === '1',
+        tax_rate: settings?.tax_rate ?? '',
+        loyalty_enabled: settings?.loyalty_enabled === true || settings?.loyalty_enabled === 1 || settings?.loyalty_enabled === '1',
+        loyalty_points_per_100: settings?.loyalty_points_per_100 ?? 1,
+        kitchen_display_enabled: settings?.kitchen_display_enabled === true || settings?.kitchen_display_enabled === 1 || settings?.kitchen_display_enabled === '1',
+        kitchen_display_payment_status: settings?.kitchen_display_payment_status || 'both',
     });
 
     const submit = (e) => {
@@ -22,7 +28,7 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
             onSuccess: () => {
                 Swal.fire({
                     title: 'Berhasil!',
-                    text: 'Metode perhitungan HPP telah diperbarui.',
+                    text: 'Metode HPP, pajak, loyalty, dan Kitchen Display telah diperbarui.',
                     icon: 'success',
                     showConfirmButton: false,
                     timer: 1500,
@@ -149,6 +155,114 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
                                     ))}
                                 </div>
 
+                                <div className="mt-8 p-6 bg-indigo-50 dark:bg-indigo-950/20 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/30">
+                                    <div className="flex items-start justify-between gap-6">
+                                        <div>
+                                            <h3 className="font-black text-sm uppercase tracking-wider text-indigo-900 dark:text-indigo-200">Pajak Transaksi</h3>
+                                            <p className="mt-1 text-[10px] font-bold text-indigo-700 dark:text-indigo-300 leading-relaxed">
+                                                Opsional. Jika aktif, pajak dihitung setelah diskon dan ditambahkan ke total pembayaran. Pajak dicatat terpisah dan tidak otomatis dianggap sebagai beban.
+                                            </p>
+                                        </div>
+                                        <label className="inline-flex items-center cursor-pointer shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.tax_enabled}
+                                                onChange={(e) => setData('tax_enabled', e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <span className="w-12 h-6 rounded-full bg-slate-300 dark:bg-slate-700 peer-checked:bg-indigo-600 relative transition-all after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></span>
+                                        </label>
+                                    </div>
+
+                                    {data.tax_enabled && (
+                                        <div className="mt-5">
+                                            <label htmlFor="tax_rate" className="block text-xs font-black text-slate-700 dark:text-slate-200 mb-2">
+                                                Persentase pajak (%)
+                                            </label>
+                                            <input
+                                                id="tax_rate"
+                                                type="number"
+                                                min="0.01"
+                                                max="100"
+                                                step="0.01"
+                                                value={data.tax_rate}
+                                                onChange={(e) => setData('tax_rate', e.target.value)}
+                                                placeholder="Contoh: 11"
+                                                className="w-full max-w-xs h-11 px-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+                                            />
+                                            {errors.tax_rate && (
+                                                <p className="mt-2 text-[10px] font-bold text-rose-500">{errors.tax_rate}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-8 p-6 bg-emerald-50 dark:bg-emerald-950/20 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/30">
+                                    <div className="flex items-start justify-between gap-6">
+                                        <div>
+                                            <h3 className="font-black text-sm uppercase tracking-wider text-emerald-900 dark:text-emerald-200">Loyalty & CRM</h3>
+                                            <p className="mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 leading-relaxed">
+                                                Berikan poin dari omzet bersih pelanggan yang sudah lunas. Poin tidak memengaruhi perhitungan laba rugi.
+                                            </p>
+                                        </div>
+                                        <label className="inline-flex items-center cursor-pointer shrink-0">
+                                            <input type="checkbox" checked={data.loyalty_enabled} onChange={(e) => setData('loyalty_enabled', e.target.checked)} className="sr-only peer" />
+                                            <span className="w-12 h-6 rounded-full bg-slate-300 dark:bg-slate-700 peer-checked:bg-emerald-600 relative transition-all after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></span>
+                                        </label>
+                                    </div>
+                                    {data.loyalty_enabled && (
+                                        <div className="mt-5 max-w-xs">
+                                            <label htmlFor="loyalty_points_per_100" className="block text-xs font-black text-slate-700 dark:text-slate-200 mb-2">Poin per Rp100 omzet bersih</label>
+                                            <input id="loyalty_points_per_100" type="number" min="0" max="10000" value={data.loyalty_points_per_100} onChange={(e) => setData('loyalty_points_per_100', e.target.value)} className="w-full h-11 px-4 rounded-xl border border-emerald-200 dark:border-emerald-900 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-emerald-500/20" />
+                                            {errors.loyalty_points_per_100 && <p className="mt-2 text-[10px] font-bold text-rose-500">{errors.loyalty_points_per_100}</p>}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-8 p-6 bg-orange-50 dark:bg-orange-950/20 rounded-[2rem] border border-orange-100 dark:border-orange-900/30">
+                                    <div className="flex items-start justify-between gap-6">
+                                        <div>
+                                            <h3 className="font-black text-sm uppercase tracking-wider text-orange-900 dark:text-orange-200">Kitchen Display</h3>
+                                            <p className="mt-1 text-[10px] font-bold text-orange-700 dark:text-orange-300 leading-relaxed">
+                                                Tampilkan pesanan aktif di layar dapur. Kitchen Display akan memperbarui otomatis setiap beberapa detik.
+                                            </p>
+                                        </div>
+                                        <label className="inline-flex items-center cursor-pointer shrink-0">
+                                            <input
+                                                type="checkbox"
+                                                checked={data.kitchen_display_enabled}
+                                                onChange={(e) => setData('kitchen_display_enabled', e.target.checked)}
+                                                className="sr-only peer"
+                                            />
+                                            <span className="w-12 h-6 rounded-full bg-slate-300 dark:bg-slate-700 peer-checked:bg-orange-600 relative transition-all after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-6"></span>
+                                        </label>
+                                    </div>
+
+                                    {data.kitchen_display_enabled && (
+                                        <div className="mt-5">
+                                            <label htmlFor="kitchen_display_payment_status" className="block text-xs font-black text-slate-700 dark:text-slate-200 mb-2">
+                                                Status pembayaran yang ditampilkan
+                                            </label>
+                                            <select
+                                                id="kitchen_display_payment_status"
+                                                value={data.kitchen_display_payment_status}
+                                                onChange={(e) => setData('kitchen_display_payment_status', e.target.value)}
+                                                className="w-full max-w-sm h-11 px-4 rounded-xl border border-orange-200 dark:border-orange-900 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500"
+                                            >
+                                                <option value="unpaid">Belum dibayar</option>
+                                                <option value="paid">Sudah dibayar</option>
+                                                <option value="both">Semua status</option>
+                                            </select>
+                                            <p className="mt-2 text-[10px] font-bold text-orange-700 dark:text-orange-300">
+                                                Pesanan publik tetap berstatus belum dibayar sampai checkout kasir.
+                                            </p>
+                                            {errors.kitchen_display_payment_status && (
+                                                <p className="mt-2 text-[10px] font-bold text-rose-500">{errors.kitchen_display_payment_status}</p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-[2rem] flex gap-4 border border-amber-100 dark:border-amber-900/20">
                                     <IconInfoCircle className="text-amber-600 shrink-0" size={24} />
                                     <div className="space-y-1">
@@ -179,7 +293,7 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
                         </div>
                         <h4 className="text-xl font-black uppercase italic text-slate-400 tracking-tighter">System Core Restricted</h4>
                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-4 max-w-sm leading-relaxed">
-                            Pengaturan tingkat lanjut (CGOS) sedang dikunci. Silakan hubungi Super Admin untuk mendapatkan akses izin <span className="text-rose-500">settings.cgos</span>.
+                            Pengaturan tingkat lanjut (CGOS) sedang dikunci. Silakan hubungi Super Admin untuk mendapatkan akses izin settings sistem.
                         </p>
                     </div>
                 )}

@@ -2,22 +2,23 @@
 
 namespace App\Exports;
 
-use App\Models\Product;
 use App\Models\Ingredient;
+use App\Models\Product;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Events\AfterSheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, ShouldAutoSize, WithStyles, WithEvents
+class RecipeTemplateExport implements FromCollection, ShouldAutoSize, WithEvents, WithHeadings, WithStyles, WithTitle
 {
     protected $products;
+
     protected $ingredients;
 
     public function __construct()
@@ -27,8 +28,16 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
             ->orderBy('title', 'asc')
             ->get(['barcode', 'title']);
 
-        // Ambil semua nama bahan baku
-        $this->ingredients = Ingredient::orderBy('name', 'asc')->pluck('name')->toArray();
+        // Ambil semua nama bahan baku BESERTA satuannya. Satuan ikut dibawa
+        // karena HPP = qty_needed x buy_price, dan buy_price adalah harga per
+        // satuan. Tanpa kolom ini, 100 resep bisa diimpor tanpa sandaran satuan.
+        $this->ingredients = Ingredient::orderBy('name', 'asc')
+            ->get(['name', 'unit'])
+            ->map(fn ($ingredient) => [
+                'name' => (string) $ingredient->name,
+                'unit' => (string) ($ingredient->unit ?? ''),
+            ])
+            ->all();
     }
 
     /**
@@ -38,8 +47,9 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
     {
         $data = [];
         for ($i = 0; $i < 100; $i++) {
-            $data[] = ['', '', '', ''];
+            $data[] = ['', '', '', '', ''];
         }
+
         return collect($data);
     }
 
@@ -49,7 +59,8 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
             '1. PILIH PRODUK (KLIK PANAH)',
             '2. BARCODE (OTOMATIS)',
             '3. PILIH BAHAN (KLIK PANAH)',
-            '4. QTY'
+            '4. QTY',
+            '5. SATUAN (OTOMATIS)',
         ];
     }
 
@@ -74,9 +85,9 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $spreadsheet = $event->sheet->getDelegate()->getParent();
-                
+
                 // --- 1. BUAT SHEET REFERENSI (DataRef) ---
                 $refSheet = $spreadsheet->createSheet();
                 $refSheet->setTitle('DataRef');
@@ -86,13 +97,14 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
                 foreach ($this->products as $index => $p) {
                     $row = $index + 1;
                     $refSheet->setCellValue("A{$row}", trim($p->title));
-                    $refSheet->setCellValue("B{$row}", (string)$p->barcode);
+                    $refSheet->setCellValue("B{$row}", (string) $p->barcode);
                 }
 
-                // Isi Data Bahan Baku (C=Nama Bahan)
-                foreach ($this->ingredients as $index => $name) {
+                // Isi Data Bahan Baku (C=Nama Bahan, D=Satuan)
+                foreach ($this->ingredients as $index => $ingredient) {
                     $row = $index + 1;
-                    $refSheet->setCellValue("C{$row}", trim($name));
+                    $refSheet->setCellValue("C{$row}", trim($ingredient['name']));
+                    $refSheet->setCellValue("D{$row}", $ingredient['unit']);
                 }
 
                 $mainSheet = $event->sheet->getDelegate();
@@ -101,12 +113,12 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
 
                 // --- 2. TERAPKAN DROPDOWN & RUMUS ---
                 for ($i = 2; $i <= 101; $i++) {
-                    
+
                     // Dropdown Produk (Kolom A)
                     if ($prodCount > 0) {
                         $valProd = $mainSheet->getCell("A{$i}")->getDataValidation();
                         $valProd->setType(DataValidation::TYPE_LIST);
-                        $valProd->setFormula1('DataRef!$A$1:$A$' . $prodCount);
+                        $valProd->setFormula1('DataRef!$A$1:$A$'.$prodCount);
                         $valProd->setShowDropDown(true);
 
                         // Rumus VLOOKUP Barcode (Kolom B)
@@ -117,14 +129,20 @@ class RecipeTemplateExport implements FromCollection, WithHeadings, WithTitle, S
                     if ($ingCount > 0) {
                         $valIng = $mainSheet->getCell("C{$i}")->getDataValidation();
                         $valIng->setType(DataValidation::TYPE_LIST);
-                        $valIng->setFormula1('DataRef!$C$1:$C$' . $ingCount);
+                        $valIng->setFormula1('DataRef!$C$1:$C$'.$ingCount);
                         $valIng->setShowDropDown(true);
                         $valIng->setShowErrorMessage(true);
                         $valIng->setErrorStyle(DataValidation::STYLE_STOP);
                         $valIng->setErrorTitle('Input Salah');
-                        
+
                         // PERBAIKAN: Menggunakan setError() bukan setErrorMessage()
                         $valIng->setError('Bahan tidak terdaftar dalam sistem!');
+                    }
+
+                    // Kolom satuan otomatis (VLOOKUP). Qty pada kolom D
+                    // harus memakai satuan yang sama dengan satuan bahan.
+                    if ($ingCount > 0) {
+                        $mainSheet->setCellValue("D{$i}", "=IF(C{$i}=\"\",\"\",VLOOKUP(C{$i},DataRef!\$C\$1:\$D\${$ingCount},2,FALSE))");
                     }
                 }
             },

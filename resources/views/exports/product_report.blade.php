@@ -30,7 +30,7 @@
                 <th width="15%">Kategori</th>
                 <th width="10%">Stok</th>
                 <th width="10%">Terjual</th>
-                <th width="15%">Total Omzet</th>
+                <th width="15%">Omzet Line (Belum Diskon Global)</th>
             </tr>
         </thead>
         <tbody>

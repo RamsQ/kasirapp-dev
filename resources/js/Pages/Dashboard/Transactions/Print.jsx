@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react";
 import { printUsbRaw } from "@/Utils/UsbRawPrinter"; 
 import { smartPrint } from "@/Utils/BluetoothHybridService"; 
+import { paymentLabel, isSelfPaidGateway } from "@/Utils/PaymentLabels";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 
@@ -19,15 +20,10 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
     const details = Array.isArray(transaction.details) ? transaction.details : [];
 
     // --- HELPER LABEL METODE PEMBAYARAN ---
-    const getPaymentLabel = (method) => {
-        if (isBill) return "BELUM BAYAR";
-        const m = method?.toLowerCase();
-        if (m === 'cash') return "TUNAI";
-        if (m === 'midtrans' || m === 'xendit') return "QRIS AUTO";
-        if (m === 'qris_manual') return "QRIS STATIS"; 
-        if (m === 'transfer') return "TRANSFER";
-        return (method || "CASH").toUpperCase();
-    };
+    // Satu sumber kebenaran ada di Utils/PaymentLabels supaya struk A4, struk
+    // thermal, draf bill, dan riwayat tidak lagi menampilkan nama berbeda
+    // untuk pembayaran yang sama.
+    const getPaymentLabel = (method) => (isBill ? "BELUM BAYAR" : paymentLabel(method));
 
     // --- LOGIKA PENGAMBILAN KODE ORDER ---
     const getOrderCode = () => {
@@ -76,7 +72,12 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
     
     // 3. Total Semua Diskon
     const totalSaved = itemDiscounts + globalDiscount;
-    const subtotalGross = grandTotal + totalSaved;
+    const taxAmount = parseFloat(transaction.tax_amount || 0);
+     const taxRate = parseFloat(transaction.tax_rate || 0);
+     const netTotal = transaction.taxable_amount !== null && transaction.taxable_amount !== undefined
+         ? parseFloat(transaction.taxable_amount)
+         : Math.max(0, grandTotal - taxAmount);
+     const subtotalGross = netTotal + totalSaved;
 
     const cashReceived = parseFloat(transaction.cash || grandTotal);
     const changeAmount = cashReceived - grandTotal;
@@ -113,6 +114,9 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
             message += `\nDiskon   : -${formatPrice(totalSaved)}`;
         }
 
+        if (taxAmount > 0) {
+            message += `\nPajak (${taxRate}%) : Rp ${formatPrice(taxAmount)}`;
+        }
         message += `\n*TOTAL : Rp ${formatPrice(grandTotal)}*\n`;
         if (!isBill) message += `🔗 *Link Struk:* \n${validationLink}`;
         window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
@@ -164,6 +168,15 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                                         {isBill ? "DRAF PESANAN" : getPaymentLabel(transaction.payment_method)}
                                     </span>
                                 </div>
+                                {/* Penanda bahwa pelanggan sudah bayar sendiri lewat
+                                    QRIS sebelum pesanan sampai ke kasir. Tanpa ini,
+                                    kasir bisa saja meminta bayaran kedua. */}
+                                {!isBill && isSelfPaidGateway(transaction) && (
+                                    <div className="flex justify-between text-xs font-bold border-b border-slate-700/30 pb-2 mb-2 bg-emerald-500/10 -mx-4 px-4 py-1.5">
+                                        <span className="text-emerald-300 uppercase">Pembayaran</span>
+                                        <span className="text-emerald-400 font-black">LUNAS VIA QRIS</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between text-xs">
                                     <span className="text-slate-500">Order ID</span>
                                     <span className="text-orange-400 font-mono font-bold">#{displayOrder}</span>
@@ -240,17 +253,24 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
 
                         <div className="my-1 opacity-30">{"-".repeat(C_WIDTH)}</div>
                         
-                        {totalSaved > 0 && (
+                        {(totalSaved > 0 || taxAmount > 0) && (
                             <>
                                 {formatRow("SUBTOTAL", formatPrice(subtotalGross))}
                                 {"\n"}
-                                <div className="font-black italic">
-                                    {formatRow("DISKON TOTAL", "-" + formatPrice(totalSaved))}
-                                </div>
+                                {totalSaved > 0 && (
+                                    <div className="font-black italic">
+                                        {formatRow("DISKON TOTAL", "-" + formatPrice(totalSaved))}
+                                    </div>
+                                )}
                             </>
                         )}
 
-                        <div className="font-black text-[11px] pt-1 border-t border-dashed border-black/20 mt-1">
+                        {taxAmount > 0 && (
+                             <div className="font-black italic">
+                                 {formatRow(`PAJAK ${taxRate}%`, formatPrice(taxAmount))}
+                             </div>
+                         )}
+                         <div className="font-black text-[11px] pt-1 border-t border-dashed border-black/20 mt-1">
                             {formatRow("TOTAL", `Rp ${formatPrice(grandTotal)}`)}
                         </div>
                         

@@ -2,13 +2,13 @@
 
 namespace App\Imports;
 
-use App\Models\Product;
-use App\Models\Ingredient;
-use App\Models\StockOpname;
 use App\Models\Expense;
+use App\Models\Ingredient;
+use App\Models\Product;
+use App\Models\StockOpname;
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\ToCollection;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Concerns\ToCollection;
 
 class StockOpnameImport implements ToCollection
 {
@@ -28,9 +28,9 @@ class StockOpnameImport implements ToCollection
                  * 4 = STOK FISIK / AKTUAL (TARGET UTAMA)
                  * 5 = Keterangan
                  */
-                $identifier  = $row[0] ?? null; 
-                $stockActual = $row[4] ?? null; 
-                $reason      = $row[5] ?? 'Import Excel';
+                $identifier = $row[0] ?? null;
+                $stockActual = $row[4] ?? null;
+                $reason = $row[5] ?? 'Import Excel';
 
                 // Jika kolom identitas atau stok fisik kosong, lewati baris ini
                 if ($identifier === null || $stockActual === null || $stockActual === '') {
@@ -47,13 +47,13 @@ class StockOpnameImport implements ToCollection
                     $model = Ingredient::lockForUpdate()->find($id);
                     $type = 'ingredients';
                     $dataKeys = ['product_id' => null, 'ingredient_id' => $id];
-                } 
+                }
                 // 2. ATAU PRODUK JADI
                 else {
                     // Cari berdasarkan Barcode dulu
                     $model = Product::where('barcode', $identifier)->lockForUpdate()->first();
                     // Jika tidak ketemu barcode, coba cari berdasarkan ID langsung
-                    if (!$model) {
+                    if (! $model) {
                         $model = Product::lockForUpdate()->find($identifier);
                     }
                     $type = 'products';
@@ -66,39 +66,42 @@ class StockOpnameImport implements ToCollection
                 if ($model) {
                     $stockSystem = (float) $model->stock;
                     $stockActual = (float) $stockActual;
-                    $difference  = $stockActual - $stockSystem;
+                    $difference = $stockActual - $stockSystem;
 
-                    // Lewati jika tidak ada perbedaan angka (tidak perlu opname)
-                    if ($difference === 0) continue;
+                    // Lewati jika tidak ada perbedaan angka (tidak perlu opname).
+                    // `$difference` selalu float, jadi `=== 0` tidak pernah true.
+                    if (abs($difference) < 0.000001) {
+                        continue;
+                    }
 
                     // A. Simpan Log Riwayat Opname
                     StockOpname::create(array_merge($dataKeys, [
-                        'user_id'      => auth()->id(),
+                        'user_id' => auth()->id(),
                         'stock_system' => $stockSystem,
                         'stock_actual' => $stockActual,
-                        'difference'   => $difference,
-                        'reason'       => $reason,
+                        'difference' => $difference,
+                        'reason' => $reason,
                     ]));
 
                     // B. Catat Kerugian (Expense) jika stok berkurang secara misterius
                     if ($difference < 0) {
                         $qtyLost = abs($difference);
-                        $totalLoss = (float)($model->buy_price ?? 0) * $qtyLost;
+                        $totalLoss = (float) ($model->buy_price ?? 0) * $qtyLost;
 
                         Expense::create([
-                            'name'         => "Penyusutan " . ($type === 'products' ? "Produk" : "Bahan"),
+                            'name' => 'Penyusutan '.($type === 'products' ? 'Produk' : 'Bahan'),
                             'account_name' => 'Beban Penurunan Nilai Persediaan',
-                            'category'     => 'Kerugian Stok',
-                            'amount'       => $totalLoss,
-                            'description'  => "Opname Import: " . ($model->title ?? $model->name) . " berkurang {$qtyLost}. Alasan: {$reason}",
-                            'date'         => now(),
-                            'user_id'      => auth()->id(),
+                            'category' => 'Kerugian Stok',
+                            'amount' => $totalLoss,
+                            'description' => 'Opname Import: '.($model->title ?? $model->name)." berkurang {$qtyLost}. Alasan: {$reason}",
+                            'date' => now(),
+                            'user_id' => auth()->id(),
                         ]);
                     }
 
                     // C. Update Stok Master
                     $model->update([
-                        'stock' => $stockActual
+                        'stock' => $stockActual,
                     ]);
                 }
             }

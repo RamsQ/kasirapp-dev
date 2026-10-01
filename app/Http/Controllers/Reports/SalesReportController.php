@@ -4,30 +4,31 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\Customer;
-use App\Models\Profit;
+use App\Models\Expense;
 use App\Models\Transaction;
-use App\Models\TransactionDetail;
 use App\Models\User;
+use App\Services\FinancialReportService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class SalesReportController extends Controller
 {
+    public function __construct(protected FinancialReportService $financialReports) {}
+
     /**
      * Display the sales report.
      */
     public function index(Request $request)
     {
         $filters = [
-            'start_date' => $request->input('start_date'),
-            'end_date'   => $request->input('end_date'),
-            'invoice'    => $request->input('invoice'),
+            'start_date' => $request->input('start_date') ?: now()->subDays(6)->toDateString(),
+            'end_date' => $request->input('end_date') ?: now()->toDateString(),
+            'invoice' => $request->input('invoice'),
             'cashier_id' => $request->input('cashier_id'),
-            'customer_id'=> $request->input('customer_id'),
+            'customer_id' => $request->input('customer_id'),
         ];
 
-        // 1. Base query untuk daftar transaksi 
+        // 1. Base query untuk daftar transaksi
         // Menggunakan applyFilters yang sudah diperkuat (payment_status = paid)
         $baseListQuery = $this->applyFilters(
             Transaction::query()
@@ -44,48 +45,51 @@ class SalesReportController extends Controller
         // 2. Aggregate query untuk menghitung summary (Hanya transaksi lunas)
         $aggregateQuery = $this->applyFilters(Transaction::query(), $filters);
 
+        $canAllocateOperatingExpenses = ! $filters['invoice'] && ! $filters['customer_id'];
+        $expenseQuery = $canAllocateOperatingExpenses
+            ? Expense::query()
+                ->where('category', '!=', 'Pelunasan Hutang')
+                ->when($filters['start_date'], fn ($q, $date) => $q->whereDate('date', '>=', $date))
+                ->when($filters['end_date'], fn ($q, $date) => $q->whereDate('date', '<=', $date))
+                ->when($filters['cashier_id'], fn ($q, $cashier) => $q->where('user_id', $cashier))
+            : null;
+
+        $financials = $this->financialReports->summary($aggregateQuery, $expenseQuery);
         $totals = (clone $aggregateQuery)
             ->selectRaw('
-                COUNT(*) as orders_count,
-                COALESCE(SUM(grand_total), 0) as revenue_total,
-                COALESCE(SUM(discount), 0) as discount_total,
-                COALESCE(SUM(total_markup), 0) as markup_total,
-                COALESCE(SUM(total_fee), 0) as fee_total
+                COALESCE(SUM(COALESCE(discount, 0)), 0) as discount_total,
+                COALESCE(SUM(COALESCE(total_markup, 0)), 0) as markup_total,
+                COALESCE(SUM(COALESCE(total_fee, 0)), 0) as fee_total
             ')
             ->first();
 
-        $transactionIds = (clone $aggregateQuery)->pluck('id');
-
-        // Menghitung Item Terjual (Hanya dari transaksi yang lunas/paid)
-        $itemsSold = $transactionIds->isNotEmpty()
-            ? TransactionDetail::whereIn('transaction_id', $transactionIds)->sum('qty')
-            : 0;
-
-        // Menghitung Profit (Hanya dari transaksi yang lunas/paid)
-        $profitTotal = $transactionIds->isNotEmpty()
-            ? Profit::whereIn('transaction_id', $transactionIds)->sum('total')
-            : 0;
-
         // 3. Menyusun ringkasan data untuk Summary Cards
         $summary = [
-            'orders_count'  => (int) ($totals->orders_count ?? 0),
-            'revenue_total' => (int) ($totals->revenue_total ?? 0),
-            'discount_total'=> (int) ($totals->discount_total ?? 0),
-            'items_sold'    => (int) $itemsSold,
-            'profit_total'  => (int) $profitTotal,
-            'markup_total'  => (int) ($totals->markup_total ?? 0), 
-            'fee_total'     => (int) ($totals->fee_total ?? 0),       
-            'average_order' => ($totals->orders_count ?? 0) > 0
-                ? (int) round($totals->revenue_total / $totals->orders_count)
+            'orders_count' => $financials['transaction_count'],
+            'revenue_total' => (int) $financials['billed_revenue'],
+            'net_sales_total' => (int) $financials['net_revenue'],
+            'tax_total' => (int) $financials['tax_collected'],
+            'discount_total' => (int) ($totals->discount_total ?? 0),
+            'items_sold' => $financials['items_sold'],
+            'profit_total' => (int) $financials['contribution_profit'],
+            'net_profit' => (int) $financials['net_profit'],
+            'operating_expense' => (int) $financials['operating_expenses'],
+            'hpp' => (int) $financials['hpp'],
+            'profit_variance' => (int) $financials['profit_variance'],
+            'net_profit_basis' => $canAllocateOperatingExpenses ? 'period' : 'transaction',
+            'markup_total' => (int) ($totals->markup_total ?? 0),
+            'fee_total' => (int) ($totals->fee_total ?? 0),
+            'average_order' => $financials['transaction_count'] > 0
+                ? (int) round($financials['net_revenue'] / $financials['transaction_count'])
                 : 0,
         ];
 
         return Inertia::render('Dashboard/Reports/Sales', [
             'transactions' => $transactions,
-            'summary'      => $summary,
-            'filters'      => $filters,
-            'cashiers'     => User::select('id', 'name')->orderBy('name')->get(),
-            'customers'    => Customer::select('id', 'name')->orderBy('name')->get(),
+            'summary' => $summary,
+            'filters' => $filters,
+            'cashiers' => User::select('id', 'name')->orderBy('name')->get(),
+            'customers' => Customer::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -100,7 +104,7 @@ class SalesReportController extends Controller
             ->where('payment_status', 'paid')
             // Tetap mengecualikan transaksi yang direfund
             ->where('status', '!=', 'refunded')
-            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%' . $invoice . '%'))
+            ->when($filters['invoice'] ?? null, fn ($q, $invoice) => $q->where('invoice', 'like', '%'.$invoice.'%'))
             ->when($filters['cashier_id'] ?? null, fn ($q, $cashier) => $q->where('cashier_id', $cashier))
             ->when($filters['customer_id'] ?? null, fn ($q, $customer) => $q->where('customer_id', $customer))
             ->when($filters['start_date'] ?? null, fn ($q, $start) => $q->whereDate('created_at', '>=', $start))

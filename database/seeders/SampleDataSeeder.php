@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Models\Cart;
@@ -65,18 +66,18 @@ class SampleDataSeeder extends Seeder
             $response = Http::timeout(30)->get($url);
 
             if ($response->successful()) {
-                $extension    = 'jpg';
-                $fullFilename = $filename . '.' . $extension;
+                $extension = 'jpg';
+                $fullFilename = $filename.'.'.$extension;
 
                 Storage::disk('public')->put(
-                    $folder . '/' . $fullFilename,
+                    $folder.'/'.$fullFilename,
                     $response->body()
                 );
 
                 return $fullFilename;
             }
         } catch (\Exception $e) {
-            $this->command->warn("  Failed to download {$filename}: " . $e->getMessage());
+            $this->command->warn("  Failed to download {$filename}: ".$e->getMessage());
         }
 
         return null;
@@ -99,7 +100,7 @@ class SampleDataSeeder extends Seeder
         ]);
 
         return $customers
-            ->map(fn($customer) => Customer::create($customer))
+            ->map(fn ($customer) => Customer::create($customer))
             ->keyBy('name');
     }
 
@@ -111,59 +112,59 @@ class SampleDataSeeder extends Seeder
         // Categories with Unsplash image URLs (direct download links)
         $categories = collect([
             [
-                'name'        => 'Minuman',
+                'name' => 'Minuman',
                 'description' => 'Aneka minuman segar dan kemasan',
-                'image_url'   => 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Makanan Ringan',
+                'name' => 'Makanan Ringan',
                 'description' => 'Camilan dan snack kemasan',
-                'image_url'   => 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Makanan Berat',
+                'name' => 'Makanan Berat',
                 'description' => 'Makanan siap saji dan frozen food',
-                'image_url'   => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Produk Susu',
+                'name' => 'Produk Susu',
                 'description' => 'Susu, yogurt, dan produk olahan susu',
-                'image_url'   => 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Roti & Kue',
+                'name' => 'Roti & Kue',
                 'description' => 'Roti segar dan aneka kue',
-                'image_url'   => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Bumbu & Rempah',
+                'name' => 'Bumbu & Rempah',
                 'description' => 'Bumbu masak dan rempah-rempah',
-                'image_url'   => 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Perawatan Tubuh',
+                'name' => 'Perawatan Tubuh',
                 'description' => 'Sabun, shampoo, dan perawatan diri',
-                'image_url'   => 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=400&fit=crop',
             ],
             [
-                'name'        => 'Kebutuhan Rumah',
+                'name' => 'Kebutuhan Rumah',
                 'description' => 'Perlengkapan rumah tangga',
-                'image_url'   => 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&h=400&fit=crop',
+                'image_url' => 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=400&h=400&fit=crop',
             ],
         ]);
 
         return $categories->map(function ($category) {
-            $slug  = Str::slug($category['name']);
+            $slug = Str::slug($category['name']);
             $image = $this->downloadImage(
                 $category['image_url'],
                 'category',
-                'cat-' . $slug
+                'cat-'.$slug
             );
 
             return Category::create([
-                'name'        => $category['name'],
+                'name' => $category['name'],
                 'description' => $category['description'],
-                'image'       => $image ?? 'default.jpg',
+                'image' => $image ?? 'default.jpg',
             ]);
         })->keyBy('name');
     }
@@ -222,22 +223,22 @@ class SampleDataSeeder extends Seeder
             $category = $categories->get($product['category']);
 
             // Download product image
-            $slug  = Str::slug($product['title']);
+            $slug = Str::slug($product['title']);
             $image = $this->downloadImage(
                 $product['image_url'],
                 'products',
-                'prod-' . $slug
+                'prod-'.$slug
             );
 
             return Product::create([
                 'category_id' => $category?->id,
-                'image'       => $image ?? 'default.jpg',
-                'barcode'     => $product['barcode'],
-                'title'       => $product['title'],
+                'image' => $image ?? 'default.jpg',
+                'barcode' => $product['barcode'],
+                'title' => $product['title'],
                 'description' => $product['description'],
-                'buy_price'   => $product['buy_price'],
-                'sell_price'  => $product['sell_price'],
-                'stock'       => $product['stock'],
+                'buy_price' => $product['buy_price'],
+                'sell_price' => $product['sell_price'],
+                'stock' => $product['stock'],
             ]);
         })->keyBy('barcode');
     }
@@ -257,8 +258,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => 'Andi Nugraha',
                 'discount' => 5000,
-                'cash'     => 100000,
-                'items'    => [
+                'cash' => 100000,
+                'items' => [
                     ['barcode' => 'MNM-0001', 'qty' => 3],
                     ['barcode' => 'SNK-0001', 'qty' => 2],
                     ['barcode' => 'RTI-0001', 'qty' => 1],
@@ -267,8 +268,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => 'Bunga Maharani',
                 'discount' => 0,
-                'cash'     => 150000,
-                'items'    => [
+                'cash' => 150000,
+                'items' => [
                     ['barcode' => 'SSU-0001', 'qty' => 2],
                     ['barcode' => 'RTI-0002', 'qty' => 3],
                     ['barcode' => 'PRW-0001', 'qty' => 2],
@@ -277,8 +278,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => 'Cici Amelia',
                 'discount' => 10000,
-                'cash'     => 200000,
-                'items'    => [
+                'cash' => 200000,
+                'items' => [
                     ['barcode' => 'MKN-0002', 'qty' => 2],
                     ['barcode' => 'BMB-0002', 'qty' => 1],
                     ['barcode' => 'RMH-0001', 'qty' => 2],
@@ -287,8 +288,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => 'Davin Pradipta',
                 'discount' => 0,
-                'cash'     => 80000,
-                'items'    => [
+                'cash' => 80000,
+                'items' => [
                     ['barcode' => 'MNM-0003', 'qty' => 2],
                     ['barcode' => 'SNK-0003', 'qty' => 5],
                     ['barcode' => 'SSU-0002', 'qty' => 2],
@@ -297,8 +298,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => 'Fitri Lestari',
                 'discount' => 15000,
-                'cash'     => 250000,
-                'items'    => [
+                'cash' => 250000,
+                'items' => [
                     ['barcode' => 'PRW-0002', 'qty' => 1],
                     ['barcode' => 'BMB-0001', 'qty' => 2],
                     ['barcode' => 'MKN-0003', 'qty' => 2],
@@ -308,8 +309,8 @@ class SampleDataSeeder extends Seeder
             [
                 'customer' => null,
                 'discount' => 0,
-                'cash'     => 50000,
-                'items'    => [
+                'cash' => 50000,
+                'items' => [
                     ['barcode' => 'MNM-0002', 'qty' => 2],
                     ['barcode' => 'SNK-0002', 'qty' => 1],
                 ],
@@ -332,10 +333,10 @@ class SampleDataSeeder extends Seeder
                     $lineTotal = $product->sell_price * $item['qty'];
 
                     return [
-                        'product'    => $product,
-                        'qty'        => $item['qty'],
+                        'product' => $product,
+                        'qty' => $item['qty'],
                         'line_total' => $lineTotal,
-                        'profit'     => ($product->sell_price - $product->buy_price) * $item['qty'],
+                        'profit' => ($product->sell_price - $product->buy_price) * $item['qty'],
                     ];
                 })
                 ->filter();
@@ -344,27 +345,27 @@ class SampleDataSeeder extends Seeder
                 continue;
             }
 
-            $discount   = max(0, $blueprint['discount']);
-            $gross      = $items->sum('line_total');
+            $discount = max(0, $blueprint['discount']);
+            $gross = $items->sum('line_total');
             $grandTotal = max(0, $gross - $discount);
-            $cashPaid   = max($grandTotal, $blueprint['cash']);
-            $change     = $cashPaid - $grandTotal;
+            $cashPaid = max($grandTotal, $blueprint['cash']);
+            $change = $cashPaid - $grandTotal;
 
             $transaction = Transaction::create([
-                'cashier_id'  => $cashier->id,
+                'cashier_id' => $cashier->id,
                 'customer_id' => $customer?->id,
-                'invoice'     => 'TRX-' . Str::upper(Str::random(8)),
-                'cash'        => $cashPaid,
-                'change'      => $change,
-                'discount'    => $discount,
+                'invoice' => 'TRX-'.Str::upper(Str::random(8)),
+                'cash' => $cashPaid,
+                'change' => $change,
+                'discount' => $discount,
                 'grand_total' => $grandTotal,
             ]);
 
             foreach ($items as $item) {
                 $transaction->details()->create([
                     'product_id' => $item['product']->id,
-                    'qty'        => $item['qty'],
-                    'price'      => $item['line_total'],
+                    'qty' => $item['qty'],
+                    'price' => $item['line_total'],
                 ]);
 
                 $transaction->profits()->create([

@@ -16,7 +16,7 @@ const PrintQRTakeAway = () => {
 
     return (
         <>
-            <Head title="Cetak QR Take Away | POS SYSTEM AJA" />
+            <Head title="Cetak QR Take Away | LakuPOS AJA" />
             
             <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 md:p-10 font-sans">
                 
@@ -108,7 +108,7 @@ const PrintQRTakeAway = () => {
                         <div className="flex flex-col items-center gap-1">
                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Powered by</span>
                             <h2 className="text-lg font-black text-slate-800 uppercase tracking-tighter italic">
-                                POS SYSTEM <span className="text-emerald-600">AJA</span>
+                                LakuPOS <span className="text-emerald-600">AJA</span>
                             </h2>
                         </div>
                     </div>

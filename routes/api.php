@@ -1,8 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PublicMenuPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,7 +11,7 @@ use App\Http\Controllers\Api\PaymentController;
 |--------------------------------------------------------------------------
 |
 | Semua route di file ini otomatis mendapatkan prefix "api/".
-| Route ini digunakan untuk komunikasi data antara Frontend (React) 
+| Route ini digunakan untuk komunikasi data antara Frontend (React)
 | dan Backend (Laravel) serta integrasi pihak ketiga (Midtrans).
 |
 */
@@ -28,7 +29,7 @@ Route::get('/user', function (Request $request) {
  * Grouping ini menangani alur pembayaran otomatis secara Real-time.
  */
 Route::prefix('payment')->group(function () {
-    
+
     /**
      * 1. POLLING STATUS (FRONTEND CHECK)
      * Digunakan oleh React di halaman Kasir untuk mengecek status transaksi.
@@ -36,7 +37,7 @@ Route::prefix('payment')->group(function () {
      */
     Route::get('/check/{invoice}', [PaymentController::class, 'checkStatus'])
         ->name('payment.check');
-    
+
     /**
      * 2. WEBHOOK / CALLBACK (SERVER TO SERVER)
      * URL utama yang didaftarkan pada Dashboard Midtrans (Settings > Configuration).
@@ -45,7 +46,26 @@ Route::prefix('payment')->group(function () {
      */
     Route::post('/notification', [PaymentController::class, 'handleNotification'])
         ->name('payment.notification');
-        
+    Route::post('/xendit/notification', [PaymentController::class, 'handleXenditNotification'])
+        ->name('payment.xendit.notification');
+
+    /**
+     * 3. PEMBAYARAN MANDIRI DARI MENU QR
+     * Pelanggan memesan lewat QR di meja, lalu membayar sendiri dengan QRIS
+     * Midtrans/Xendit tanpa lewat kasir.
+     *
+     * Yang dibayar adalah `Hold`, bukan `Transaction`, jadi route ini terpisah
+     * dari route kasir di atas. Verifikasi tanda tangan callback TIDAK di sini:
+     * callback tetap masuk ke PaymentController supaya hanya ada satu tempat
+     * yang memverifikasi.
+     */
+    Route::prefix('menu')->group(function () {
+        Route::post('/{hold}/pay', [PublicMenuPaymentController::class, 'start'])
+            ->name('payment.menu.start');
+        Route::get('/{hold}/status', [PublicMenuPaymentController::class, 'status'])
+            ->name('payment.menu.status');
+    });
+
 });
 
 /**

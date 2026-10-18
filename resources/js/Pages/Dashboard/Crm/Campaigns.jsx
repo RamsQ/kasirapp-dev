@@ -11,6 +11,7 @@ import {
     IconTrash,
     IconUsers,
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import toast from "react-hot-toast";
 
 const MONTHS = [
@@ -63,7 +64,7 @@ const firstErrorMessage = (errors, fallback) => {
 const formatDate = (value) => {
     if (!value) return "-";
     try {
-        return new Date(value).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+        return formatDateTime(value);
     } catch {
         return value;
     }

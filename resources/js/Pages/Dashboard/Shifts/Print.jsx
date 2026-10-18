@@ -5,6 +5,7 @@ import {
     IconInfoCircle, IconDeviceDesktop, IconCpu,
     IconBluetooth, IconLoader2, IconCash, IconQrcode, IconDeviceMobileVibration
 } from "@tabler/icons-react";
+import { formatTime } from "@/Utils/DateTime";
 import { printShiftUsbRaw } from "@/Utils/UsbRawPrinter"; 
 import { smartPrint } from "@/Utils/BluetoothHybridService"; 
 import toast, { Toaster } from "react-hot-toast";
@@ -191,7 +192,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
                                 <div className="w-32 h-[0.5px] bg-black/40 mb-1"></div>
                                 <span className="font-black text-[11px]">{shift.user?.name.toUpperCase()}</span>
                                 <span className="text-[8px] opacity-50 mt-1 italic tracking-tighter">
-                                    Dicetak: {new Date().toLocaleTimeString('id-ID', {hour12: false}).substring(0,5)} WIB
+                                    Dicetak: {formatTime(new Date(), { hour: '2-digit', minute: '2-digit', hour12: false })} WIB
                                 </span>
                             </div>
                         </footer>

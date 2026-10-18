@@ -13,6 +13,7 @@ import {
     IconFilter,
     IconTrash
 } from "@tabler/icons-react";
+import { formatDate } from "@/Utils/DateTime";
 import Swal from "sweetalert2";
 
 export default function Expired({ products, filter }) {
@@ -167,7 +168,7 @@ export default function Expired({ products, filter }) {
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
                                                 <span className={`font-bold text-sm ${isExpired ? 'text-red-600' : 'text-slate-700 dark:text-slate-300'}`}>
-                                                    {new Date(product.expired_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
+                                                    {formatDate(product.expired_date, { day: '2-digit', month: 'long', year: 'numeric' })}
                                                 </span>
                                             </div>
                                         </td>

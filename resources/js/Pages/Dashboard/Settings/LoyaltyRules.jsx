@@ -10,6 +10,7 @@ import {
     IconTrash,
     IconX,
 } from "@tabler/icons-react";
+import { formatDate } from "@/Utils/DateTime";
 import toast from "react-hot-toast";
 
 const emptyRule = {
@@ -34,7 +35,7 @@ const currency = (value = 0) => new Intl.NumberFormat("id-ID", {
 const dateOnly = (value) => {
     if (!value) return "Selalu";
     try {
-        return new Date(value).toLocaleDateString("id-ID", {
+        return formatDate(value, {
             day: "2-digit",
             month: "short",
             year: "numeric",

@@ -23,7 +23,7 @@ export default function Edit({ category }) {
     });
 
     const [imagePreview, setImagePreview] = useState(
-        category.image ? `/storage/category/${category.image}` : null
+        category.image ?? null
     );
 
     const handleImageChange = (e) => {

@@ -7,6 +7,7 @@ import {
     IconFileTypeXls, IconUpload, IconFileText, IconCalendar, 
     IconUser, IconDatabase, IconAdjustmentsAlt, IconHistory
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import Swal from "sweetalert2";
 
 export default function Index({ auth, products, ingredients, history, filters }) {
@@ -189,7 +190,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                                         <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1 uppercase text-[11px]"><IconUser size={14}/> {h.user?.name}</div>
-                                                <div className="text-[10px] text-slate-400 italic">{new Date(h.created_at).toLocaleString('id-ID')}</div>
+                                                <div className="text-[10px] text-slate-400 italic">{formatDateTime(h.created_at)}</div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-black uppercase text-xs text-slate-900 dark:text-white">

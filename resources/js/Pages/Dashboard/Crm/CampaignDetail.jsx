@@ -11,6 +11,7 @@ import {
     IconPlayerPlay,
     IconSearch,
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import toast from "react-hot-toast";
 
 const statusClass = {
@@ -37,10 +38,13 @@ const statusLabel = {
     failed: "Gagal",
 };
 
-const formatDateTime = (value) => {
+// Pembungkus dari DateTime.js yang mengembalikan nilai mentah kalau format
+// gagal. `sample()` mengembalikan `scheduled_at` yang bisa null, dan kolom
+// tabel ini harus tetap menampilkan sesuatu daripada kosong.
+const waktuSingkat = (value) => {
     if (!value) return "-";
     try {
-        return new Date(value).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+        return formatDateTime(value);
     } catch {
         return value;
     }
@@ -112,7 +116,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                         <p className="mt-1 text-sm text-slate-500">
                             {campaign.segment?.name || "Tanpa segment"} · channel {campaign.channel} ·{" "}
                             {campaign.is_dry_run ? "mode preview" : "mode live"}
-                            {campaign.scheduled_at ? ` · jadwal ${formatDateTime(campaign.scheduled_at)}` : ""}
+                            {campaign.scheduled_at ? ` · jadwal ${waktuSingkat(campaign.scheduled_at)}` : ""}
                         </p>
                     </div>
                     <button
@@ -293,7 +297,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                                 </p>
                                                 <p className="mt-0.5 text-[11px] text-slate-400">
                                                     {delivery.target || "tanpa kontak"} ·{" "}
-                                                    {formatDateTime(delivery.sent_at || delivery.created_at)}
+                                                    {waktuSingkat(delivery.sent_at || delivery.created_at)}
                                                 </p>
                                             </div>
                                             <span

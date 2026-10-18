@@ -30,6 +30,7 @@ import {
     IconSun,
     IconMoon,
 } from "@tabler/icons-react";
+import { formatDate, formatDateTime, formatTime } from "@/Utils/DateTime";
 
 /**
  * Riwayat Transaksi versi kasir.
@@ -62,11 +63,9 @@ const formatCurrency = (value = 0) =>
         minimumFractionDigits: 0,
     }).format(value);
 
-const formatTime = (value) =>
-    new Date(value).toLocaleString("id-ID", {
-        dateStyle: "medium",
-        timeStyle: "short",
-    });
+// Format waktu lewat DateTime.js supaya zona waktunya Asia/Jakarta,
+// bukan zona waktu browser. Lihat catatan di berkas itu.
+const formatWaktu = (value) => formatDateTime(value);
 
 /** Warna badge metode bayar, mengikuti PaymentLabels yang dipakai struk. */
 function MethodBadge({ method }) {
@@ -432,13 +431,13 @@ export default function HistoryCashier({ transactions, filters }) {
                                             {/* Waktu */}
                                             <div className="w-[86px] shrink-0">
                                                 <div className="text-[11px] font-black">
-                                                    {new Date(transaction.created_at).toLocaleTimeString("id-ID", {
+                                                    {formatTime(transaction.created_at, {
                                                         hour: "2-digit",
                                                         minute: "2-digit",
                                                     })}
                                                 </div>
                                                 <div className="text-[10px] opacity-50">
-                                                    {new Date(transaction.created_at).toLocaleDateString("id-ID", {
+                                                    {formatDate(transaction.created_at, {
                                                         day: "2-digit",
                                                         month: "short",
                                                     })}
@@ -521,7 +520,7 @@ export default function HistoryCashier({ transactions, filters }) {
                                             >
                                                 <div className="flex flex-wrap items-center gap-2">
                                                     <span className="text-[10px] font-black uppercase opacity-50">
-                                                        {formatTime(transaction.created_at)}
+                                                        {formatWaktu(transaction.created_at)}
                                                     </span>
 
                                                     <Link

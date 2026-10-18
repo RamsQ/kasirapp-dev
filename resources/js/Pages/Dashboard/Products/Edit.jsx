@@ -11,6 +11,7 @@ import {
     IconBarcode, IconCurrencyDollar, IconCalendar, IconPlus,
     IconTrash, IconScale, IconX, IconDatabase, IconCalendarTime, IconAlertCircle
 } from "@tabler/icons-react";
+import { formatDate } from "@/Utils/DateTime";
 
 export default function Edit({ categories, product, products }) {
     const { errors } = usePage().props;
@@ -239,7 +240,7 @@ export default function Edit({ categories, product, products }) {
                                                         <td className="px-4 py-4 text-[11px] font-bold dark:text-white first:rounded-l-2xl">
                                                             <div className="flex items-center gap-2">
                                                                 <IconCalendarTime size={16} className="text-slate-400" />
-                                                                {new Date(batch.created_at).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})}
+                                                                {formatDate(batch.created_at, {day:'2-digit', month:'short', year:'numeric'})}
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-4 text-[11px] font-black">

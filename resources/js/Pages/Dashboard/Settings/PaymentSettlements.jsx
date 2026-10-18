@@ -11,6 +11,7 @@ import {
     IconSearch,
     IconX,
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import toast from "react-hot-toast";
 
 const currency = (value = 0) =>
@@ -23,7 +24,7 @@ const currency = (value = 0) =>
 const dateTime = (value) => {
     if (!value) return "-";
     try {
-        return new Date(value).toLocaleString("id-ID", {
+        return formatDateTime(value, {
             day: "2-digit",
             month: "short",
             year: "numeric",

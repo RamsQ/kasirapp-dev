@@ -21,6 +21,7 @@ import {
     IconAlertCircle,
     IconReportAnalytics
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 
 // --- HELPER FORMAT HARGA ---
 const formatPrice = (value) =>
@@ -156,10 +157,10 @@ export default function Index({ shifts, filters, receiptSetting }) {
                                     <Table.Td>
                                         <div className="flex flex-col gap-1">
                                             <div className="flex items-center gap-1.5 text-[10px] font-black text-green-600 uppercase tracking-tighter italic">
-                                                <IconClock size={12} /> Buka: {new Date(shift.opened_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}
+                                                <IconClock size={12} /> Buka: {formatDateTime(shift.opened_at, { dateStyle: 'short' })}
                                             </div>
                                             <div className="flex items-center gap-1.5 text-[10px] font-black text-red-500 uppercase tracking-tighter italic">
-                                                <IconClock size={12} /> Tutup: {shift.closed_at ? new Date(shift.closed_at).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : 'KASIR MASIH AKTIF'}
+                                                <IconClock size={12} /> Tutup: {shift.closed_at ? formatDateTime(shift.closed_at, { dateStyle: 'short' }) : 'KASIR MASIH AKTIF'}
                                             </div>
                                         </div>
                                     </Table.Td>

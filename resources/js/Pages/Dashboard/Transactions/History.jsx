@@ -20,6 +20,7 @@ import {
     IconAlertCircle,
     IconCircleX
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 
 const defaultFilters = {
     invoice: "",
@@ -232,10 +233,8 @@ const History = ({ transactions, filters }) => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-xs text-slate-500 dark:text-slate-400 font-bold">
-                                            {new Date(transaction.created_at).toLocaleString('id-ID', {
-                                                dateStyle: 'medium',
-                                                timeStyle: 'short'
-                                            })}
+                                            {formatDateTime(transaction.created_at)}
+
                                         </td>
                                         
                                         <td className="px-6 py-5">

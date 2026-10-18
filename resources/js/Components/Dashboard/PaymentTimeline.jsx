@@ -8,6 +8,7 @@ import {
     IconShieldX,
     IconClockHour4,
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 
 const rp = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -20,7 +21,7 @@ const waktu = (iso) => {
     if (!iso) return "-";
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleString("id-ID", {
+    return formatDateTime(d, {
         day: "2-digit",
         month: "short",
         hour: "2-digit",

@@ -10,6 +10,7 @@ import {
     IconStar,
     IconUser,
 } from "@tabler/icons-react";
+import { formatDate } from "@/Utils/DateTime";
 import toast from "react-hot-toast";
 
 const currency = (value = 0) => new Intl.NumberFormat("id-ID", {
@@ -20,7 +21,7 @@ const currency = (value = 0) => new Intl.NumberFormat("id-ID", {
 
 const dateOnly = (value) => {
     if (!value) return "-";
-    try { return new Date(value).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" }); }
+    try { return formatDate(value, { day: "2-digit", month: "short", year: "numeric" }); }
     catch { return value; }
 };
 

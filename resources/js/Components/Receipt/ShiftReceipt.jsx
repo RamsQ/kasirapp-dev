@@ -1,4 +1,5 @@
 import React from "react";
+import { nowStamp } from "@/Utils/DateTime";
 
 const formatPrice = (value) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value || 0);
@@ -61,7 +62,7 @@ export default function ShiftReceipt({ shift, storeName }) {
             </div>
             
             <div className="mt-6 text-center text-[9px] text-gray-400 italic">
-                Dicetak pada: {new Date().toLocaleString('id-ID')}
+                Dicetak pada: {nowStamp()}
                 <br />
                 PWA KASIR DIGITAL
             </div>

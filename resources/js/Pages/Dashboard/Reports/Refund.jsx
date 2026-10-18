@@ -13,6 +13,7 @@ import {
     IconAlertCircle,
     IconPercentage
 } from "@tabler/icons-react";
+import { formatDate, formatTime } from "@/Utils/DateTime";
 
 const formatCurrency = (value) =>
     new Intl.NumberFormat("id-ID", {
@@ -174,13 +175,13 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                         <tr key={item.id} className="group hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors">
                                             <td className="px-8 py-6 text-slate-600 dark:text-slate-300">
                                                 <div className="font-bold text-slate-900 dark:text-white uppercase tracking-tight">
-                                                    {new Date(item.updated_at).toLocaleDateString("id-ID", {
+                                                    {formatDate(item.updated_at, {
                                                         day: "numeric", month: "long", year: "numeric"
                                                     })}
                                                 </div>
                                                 <div className="text-[10px] font-black text-slate-400 uppercase mt-1 flex items-center gap-1.5">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
-                                                    Pukul {new Date(item.updated_at).toLocaleTimeString("id-ID", {
+                                                    Pukul {formatTime(item.updated_at, {
                                                         hour: "2-digit", minute:"2-digit"
                                                     })} WIB
                                                 </div>

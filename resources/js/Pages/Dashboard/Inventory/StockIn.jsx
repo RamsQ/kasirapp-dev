@@ -7,6 +7,7 @@ import {
     IconHistory, IconPackageImport, IconFileImport, 
     IconDownload, IconDatabase, IconX, IconLoader2
 } from "@tabler/icons-react";
+import { formatDate, formatDateTime } from "@/Utils/DateTime";
 import Swal from "sweetalert2";
 import axios from "axios";
 
@@ -332,7 +333,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                     <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-center">
                                         <td className="px-6 py-4 text-left">
                                             <div className="font-bold text-slate-900 dark:text-white uppercase text-[11px]">{h.user?.name}</div>
-                                            <div className="text-[10px] text-slate-400 italic">{new Date(h.created_at).toLocaleString('id-ID')}</div>
+                                            <div className="text-[10px] text-slate-400 italic">{formatDateTime(h.created_at)}</div>
                                         </td>
                                         <td className="px-6 py-4 font-bold uppercase text-[11px] text-left">
                                             {h.product?.title || h.ingredient?.name}
@@ -388,7 +389,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                             <tr key={batch.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                                 <td className="py-4 font-mono text-slate-500 uppercase">
                                                     {batch.serial_number}
-                                                    <div className="text-[9px] text-slate-400 normal-case mt-0.5">Masuk: {new Date(batch.created_at).toLocaleDateString('id-ID')}</div>
+                                                    <div className="text-[9px] text-slate-400 normal-case mt-0.5">Masuk: {formatDate(batch.created_at)}</div>
                                                 </td>
                                                 <td className="py-4 text-center">
                                                     <span className="font-black text-blue-600">{batch.qty_remaining}</span>

@@ -13,6 +13,7 @@ import {
     IconToolsKitchen2, IconPhoto, IconDeviceMobileVibration, IconCreditCard,
     IconHistory
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import Swal from "sweetalert2";
 import ThermalReceipt from "@/Components/Receipt/ThermalReceipt";
 import ShiftReceipt from "@/Components/Receipt/ShiftReceipt";
@@ -595,7 +596,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h2 className="text-xl font-black dark:text-white uppercase mb-6 tracking-tighter">Buka Shift Kasir</h2>
                         {lastClosedShift && (
                             <div className="mb-4 text-left bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Shift sebelumnya ({new Date(lastClosedShift.closed_at).toLocaleString('id-ID')})</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Shift sebelumnya ({formatDateTime(lastClosedShift.closed_at)})</p>
                                 <p className="text-lg font-black text-slate-800 dark:text-white mt-1">
                                     Rp {Number(lastClosedShift.total_cash_actual).toLocaleString('id-ID')}
                                 </p>

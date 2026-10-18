@@ -1,4 +1,5 @@
 import React from "react";
+import { nowStamp } from "@/Utils/DateTime";
 import { paymentLabel, isPaid, isSelfPaidGateway } from "@/Utils/PaymentLabels";
 
 // Helper format uang khusus struk
@@ -285,7 +286,7 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                 {isSelfOrder && (
                     <p className="text-[8px] mt-1 font-bold italic border border-black inline-block px-2 uppercase tracking-tighter">e-Menu Verified Order</p>
                 )}
-                <p className="text-[7px] mt-1.5 opacity-40">{new Date().toLocaleString('id-ID')}</p>
+                <p className="text-[7px] mt-1.5 opacity-40">{nowStamp()}</p>
             </div>
         </div>
     );

@@ -1,6 +1,7 @@
 import React from "react";
 import { Head, Link } from "@inertiajs/react";
 import { IconCheck, IconClock, IconX, IconPrinter, IconChevronLeft } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 import { paymentLabel } from "@/Utils/PaymentLabels";
 
 const rp = (value) =>
@@ -14,7 +15,7 @@ const waktu = (iso) => {
     if (!iso) return "-";
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return "-";
-    return d.toLocaleString("id-ID", {
+    return formatDateTime(d, {
         day: "2-digit",
         month: "short",
         year: "numeric",

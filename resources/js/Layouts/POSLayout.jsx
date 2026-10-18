@@ -12,6 +12,7 @@ import {
     IconX,
     IconUser,
 } from "@tabler/icons-react";
+import { formatDate, formatTime } from "@/Utils/DateTime";
 
 export default function POSLayout({ children }) {
     const { auth } = usePage().props;
@@ -28,14 +29,14 @@ export default function POSLayout({ children }) {
     }, []);
 
     const formatTime = (date) => {
-        return date.toLocaleTimeString("id-ID", {
+        return formatTime(date, {
             hour: "2-digit",
             minute: "2-digit",
         });
     };
 
     const formatDate = (date) => {
-        return date.toLocaleDateString("id-ID", {
+        return formatDate(date, {
             weekday: "long",
             day: "numeric",
             month: "short",

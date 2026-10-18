@@ -269,7 +269,7 @@ export default function Index() {
                     </div>
 
                     <div className="flex justify-end gap-3 pt-6 border-t border-slate-100 dark:border-slate-800">
-                        <Button type={"button"} label={"Batal"} className="bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold uppercase text-[10px]" onClick={closeModal} />
+                        <Button type={"button"} label={"Batal"} className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px]" onClick={closeModal} />
                         <Button type={"submit"} processing={processing} icon={<IconPencilCheck size={18} />} className="bg-primary-600 hover:bg-primary-500 text-white px-10 font-black uppercase text-[10px] shadow-xl shadow-primary-500/10" label={data.isUpdate ? "Simpan Perubahan" : "Buat Role Baru"} />
                     </div>
                 </form>

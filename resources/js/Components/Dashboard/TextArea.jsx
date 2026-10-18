@@ -21,7 +21,7 @@ export default function Textarea({
                     border border-slate-200 dark:border-slate-700
                     bg-slate-50 dark:bg-slate-800
                     text-slate-800 dark:text-slate-200
-                    placeholder-slate-400 dark:placeholder-slate-500
+                    placeholder-slate-400 dark:placeholder-slate-400
                     focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500
                     transition-all duration-200 resize-none
                     ${

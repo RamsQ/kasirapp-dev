@@ -142,7 +142,7 @@ export default function Online({ settings = [] }) {
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-sm text-left">
-                                <thead className="text-[10px] text-slate-500 uppercase bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 font-black">
+                                <thead className="text-[10px] text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 font-black">
                                     <tr>
                                         <th className="px-6 py-4">Nama Platform</th>
                                         <th className="px-6 py-4 text-center">Markup (%)</th>

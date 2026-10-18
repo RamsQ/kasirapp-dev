@@ -146,7 +146,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                                     </Table.Td>
                                     <Table.Td>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-primary-500 group-hover:text-white transition-colors shadow-sm">
+                                            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-primary-500 group-hover:text-white transition-colors shadow-sm">
                                                 <IconUser size={16} />
                                             </div>
                                             <span className="font-bold text-slate-700 dark:text-slate-200">

@@ -627,7 +627,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             <div id="main-app-content" className={`flex flex-col h-[100dvh] w-full transition-colors ${isDarkMode ? 'bg-slate-950 text-slate-200' : 'bg-slate-100 text-slate-800'} overflow-hidden print:hidden ${!activeShift ? 'blur-xl pointer-events-none' : ''}`}>
                 <header className="h-16 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between gap-2 px-3 sm:px-4 shrink-0 z-20 shadow-sm">
                     <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                        <Link href={route('dashboard')} aria-label="Kembali ke dashboard" className="p-2 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-primary-500 active:scale-90 transition-transform"><IconLayoutDashboard size={22} /></Link>
+                        <Link href={route('dashboard')} aria-label="Kembali ke dashboard" className="p-2 shrink-0 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary-500 active:scale-90 transition-transform"><IconLayoutDashboard size={22} /></Link>
                         {/*
                             Nama kasir disembunyikan di bawah 640px. Satu header
                             POS pernah melebar jadi 427px di layar 375px, dan
@@ -696,9 +696,9 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         </div>
 
                         <div className="bg-white/30 dark:bg-slate-900/30 border-b dark:border-slate-800 p-2 flex items-center gap-2 overflow-x-auto scrollbar-hide shrink-0">
-                            <button type="button" onClick={() => handleCategoryChange('all')} className={`px-5 py-2 rounded-2xl font-black uppercase text-[10px] border transition-all ${selectedCategory === 'all' ? 'bg-primary-600 text-white border-primary-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}>Semua</button>
+                            <button type="button" onClick={() => handleCategoryChange('all')} className={`px-5 py-2 rounded-2xl font-black uppercase text-[10px] border transition-all ${selectedCategory === 'all' ? 'bg-primary-600 text-white border-primary-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}>Semua</button>
                             {categories.map((cat) => (
-                                <button key={cat.id} type="button" onClick={() => handleCategoryChange(cat.id.toString())} className={`px-5 py-2 rounded-2xl font-black uppercase text-[10px] border transition-all ${selectedCategory === cat.id.toString() ? 'bg-primary-600 text-white border-primary-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700'}`}>{cat.name}</button>
+                                <button key={cat.id} type="button" onClick={() => handleCategoryChange(cat.id.toString())} className={`px-5 py-2 rounded-2xl font-black uppercase text-[10px] border transition-all ${selectedCategory === cat.id.toString() ? 'bg-primary-600 text-white border-primary-600 shadow-md' : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'}`}>{cat.name}</button>
                             ))}
                         </div>
 

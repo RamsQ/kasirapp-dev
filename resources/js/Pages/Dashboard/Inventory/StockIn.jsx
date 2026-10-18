@@ -221,7 +221,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                             </button>
                         </div>
 
-                        <button onClick={() => router.get(route("stock_in.index"))} className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition-all">
+                        <button onClick={() => router.get(route("stock_in.index"))} className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition-all">
                             <IconRefresh size={20} />
                         </button>
                     </div>
@@ -231,7 +231,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm mb-12">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left border-collapse">
-                            <thead className="text-[10px] uppercase bg-slate-50 dark:bg-slate-800 font-black tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-800">
+                            <thead className="text-[10px] uppercase bg-slate-50 dark:bg-slate-800 font-black tracking-widest text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                                 <tr>
                                     <th className="px-6 py-5">Informasi Item</th>
                                     <th className="px-6 py-5 text-center">Satuan</th>
@@ -252,7 +252,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                             <span className="text-[10px] font-mono text-slate-400 font-normal tracking-tighter">{item.barcode}</span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-black text-slate-500 uppercase">{item.unit}</span>
+                                            <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase">{item.unit}</span>
                                         </td>
                                         <td className="px-6 py-4 text-center font-black text-slate-900 dark:text-white italic text-base">{item.stock_current}</td>
                                         

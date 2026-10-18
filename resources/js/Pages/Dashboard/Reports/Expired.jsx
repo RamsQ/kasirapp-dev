@@ -125,7 +125,7 @@ export default function Expired({ products, filter }) {
             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm text-left">
-                        <thead className="text-[10px] text-slate-500 uppercase bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 font-black tracking-widest">
+                        <thead className="text-[10px] text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-800 font-black tracking-widest">
                             <tr>
                                 <th className="px-8 py-5">Produk</th>
                                 <th className="px-6 py-5 text-center">Stok Tersisa</th>

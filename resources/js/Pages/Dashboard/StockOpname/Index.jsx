@@ -163,7 +163,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                             <input type="date" className="rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-xs" value={filters.start_date || ""} onChange={e => handleFilterDate('start_date', e.target.value)} />
                             <input type="date" className="rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-xs" value={filters.end_date || ""} onChange={e => handleFilterDate('end_date', e.target.value)} />
                         </div>
-                        <button onClick={() => router.get(route("stock_opnames.index"), { tab: 'history' })} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition-all">
+                        <button onClick={() => router.get(route("stock_opnames.index"), { tab: 'history' })} className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 transition-all">
                             <IconRefresh size={18} />
                         </button>
                     </div>

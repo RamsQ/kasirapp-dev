@@ -255,7 +255,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                             <p className="font-bold text-slate-700 dark:text-slate-200 uppercase truncate max-w-[250px]">{p.title}</p>
                                                         </td>
                                                         <td className="px-4 py-4">
-                                                            <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-500 uppercase">{p.recipes.length} Bahan baku</span>
+                                                            <span className="bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase">{p.recipes.length} Bahan baku</span>
                                                         </td>
                                                         <td className="px-4 py-4">
                                                             <div className="flex flex-col">

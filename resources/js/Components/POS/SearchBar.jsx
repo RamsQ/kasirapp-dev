@@ -105,7 +105,7 @@ export default function SearchBar({
                         border-2 border-slate-200 dark:border-slate-700
                         bg-white dark:bg-slate-900
                         text-slate-800 dark:text-slate-200 text-lg
-                        placeholder-slate-400 dark:placeholder-slate-500
+                        placeholder-slate-400 dark:placeholder-slate-400
                         focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 dark:focus:border-primary-500
                         transition-all"
                 />

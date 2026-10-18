@@ -279,7 +279,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                     </div>
 
                     {!hasDeliveries ? (
-                        <p className="mt-5 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 dark:bg-slate-800">
+                        <p className="mt-5 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 dark:text-slate-400 dark:bg-slate-800">
                             Belum ada riwayat. Klik tombol Proses untuk menjalankan campaign.
                         </p>
                     ) : (

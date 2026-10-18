@@ -156,7 +156,7 @@ export default function PaymentSettlements({
                 <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[980px] text-left text-sm">
-                            <thead className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/60">
+                            <thead className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 dark:border-slate-800 dark:bg-slate-800/60">
                                 <tr>
                                     <th className="px-5 py-4">Invoice</th>
                                     <th className="px-5 py-4">Provider</th>

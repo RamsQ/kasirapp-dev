@@ -111,7 +111,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                 <button
                                     type="button"
                                     onClick={resetFilter}
-                                    className="bg-slate-100 dark:bg-slate-800 text-slate-500 p-2.5 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all"
+                                    className="bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 p-2.5 rounded-xl hover:bg-red-50 hover:text-red-500 transition-all"
                                 >
                                     <IconRefresh size={18} />
                                 </button>

@@ -232,7 +232,7 @@ const ProfitReport = ({
                             </div>
                             <h2 className="font-black uppercase text-sm tracking-[0.2em] text-slate-800 dark:text-white">Financial Breakdown</h2>
                         </div>
-                        <div className="hidden sm:flex text-[10px] font-black bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-full uppercase text-slate-500 tracking-widest border border-slate-200/50 dark:border-slate-700">
+                        <div className="hidden sm:flex text-[10px] font-black bg-slate-100 dark:bg-slate-800 px-4 py-1.5 rounded-full uppercase text-slate-500 dark:text-slate-400 tracking-widest border border-slate-200/50 dark:border-slate-700">
                             Currency: IDR
                         </div>
                     </div>

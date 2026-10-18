@@ -115,7 +115,7 @@ export default function Products({ products, categories, filters }) {
                                         <div className="text-[10px] text-slate-400 mt-1 font-mono">{p.barcode}</div>
                                     </td>
                                     <td className="p-3 sm:p-5">
-                                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg font-black text-slate-500 uppercase tracking-tighter border dark:border-slate-700">
+                                        <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg font-black text-slate-500 dark:text-slate-400 uppercase tracking-tighter border dark:border-slate-700">
                                             {p.category?.name || 'Umum'}
                                         </span>
                                     </td>

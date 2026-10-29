@@ -153,13 +153,13 @@ export default function Consultation() {
                                     <IconRefresh size={13} /> Percakapan Baru
                                 </button>
                             )}
-                            <IconMessages size={18} className="text-slate-400" />
+                            <IconMessages size={18} className="text-slate-500 dark:text-slate-400" />
                         </div>
                     </div>
 
                     {/* Pemilih Periode */}
                     <div className="px-6 py-3 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
-                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <span className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                             <IconCalendar size={13} /> Periode
                         </span>
                         {Object.entries(periods).map(([key, label]) => (

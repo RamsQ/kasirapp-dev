@@ -40,7 +40,7 @@ export default function ResetPassword({ token, email }) {
                     <div className="mb-8">
                         <Link 
                             href={route('login')} 
-                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary-500 transition-colors group"
+                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary-500 transition-colors group"
                         >
                             <IconArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             Batal & Kembali
@@ -65,9 +65,9 @@ export default function ResetPassword({ token, email }) {
                     <form onSubmit={submit} className="space-y-5">
                         {/* Input Email (ReadOnly untuk keamanan) */}
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Email Konfirmasi</label>
+                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2">Email Konfirmasi</label>
                             <div className="relative group opacity-60">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                     <IconMail size={20} />
                                 </div>
                                 <input 
@@ -81,9 +81,9 @@ export default function ResetPassword({ token, email }) {
 
                         {/* Input Password Baru */}
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Kata Sandi Baru</label>
+                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2">Kata Sandi Baru</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-primary-500 transition-colors">
                                     <IconLock size={20} />
                                 </div>
                                 <input 
@@ -103,9 +103,9 @@ export default function ResetPassword({ token, email }) {
 
                         {/* Konfirmasi Password Baru */}
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Konfirmasi Kata Sandi</label>
+                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2">Konfirmasi Kata Sandi</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-primary-500 transition-colors">
                                     <IconShieldCheck size={20} />
                                 </div>
                                 <input 

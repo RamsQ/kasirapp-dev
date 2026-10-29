@@ -132,7 +132,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all p-6 ${data.qris_manual_enabled ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${data.qris_manual_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`p-2 rounded-lg ${data.qris_manual_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-500 dark:text-slate-400'}`}>
                                 <IconQrcode size={20} />
                             </div>
                             <div>
@@ -166,7 +166,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                                 </div>
                             </div>
                             <div className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-2xl p-6 bg-slate-50 dark:bg-slate-800/50">
-                                <span className="text-[10px] font-bold text-slate-400 uppercase mb-3 tracking-widest">Preview Tampilan Kasir</span>
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-3 tracking-widest">Preview Tampilan Kasir</span>
                                 {qrisPreview ? (
                                     <div className="relative group">
                                         <img src={qrisPreview} className="h-44 w-44 object-contain shadow-2xl rounded-xl bg-white p-3 border border-slate-200" alt="QRIS Preview" />
@@ -189,7 +189,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all p-6 ${data.midtrans_enabled ? 'border-blue-500 ring-4 ring-blue-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${data.midtrans_enabled ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`p-2 rounded-lg ${data.midtrans_enabled ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500 dark:text-slate-400'}`}>
                                 <IconBrandStripe size={20} />
                             </div>
                             <div>
@@ -246,7 +246,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className={`rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-slate-900 ${data.xendit_enabled ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className={`rounded-lg p-2 ${data.xendit_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`rounded-lg p-2 ${data.xendit_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-500 dark:text-slate-400'}`}>
                                 <IconCreditCard size={20} />
                             </div>
                             <div>

@@ -161,7 +161,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                 {/* SEARCH BAR */}
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm flex items-center gap-4">
                     <form onSubmit={handleSearch} className="relative flex-1">
-                        <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                         <input 
                             type="text" 
                             className="pl-10 w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-emerald-500 font-bold uppercase" 
@@ -205,7 +205,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                                         </td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan="5" className="p-10 text-center text-slate-400 uppercase font-bold text-xs italic">Belum ada data</td></tr>
+                                    <tr><td colSpan="5" className="p-10 text-center text-slate-500 dark:text-slate-400 uppercase font-bold text-xs italic">Belum ada data</td></tr>
                                 )}
                             </tbody>
                         </table>

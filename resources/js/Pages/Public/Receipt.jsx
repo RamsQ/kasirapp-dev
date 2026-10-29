@@ -58,7 +58,7 @@ export default function PublicReceipt({ receipt, store }) {
             <div className="max-w-md mx-auto px-4 py-6 pb-28">
                 <Link
                     href={route("public.menu", receipt.order_type === "dine_in" ? { type: "table" } : { type: "takeaway" })}
-                    className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mb-4"
+                    className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mb-4"
                 >
                     <IconChevronLeft size={16} /> Kembali ke menu
                 </Link>
@@ -88,43 +88,43 @@ export default function PublicReceipt({ receipt, store }) {
                             )}
                             {Headline}
                         </div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mt-1.5">
                             {payment.method ? `Metode: ${paymentLabel(payment.method)}` : "Belum ada pembayaran"}
                         </p>
                         {paid && payment.paid_at && (
-                            <p className="text-[10px] text-slate-400 mt-0.5">Dibayar {waktu(payment.paid_at)}</p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Dibayar {waktu(payment.paid_at)}</p>
                         )}
                     </div>
 
                     {/* IDENTITAS PESANAN */}
                     <div className="px-6 py-4 border-b border-dashed border-slate-200 dark:border-slate-700 text-[11px] space-y-1.5">
                         <div className="flex justify-between">
-                            <span className="text-slate-400 font-bold uppercase">Kode</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-bold uppercase">Kode</span>
                             <span className="font-black">#{String(receipt.ref_number || "").replace(/\D/g, "") || "----"}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-400 font-bold uppercase">No. Antrian</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-bold uppercase">No. Antrian</span>
                             <span className="font-black">{receipt.queue_number || "-"}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-400 font-bold uppercase">Nama</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-bold uppercase">Nama</span>
                             <span className="font-black text-right">{receipt.customer_name}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-slate-400 font-bold uppercase">Waktu</span>
+                            <span className="text-slate-500 dark:text-slate-400 font-bold uppercase">Waktu</span>
                             <span className="font-black">{waktu(receipt.created_at)}</span>
                         </div>
                     </div>
 
                     {/* RINCIAN ITEM */}
                     <div className="px-6 py-4 border-b border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Pesanan</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-3">Pesanan</p>
                         <div className="space-y-3">
                             {items.map((item, index) => (
                                 <div key={`${item.title}-${index}`} className="flex justify-between gap-3 text-xs">
                                     <div className="min-w-0">
                                         <p className="font-black uppercase leading-tight">{item.title}</p>
-                                        <p className="text-[10px] text-slate-400 mt-0.5">
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                                             {Number(item.qty).toLocaleString("id-ID")} x {rp(item.price)}
                                             {item.unit ? ` / ${item.unit}` : ""}
                                         </p>
@@ -153,7 +153,7 @@ export default function PublicReceipt({ receipt, store }) {
                             </div>
                         )}
                         <div className="flex justify-between items-end border-t border-slate-200 dark:border-slate-700 pt-3 mt-3">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Total</span>
                             <span className="text-2xl font-black italic tracking-tighter text-slate-800 dark:text-white">
                                 {rp(totals.total)}
                             </span>

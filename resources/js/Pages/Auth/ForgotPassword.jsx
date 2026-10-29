@@ -29,7 +29,7 @@ export default function ForgotPassword({ status }) {
                     <div className="mb-10 text-center lg:text-left">
                         <Link 
                             href={route('login')} 
-                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary-500 transition-colors mb-8 group"
+                            className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 hover:text-primary-500 transition-colors mb-8 group"
                         >
                             <IconArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
                             Kembali Ke Login
@@ -63,9 +63,9 @@ export default function ForgotPassword({ status }) {
                     <form onSubmit={submit} className="space-y-6">
                         {/* Input Email */}
                         <div>
-                            <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Email Terdaftar</label>
+                            <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2">Email Terdaftar</label>
                             <div className="relative group">
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-primary-500 transition-colors">
                                     <IconMail size={20} />
                                 </div>
                                 <input 

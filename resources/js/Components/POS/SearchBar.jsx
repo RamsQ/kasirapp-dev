@@ -87,7 +87,7 @@ export default function SearchBar({
                     {isSearching ? (
                         <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                     ) : (
-                        <IconSearch size={20} className="text-slate-400" />
+                        <IconSearch size={20} className="text-slate-500 dark:text-slate-400" />
                     )}
                 </div>
 
@@ -121,7 +121,7 @@ export default function SearchBar({
                             }}
                             className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                         >
-                            <IconX size={18} className="text-slate-400" />
+                            <IconX size={18} className="text-slate-500 dark:text-slate-400" />
                         </button>
                     )}
                     <div className="w-px h-6 bg-slate-200 dark:bg-slate-700" />
@@ -174,7 +174,7 @@ export default function SearchBar({
                                             <div className="w-full h-full flex items-center justify-center">
                                                 <IconBarcode
                                                     size={20}
-                                                    className="text-slate-400"
+                                                    className="text-slate-500 dark:text-slate-400"
                                                 />
                                             </div>
                                         )}

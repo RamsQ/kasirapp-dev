@@ -76,7 +76,7 @@ export default function Notification() {
                 </div>
                 <div>
                     <div className='font-semibold text-sm text-gray-700 dark:text-gray-200 '>
-                        {data.user} <sup className='text-xs font-mono text-gray-400 ml-1'>{data.time}</sup>
+                        {data.user} <sup className='text-xs font-mono text-gray-500 dark:text-gray-400 ml-1'>{data.time}</sup>
                     </div>
                     <div className='text-gray-500 dark:text-gray-400 text-sm'>{data.title}</div>
                 </div>
@@ -109,11 +109,11 @@ export default function Notification() {
                         <Menu.Items className='absolute rounded-xl w-[400px] border right-0 top-10 z-[100] bg-white dark:bg-gray-950 dark:border-gray-900 shadow-2xl'>
                             <div className='flex justify-between items-center p-4 border-b dark:border-gray-900'>
                                 <div className='text-lg font-bold text-gray-700 dark:text-gray-200'>Notifikasi Sistem</div>
-                                <IconDots className='text-gray-400' size={20} />
+                                <IconDots className='text-gray-500 dark:text-gray-400' size={20} />
                             </div>
                             <div className='p-2 max-h-80 overflow-y-auto'>
                                 {notificationData.length === 0 ? (
-                                    <div className='py-10 text-center text-sm text-gray-400 italic font-medium'>
+                                    <div className='py-10 text-center text-sm text-gray-500 dark:text-gray-400 italic font-medium'>
                                         Semua stok & tanggal aman.
                                     </div>
                                 ) : (
@@ -138,11 +138,11 @@ export default function Notification() {
                     <div className={`${isOpen ? 'translate-x-0 opacity-100 shadow-2xl' : 'translate-x-full opacity-0'} fixed top-0 right-0 z-[999] w-[300px] h-full transition-all duration-300 transform border-l bg-white dark:bg-gray-950 dark:border-gray-900`}>
                         <div className='flex justify-between items-center p-4 border-b dark:border-gray-900 '>
                             <div className='text-base font-bold text-gray-700 dark:text-gray-200'>Notifications</div>
-                            <button onClick={() => setIsOpen(false)} className='p-2 text-gray-400'>✕</button>
+                            <button onClick={() => setIsOpen(false)} className='p-2 text-gray-500 dark:text-gray-400'>✕</button>
                         </div>
                         <div className='p-2'>
                             {notificationData.length === 0 ? (
-                                <div className='py-20 text-center text-gray-400 italic'>Kosong</div>
+                                <div className='py-20 text-center text-gray-500 dark:text-gray-400 italic'>Kosong</div>
                             ) : (
                                 notificationData.map((item, i) => (
                                     <NotificationItem key={i} data={item} />

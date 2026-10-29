@@ -153,7 +153,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                             </div>
                             <div>
                                 <h1 className="text-xl font-bold tracking-tight dark:text-white leading-none uppercase">Resep & Produksi</h1>
-                                <p className="text-xs font-medium text-slate-400 mt-1 uppercase tracking-widest leading-none">Cost Control System</p>
+                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest leading-none">Cost Control System</p>
                             </div>
                         </div>
 
@@ -206,15 +206,15 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
                                 <div className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl"><IconReceipt2/></div>
-                                <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Menu Resep</p><p className="text-xl font-bold dark:text-white leading-tight">{stats.total_menu} Item</p></div>
+                                <div><p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Menu Resep</p><p className="text-xl font-bold dark:text-white leading-tight">{stats.total_menu} Item</p></div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
                                 <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 rounded-xl"><IconChartPie/></div>
-                                <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Avg. Modal</p><p className="text-xl font-bold dark:text-white leading-tight">Rp {new Intl.NumberFormat('id-ID').format(stats.avg_hpp)}</p></div>
+                                <div><p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg. Modal</p><p className="text-xl font-bold dark:text-white leading-tight">Rp {new Intl.NumberFormat('id-ID').format(stats.avg_hpp)}</p></div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
                                 <div className="p-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-xl"><IconCategory/></div>
-                                <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Bahan</p><p className="text-xl font-bold dark:text-white leading-tight">{stats.total_ingredients} Item</p></div>
+                                <div><p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Bahan</p><p className="text-xl font-bold dark:text-white leading-tight">{stats.total_ingredients} Item</p></div>
                             </div>
                         </div>
 
@@ -222,7 +222,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                             <div className="p-4 border-b border-slate-100 dark:border-slate-800">
                                 <div className="relative max-w-sm">
-                                    <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                    <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={18} />
                                     <input type="text" placeholder="Cari menu resep..." value={search} onChange={handleSearch} className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-primary-500" />
                                 </div>
                             </div>
@@ -309,7 +309,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                                                         </td>
                                                                                         <td className="px-4 py-3 text-right">
                                                                                             <p className="font-black dark:text-white text-sm">Rp {new Intl.NumberFormat('id-ID').format(itemCost)}</p>
-                                                                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{costWeight.toFixed(1)}% beban</p>
+                                                                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter">{costWeight.toFixed(1)}% beban</p>
                                                                                         </td>
                                                                                         <td className="px-4 py-3 text-center">
                                                                                             <button onClick={() => handleDelete(r.id, 'satuan')} className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/30 rounded-lg transition-all"><IconX size={14} /></button>
@@ -333,7 +333,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                             <tr>
                                                 <td colSpan="6" className="py-20 text-center">
                                                     <IconToolsKitchen2 size={48} className="mx-auto text-slate-200 mb-4" />
-                                                    <p className="text-sm font-bold uppercase text-slate-400 tracking-widest">Belum Ada Resep Terdaftar</p>
+                                                    <p className="text-sm font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">Belum Ada Resep Terdaftar</p>
                                                 </td>
                                             </tr>
                                         )}
@@ -357,7 +357,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                                 <div>
-                                    <label className="block text-[10px] font-bold uppercase mb-3 text-slate-400 tracking-widest">Target Produk Jadi</label>
+                                    <label className="block text-[10px] font-bold uppercase mb-3 text-slate-500 dark:text-slate-400 tracking-widest">Target Produk Jadi</label>
                                     <select className="w-full rounded-xl dark:bg-slate-800 dark:text-white border-slate-200 dark:border-slate-700 font-bold text-sm focus:ring-primary-500" value={data.product_id} onChange={e => setData('product_id', e.target.value)} required>
                                         <option value="">-- PILIH MENU --</option>
                                         {allProducts.map(p => <option key={p.id} value={p.id}>{p.title}</option>)}
@@ -398,7 +398,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                 );
                             })()}
                             <div className="space-y-4">
-                                <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest">Komposisi Bahan</label>
+                                <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">Komposisi Bahan</label>
                                 <div className="grid gap-3">
                                     {data.ingredients.map((row, index) => (
                                         <div key={index} className="flex gap-3 items-center bg-slate-50 dark:bg-slate-800/50 p-2 pl-4 rounded-xl border border-slate-200 dark:border-slate-700 transition-all focus-within:ring-2 focus-within:ring-primary-500/20">
@@ -408,7 +408,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                             </select>
                                             <div className="bg-white dark:bg-slate-900 px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-2">
                                                 <input type="number" step="any" className="w-16 border-none p-0 text-center text-sm font-bold bg-transparent dark:text-white focus:ring-0" placeholder="0" value={row.qty_needed} onChange={e => handleChange(index, 'qty_needed', e.target.value)} required />
-                                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider shrink-0">{unitOf(row.ingredient_id)}</span>
+                                                <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider shrink-0">{unitOf(row.ingredient_id)}</span>
                                             </div>
                                             <button type="button" onClick={() => handleRemoveRow(index)} className="p-2 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/30 rounded-lg transition-all"><IconTrash size={18} /></button>
                                         </div>

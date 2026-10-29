@@ -64,7 +64,7 @@ export default function Index({ discounts, products = [], categories = [], loyal
                                     <td className="px-4 sm:px-6 py-4 font-bold text-slate-900 dark:text-white">
                                         <div className="flex flex-col">
                                             <span>{item.name}</span>
-                                            {item.description && <span className="text-[10px] font-normal text-slate-400 italic">{item.description}</span>}
+                                            {item.description && <span className="text-[10px] font-normal text-slate-500 dark:text-slate-400 italic">{item.description}</span>}
                                         </div>
                                     </td>
                                     
@@ -122,12 +122,12 @@ export default function Index({ discounts, products = [], categories = [], loyal
                                             /* FIX: Menampilkan kolom minimum_item untuk tipe buy_get */
                                             <div className="flex items-center gap-1.5 text-slate-700 dark:text-slate-300">
                                                 <span className="font-black text-sm">{item.minimum_item}</span>
-                                                <span className="text-[10px] uppercase font-bold text-slate-400">Pcs / Qty</span>
+                                                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Pcs / Qty</span>
                                             </div>
                                         ) : (
                                             /* Menampilkan min_transaction untuk diskon nominal/persen */
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] uppercase font-bold text-slate-400">Min. Belanja:</span>
+                                                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">Min. Belanja:</span>
                                                 <span className="font-bold text-xs text-slate-700 dark:text-slate-300">
                                                     Rp {Number(item.min_transaction).toLocaleString('id-ID')}
                                                 </span>

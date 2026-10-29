@@ -161,7 +161,7 @@ export default function Edit({ categories, product, products }) {
                     {/* Left Column */}
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconPhoto size={18} /> Gambar Produk</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconPhoto size={18} /> Gambar Produk</h3>
                             <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden mb-4 text-center">
                                 {imagePreview ? (
                                     <img 
@@ -171,13 +171,13 @@ export default function Edit({ categories, product, products }) {
                                         onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(product.title)}&background=random` }}
                                     />
                                 ) : (
-                                    <IconPhoto size={48} className="text-slate-400" />
+                                    <IconPhoto size={48} className="text-slate-500 dark:text-slate-400" />
                                 )}
                             </div>
                             <Input type="file" label="Ganti Gambar" onChange={handleImageChange} errors={errors.image} accept="image/*" />
                         </div>
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Jenis Produk</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 tracking-widest">Jenis Produk</h3>
                             <div className={`px-4 py-3 rounded-xl text-xs font-bold uppercase flex items-center gap-2 ${data.type === 'bundle' ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'}`}>
                                 <IconPackage size={18} /> {data.type === 'single' ? 'Produk Biasa (Retail)' : 'Paket Bundling'}
                             </div>
@@ -187,7 +187,7 @@ export default function Edit({ categories, product, products }) {
                     {/* Right Column */}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconBarcode size={18} /> Informasi Dasar</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconBarcode size={18} /> Informasi Dasar</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="md:col-span-2"><InputSelect label="Kategori" data={categories} selected={selectedCategory} setSelected={setSelectedCategoryHandler} displayKey="name" searchable /></div>
                                 <Input label="Barcode" value={data.barcode} onChange={(e) => setData("barcode", e.target.value)} errors={errors.barcode} />
@@ -198,7 +198,7 @@ export default function Edit({ categories, product, products }) {
                         </div>
 
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconCurrencyDollar size={18} /> Harga & Stok</h3>
+                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconCurrencyDollar size={18} /> Harga & Stok</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Input label={data.type === 'bundle' ? "Total Modal (Auto)" : "Harga Beli"} value={data.buy_price} readOnly={data.type === 'bundle'} className={data.type === 'bundle' ? 'bg-slate-50 dark:bg-slate-800 font-bold text-primary-600 dark:text-primary-400' : ''} onChange={(e) => setData("buy_price", e.target.value)} />
                                 <Input label="Harga Jual" value={data.sell_price} onChange={(e) => setData("sell_price", e.target.value)} errors={errors.sell_price} />
@@ -216,7 +216,7 @@ export default function Edit({ categories, product, products }) {
                                             <IconDatabase size={20} />
                                         </div>
                                         <div>
-                                            <h3 className="text-[10px] font-black uppercase text-slate-400 tracking-widest leading-none">Manajemen Batch</h3>
+                                            <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest leading-none">Manajemen Batch</h3>
                                             <p className="text-sm font-black dark:text-white uppercase tracking-tight">Rincian Modal per Kedatangan</p>
                                         </div>
                                     </div>
@@ -225,7 +225,7 @@ export default function Edit({ categories, product, products }) {
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left border-separate border-spacing-y-2">
                                         <thead>
-                                            <tr className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                            <tr className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                                 <th className="px-4 py-2">Tgl Masuk</th>
                                                 <th className="px-4 py-2">Sisa / Total</th>
                                                 <th className="px-4 py-2 text-right">Harga Modal</th>
@@ -239,13 +239,13 @@ export default function Edit({ categories, product, products }) {
                                                     <tr key={index} className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl group transition-all">
                                                         <td className="px-4 py-4 text-[11px] font-bold dark:text-white first:rounded-l-2xl">
                                                             <div className="flex items-center gap-2">
-                                                                <IconCalendarTime size={16} className="text-slate-400" />
+                                                                <IconCalendarTime size={16} className="text-slate-500 dark:text-slate-400" />
                                                                 {formatDate(batch.created_at, {day:'2-digit', month:'short', year:'numeric'})}
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-4 text-[11px] font-black">
                                                             <span className="text-primary-600 dark:text-primary-400 text-sm">{batch.qty_remaining}</span>
-                                                            <span className="text-slate-400 ml-1">/ {batch.qty_in} {product.unit}</span>
+                                                            <span className="text-slate-500 dark:text-slate-400 ml-1">/ {batch.qty_in} {product.unit}</span>
                                                         </td>
                                                         <td className="px-4 py-4 text-[11px] font-bold text-right dark:text-white">
                                                             Rp {parseFloat(batch.buy_price).toLocaleString()}
@@ -257,7 +257,7 @@ export default function Edit({ categories, product, products }) {
                                                             <button 
                                                                 type="button"
                                                                 onClick={() => handleAdjustment(batch.id, batch.qty_remaining)}
-                                                                className="p-2 text-slate-400 hover:text-primary-600 hover:bg-white dark:hover:bg-slate-900 rounded-xl transition-all"
+                                                                className="p-2 text-slate-500 dark:text-slate-400 hover:text-primary-600 hover:bg-white dark:hover:bg-slate-900 rounded-xl transition-all"
                                                                 title="Penyesuaian Stok Batch"
                                                             >
                                                                 <IconScale size={18} />
@@ -269,8 +269,8 @@ export default function Edit({ categories, product, products }) {
                                                 <tr>
                                                     <td colSpan="5" className="text-center py-10 bg-slate-50 dark:bg-slate-800/30 rounded-3xl">
                                                         <IconAlertCircle size={32} className="mx-auto text-slate-300 mb-2" />
-                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Belum ada data batch aktif</p>
-                                                        <p className="text-[9px] text-slate-400 mt-1 italic">Silakan tambah stok di atas untuk membuat batch baru</p>
+                                                        <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">Belum ada data batch aktif</p>
+                                                        <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 italic">Silakan tambah stok di atas untuk membuat batch baru</p>
                                                     </td>
                                                 </tr>
                                             )}
@@ -283,21 +283,21 @@ export default function Edit({ categories, product, products }) {
                         {data.type === "single" && (
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 tracking-widest"><IconScale size={18} /> Konversi Satuan Luar</h3>
+                                    <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 flex items-center gap-2 tracking-widest"><IconScale size={18} /> Konversi Satuan Luar</h3>
                                     <button type="button" onClick={addUnitRow} className="bg-primary-50 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-[10px] uppercase font-black hover:bg-primary-100 transition-colors flex items-center gap-1"><IconPlus size={14} /> Tambah Satuan</button>
                                 </div>
                                 {data.units.map((unit, index) => (
                                     <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl mb-2 items-end">
                                         <div className="col-span-1 sm:col-span-4">
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Nama Satuan</label>
+                                            <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block tracking-wide">Nama Satuan</label>
                                             <input placeholder="Kg / Dus" value={unit.unit_name} onChange={(e) => updateUnitData(index, "unit_name", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
                                         <div className="col-span-1 sm:col-span-3">
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Isi (Qty)</label>
+                                            <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block tracking-wide">Isi (Qty)</label>
                                             <input type="number" placeholder="Konv" value={unit.conversion} onChange={(e) => updateUnitData(index, "conversion", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
                                         <div className="col-span-1 sm:col-span-4">
-                                            <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block tracking-wide">Harga Jual</label>
+                                            <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block tracking-wide">Harga Jual</label>
                                             <input type="number" placeholder="Harga" value={unit.sell_price} onChange={(e) => updateUnitData(index, "sell_price", e.target.value)} className="w-full rounded-lg text-sm dark:bg-slate-900 dark:text-white border-slate-200 dark:border-slate-700" />
                                         </div>
                                         <div className="col-span-1 flex justify-end sm:text-right">
@@ -310,28 +310,28 @@ export default function Edit({ categories, product, products }) {
 
                         {data.type === "bundle" && (
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                                <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconPackage size={18} /> Komposisi Paket</h3>
+                                <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconPackage size={18} /> Komposisi Paket</h3>
                                 <div className="space-y-3">
                                     {data.bundle_items.map((item, index) => {
                                         const selectedProd = products.find(p => p.id == item.item_id);
                                         return (
                                             <div key={index} className="flex flex-wrap items-end gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition-all">
                                                 <div className="flex-1 min-w-[150px]">
-                                                    <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block">Produk</label>
+                                                    <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block">Produk</label>
                                                     <select className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm focus:ring-primary-500" value={item.item_id} onChange={(e) => handleItemChange(index, "item_id", e.target.value)}>
                                                         <option value="">-- Pilih Produk --</option>
                                                         {products.map((p) => <option key={p.id} value={p.id}>{p.title}</option>)}
                                                     </select>
                                                 </div>
                                                 <div className="w-40">
-                                                    <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block">Satuan Item</label>
+                                                    <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block">Satuan Item</label>
                                                     <select className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm focus:ring-primary-500" value={item.product_unit_id} onChange={(e) => handleItemChange(index, "product_unit_id", e.target.value)}>
                                                         <option value="">Dasar ({selectedProd?.unit || 'Pcs'})</option>
                                                         {selectedProd?.units?.map(u => <option key={u.id} value={u.id}>{u.unit_name} (Isi: {u.conversion})</option>)}
                                                     </select>
                                                 </div>
                                                 <div className="w-20">
-                                                    <label className="text-[9px] font-black uppercase text-slate-400 mb-1 block text-center">Qty</label>
+                                                    <label className="text-[9px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 block text-center">Qty</label>
                                                     <input type="number" step="0.01" className="w-full text-center rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-white text-sm focus:ring-primary-500" value={item.qty} onChange={(e) => handleItemChange(index, "qty", e.target.value)} />
                                                 </div>
                                                 <button type="button" onClick={() => removeBundleItem(index)} className="p-2.5 bg-red-50 dark:bg-red-950 text-red-600 rounded-lg hover:bg-red-100 transition-colors shadow-sm"><IconTrash size={18} /></button>

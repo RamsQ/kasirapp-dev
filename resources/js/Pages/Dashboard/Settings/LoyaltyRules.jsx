@@ -171,7 +171,7 @@ export default function LoyaltyRules({ rules = [], products = [], categories = [
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex items-center justify-between"><div><h2 className="text-sm font-black uppercase tracking-wider">Daftar Rule</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Rule yang sedang aktif dan riwayat konfigurasi.</p></div><span className="text-xs font-bold text-slate-400">{rules.length} total</span></div>
                     <div className="mt-4 space-y-3">
-                        {rules.length === 0 && <p className="py-8 text-center text-sm text-slate-400">Belum ada rule loyalty.</p>}
+                        {rules.length === 0 && <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">Belum ada rule loyalty.</p>}
                         {rules.map((rule) => (
                             <div key={rule.id} className="rounded-xl border border-slate-100 p-4 dark:border-slate-800">
                                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

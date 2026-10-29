@@ -119,7 +119,7 @@ export default function Index({ categories }) {
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "grid"
                                 ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="Grid View"
                     >
@@ -130,7 +130,7 @@ export default function Index({ categories }) {
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "list"
                                 ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="List View"
                     >
@@ -187,7 +187,7 @@ export default function Index({ categories }) {
                                                         <div className="w-full h-full flex items-center justify-center">
                                                             <IconCategory
                                                                 size={20}
-                                                                className="text-slate-400"
+                                                                className="text-slate-500 dark:text-slate-400"
                                                             />
                                                         </div>
                                                     )}
@@ -250,7 +250,7 @@ export default function Index({ categories }) {
                     <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                         <IconDatabaseOff
                             size={32}
-                            className="text-slate-400"
+                            className="text-slate-500 dark:text-slate-400"
                             strokeWidth={1.5}
                         />
                     </div>

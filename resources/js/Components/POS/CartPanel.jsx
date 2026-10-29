@@ -41,7 +41,7 @@ function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                     <div className="w-full h-full flex items-center justify-center">
                         <IconShoppingCart
                             size={20}
-                            className="text-slate-400"
+                            className="text-slate-500 dark:text-slate-400"
                         />
                     </div>
                 )}
@@ -66,7 +66,7 @@ function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                 <button
                     onClick={() => onRemove(item.id)}
                     disabled={isRemoving}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-950/50 transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-950/50 transition-colors opacity-0 group-hover:opacity-100"
                 >
                     <IconTrash size={16} />
                 </button>
@@ -104,13 +104,13 @@ function EmptyCart() {
             <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                 <IconShoppingCart
                     size={32}
-                    className="text-slate-400"
+                    className="text-slate-500 dark:text-slate-400"
                 />
             </div>
             <h3 className="text-base font-medium text-slate-600 dark:text-slate-400">
                 Keranjang Kosong
             </h3>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 Klik produk untuk menambahkan
             </p>
         </div>

@@ -139,7 +139,7 @@ export default function TableIndex({ auth, tables }) {
                 {activeTab === "dine-in" ? (
                     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="flex items-center justify-between">
-                            <h2 className="text-xs font-black uppercase text-slate-400 tracking-[0.2em]">Daftar Meja Aktif</h2>
+                            <h2 className="text-xs font-black uppercase text-slate-500 dark:text-slate-400 tracking-[0.2em]">Daftar Meja Aktif</h2>
                             <div className="flex gap-2">
                                 <Link
                                     href={route("tables.printQr")}
@@ -161,10 +161,10 @@ export default function TableIndex({ auth, tables }) {
                                 <table className="w-full text-left">
                                     <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                                         <tr>
-                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Identitas Meja</th>
-                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Status</th>
-                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Keterangan</th>
-                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Aksi</th>
+                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Identitas Meja</th>
+                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Status</th>
+                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Keterangan</th>
+                                            <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest text-right">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -195,7 +195,7 @@ export default function TableIndex({ auth, tables }) {
                                                                 <IconGitMerge size={14} /> {mergeInfo}
                                                             </div>
                                                         ) : table.status === 'occupied' ? (
-                                                            <div className="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase italic">
+                                                            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase italic">
                                                                 <IconInfoCircle size={14} /> Sedang Makan
                                                             </div>
                                                         ) : (
@@ -206,7 +206,7 @@ export default function TableIndex({ auth, tables }) {
                                                         <div className="flex justify-end gap-1">
                                                             <button 
                                                                 onClick={() => handleEdit(table)} 
-                                                                className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
+                                                                className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-xl transition-all active:scale-90"
                                                                 title="Edit"
                                                             >
                                                                 <IconEdit size={18} />
@@ -214,7 +214,7 @@ export default function TableIndex({ auth, tables }) {
                                                             <button 
                                                                 onClick={() => handleDelete(table.id)} 
                                                                 disabled={table.status === 'occupied'}
-                                                                className={`p-2 rounded-xl transition-all active:scale-90 ${table.status === 'occupied' ? 'text-slate-200 cursor-not-allowed opacity-30' : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20'}`}
+                                                                className={`p-2 rounded-xl transition-all active:scale-90 ${table.status === 'occupied' ? 'text-slate-200 cursor-not-allowed opacity-30' : 'text-slate-500 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20'}`}
                                                                 title="Hapus"
                                                             >
                                                                 <IconTrash size={18} />
@@ -300,13 +300,13 @@ export default function TableIndex({ auth, tables }) {
                                 <h3 className="text-xl font-black uppercase tracking-tighter dark:text-white leading-none">
                                     {isEdit ? "Update Meja" : "Meja Baru"}
                                 </h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Informasi Lokasi Makan</p>
+                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1">Informasi Lokasi Makan</p>
                             </div>
                         </div>
                         
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div>
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-1">Label / Nomor Meja</label>
+                                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] ml-1">Label / Nomor Meja</label>
                                 <input
                                     type="text"
                                     value={data.name}

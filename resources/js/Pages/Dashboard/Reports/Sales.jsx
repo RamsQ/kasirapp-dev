@@ -339,7 +339,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="text-sm font-bold text-slate-900 dark:text-white">{trx.invoice}</div>
-                                                <div className="text-[10px] text-slate-400 uppercase">{trx.created_at}</div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">{trx.created_at}</div>
                                             </td>
                                             <td className="px-4 py-4">
                                                 {trx.online_platform ? (
@@ -365,7 +365,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                                 <div className="text-sm font-black text-emerald-600 dark:text-emerald-400">
                                                     {formatCurrency(trx.total_profit ?? 0)}
                                                 </div>
-                                                <div className="text-[8px] text-slate-400 font-medium italic">Setelah HPP & platform</div>
+                                                <div className="text-[8px] text-slate-500 dark:text-slate-400 font-medium italic">Setelah HPP & platform</div>
                                             </td>
                                         </tr>
                                     ))}
@@ -376,7 +376,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                         <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                            <IconDatabaseOff size={32} className="text-slate-400" />
+                            <IconDatabaseOff size={32} className="text-slate-500 dark:text-slate-400" />
                         </div>
                         <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">Tidak Ada Data</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada transaksi sesuai filter.</p>

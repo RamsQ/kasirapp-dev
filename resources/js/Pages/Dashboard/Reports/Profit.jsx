@@ -338,7 +338,7 @@ const ProfitReport = ({
                         <form onSubmit={applyFilters} className="space-y-8">
                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest text-left">Tanggal Mulai</label>
+                                    <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-1 tracking-widest text-left">Tanggal Mulai</label>
                                     <input
                                         type="date"
                                         value={filterData.start_date}
@@ -347,7 +347,7 @@ const ProfitReport = ({
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">Tanggal Akhir</label>
+                                    <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-1 tracking-widest">Tanggal Akhir</label>
                                     <input
                                         type="date"
                                         value={filterData.end_date}
@@ -356,7 +356,7 @@ const ProfitReport = ({
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase text-slate-400 ml-1 tracking-widest">No. Invoice</label>
+                                    <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-1 tracking-widest">No. Invoice</label>
                                     <input
                                         type="text"
                                         placeholder="Cari TRX-..."
@@ -430,12 +430,12 @@ const ProfitReport = ({
                                             key={trx.id}
                                             className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                                         >
-                                            <td className="px-6 py-5 text-xs font-bold text-slate-400 group-hover:text-indigo-600 transition-colors">
+                                            <td className="px-6 py-5 text-xs font-bold text-slate-500 dark:text-slate-400 group-hover:text-indigo-600 transition-colors">
                                                 {i + 1 + (currentPage - 1) * perPage}
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">{trx.invoice}</div>
-                                                <div className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{trx.created_at}</div>
+                                                <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{trx.created_at}</div>
                                             </td>
                                             <td className="px-6 py-5 border-l dark:border-slate-800">
                                                 {trx.online_platform ? (

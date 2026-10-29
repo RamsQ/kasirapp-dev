@@ -139,7 +139,7 @@ export default function BluetoothPairing() {
                     ) : (
                         <div className="mb-10 p-6 bg-slate-800/50 border border-dashed border-slate-700 rounded-[2rem] text-center">
                             <IconAlertCircle className="mx-auto text-slate-500 dark:text-slate-400 mb-2" size={32} />
-                            <p className="text-slate-400 font-medium">Belum ada printer yang dipilih</p>
+                            <p className="text-slate-500 dark:text-slate-400 font-medium">Belum ada printer yang dipilih</p>
                             <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-1 uppercase font-bold tracking-widest">Pairing printer di menu setting HP dulu</p>
                         </div>
                     )}
@@ -181,7 +181,7 @@ export default function BluetoothPairing() {
                                     </div>
                                     <button 
                                         onClick={() => savePrinter(device)}
-                                        className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-primary-500 hover:text-white transition-all"
+                                        className="text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-lg bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-primary-500 hover:text-white transition-all"
                                     >
                                         Pilih
                                     </button>

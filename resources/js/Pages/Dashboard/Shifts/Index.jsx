@@ -105,7 +105,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                 {/* Filter Tanggal */}
                 <form onSubmit={handleFilter} className="flex items-center gap-2">
                     <div className="relative">
-                        <IconCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                        <IconCalendar className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={18} />
                         <input 
                             type="date" 
                             value={date}
@@ -141,7 +141,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                         {shifts.data.length > 0 ? (
                             shifts.data.map((shift, i) => (
                                 <tr key={shift.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                                    <Table.Td className="text-center text-slate-400 font-medium">
+                                    <Table.Td className="text-center text-slate-500 dark:text-slate-400 font-medium">
                                         {++i + (shifts.current_page - 1) * shifts.per_page}
                                     </Table.Td>
                                     <Table.Td>
@@ -216,7 +216,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                             ))
                         ) : (
                             <tr>
-                                <Table.Td colSpan="9" className="text-center py-20 text-slate-400 italic font-medium">
+                                <Table.Td colSpan="9" className="text-center py-20 text-slate-500 dark:text-slate-400 italic font-medium">
                                     <IconAlertCircle size={48} className="mx-auto mb-2 opacity-20" />
                                     Belum ada data shift untuk periode ini.
                                 </Table.Td>
@@ -240,7 +240,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                          </div>
                          <div>
                             <h4 className="text-lg font-black uppercase tracking-widest italic">Audit Selisih Laci</h4>
-                            <p className="text-slate-400 text-xs font-medium opacity-80 uppercase tracking-tighter">Total Akumulasi Selisih Fisik vs Sistem di halaman ini.</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-xs font-medium opacity-80 uppercase tracking-tighter">Total Akumulasi Selisih Fisik vs Sistem di halaman ini.</p>
                          </div>
                     </div>
                     <div className={`text-4xl font-black tracking-tighter ${shifts.data.reduce((acc, curr) => acc + (curr.difference || 0), 0) < 0 ? 'text-red-400' : 'text-primary-400'}`}>

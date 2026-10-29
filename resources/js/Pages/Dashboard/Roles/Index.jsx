@@ -32,7 +32,7 @@ function RoleCard({ role, onEdit, onDelete }) {
                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200 capitalize truncate">
                             {role.name}
                         </h3>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                             {role.permissions?.length || 0} Hak Akses Terpasang
                         </p>
                     </div>
@@ -48,7 +48,7 @@ function RoleCard({ role, onEdit, onDelete }) {
                         </span>
                     ))}
                     {role.permissions?.length > 15 && (
-                        <span className="px-2 py-1 text-[10px] font-bold text-slate-400 italic">
+                        <span className="px-2 py-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 italic">
                             +{role.permissions.length - 15} lainnya...
                         </span>
                     )}
@@ -214,7 +214,7 @@ export default function Index() {
             ) : (
                 <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
                     <IconDatabaseOff size={48} className="mx-auto text-slate-300 mb-4" />
-                    <h3 className="text-lg font-bold text-slate-400 uppercase tracking-tighter italic">Belum Ada Data Role</h3>
+                    <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter italic">Belum Ada Data Role</h3>
                 </div>
             )}
 
@@ -231,7 +231,7 @@ export default function Index() {
 
                     <div className="mb-6">
                         <div className="flex justify-between items-center mb-6">
-                            <label className="text-xs font-black uppercase text-slate-400 flex items-center gap-2"><IconCategory size={16} /> Konfigurasi Modul</label>
+                            <label className="text-xs font-black uppercase text-slate-500 dark:text-slate-400 flex items-center gap-2"><IconCategory size={16} /> Konfigurasi Modul</label>
                             <span className="text-[10px] font-bold text-primary-500 dark:text-primary-400 bg-primary-50 px-3 py-1 rounded-full">{data.selectedPermission.length} Akses Dipilih</span>
                         </div>
                         

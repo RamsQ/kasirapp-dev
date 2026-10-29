@@ -89,7 +89,7 @@ export default function ReceiptSetting({ setting }) {
                                         }}
                                         className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-700 shadow-sm hover:file:bg-slate-100 cursor-pointer"
                                     />
-                                    <p className="text-[10px] text-slate-400 italic">Disarankan: Gambar Hitam Putih (Sangat Kontras).</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 italic">Disarankan: Gambar Hitam Putih (Sangat Kontras).</p>
                                     {errors.store_logo && <p className="text-red-500 text-xs font-bold">{errors.store_logo}</p>}
                                 </div>
                             </div>
@@ -99,7 +99,7 @@ export default function ReceiptSetting({ setting }) {
                                     {logoUrl ? (
                                         <img src={logoUrl} alt="Preview" className="h-24 w-auto object-contain grayscale" />
                                     ) : (
-                                        <div className="h-24 w-24 flex items-center justify-center text-slate-400">
+                                        <div className="h-24 w-24 flex items-center justify-center text-slate-500 dark:text-slate-400">
                                             <IconPhotoOff size={40} />
                                         </div>
                                     )}

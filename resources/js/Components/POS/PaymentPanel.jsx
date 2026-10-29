@@ -277,7 +277,7 @@ export default function PaymentPanel({
                                     className={`text-lg font-bold ${
                                         change > 0
                                             ? "text-success-500"
-                                            : "text-slate-400"
+                                            : "text-slate-500 dark:text-slate-400"
                                     }`}
                                 >
                                     {formatPrice(change)}
@@ -317,7 +317,7 @@ export default function PaymentPanel({
                         ${
                             canSubmit
                                 ? "bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 active:scale-[0.98]"
-                                : "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
+                                : "bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                         }
                     `}
                 >

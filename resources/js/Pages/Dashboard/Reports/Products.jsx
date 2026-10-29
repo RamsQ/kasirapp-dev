@@ -46,7 +46,7 @@ export default function Products({ products, categories, filters }) {
                             <IconPackage className="text-primary-500 dark:text-primary-400" size={32} /> Laporan Produk
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Monitor stok dan akumulasi penjualan produk berdasarkan periode.</p>
-                    <p className="text-[10px] text-slate-400 mt-1">Omzet produk menggunakan harga line setelah diskon item, sebelum diskon global dan pajak.</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Omzet produk menggunakan harga line setelah diskon item, sebelum diskon global dan pajak.</p>
                     </div>
                     <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20">
                         <IconPrinter size={18} /> CETAK PDF
@@ -57,16 +57,16 @@ export default function Products({ products, categories, filters }) {
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm border border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-end transition-all">
                     {/* Search */}
                     <div className="flex-1 min-w-[200px]">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest ml-1">Cari Nama / Barcode</label>
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest ml-1">Cari Nama / Barcode</label>
                         <div className="relative">
-                            <IconSearch className="absolute left-4 top-3 text-slate-400" size={18} />
+                            <IconSearch className="absolute left-4 top-3 text-slate-500 dark:text-slate-400" size={18} />
                             <input type="text" className="w-full pl-12 pr-4 py-2.5 rounded-2xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm focus:ring-primary-500" placeholder="Ketik pencarian..." value={search} onChange={e => setSearch(e.target.value)} />
                         </div>
                     </div>
 
                     {/* Start Date */}
                     <div className="w-full md:w-44">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest ml-1">Dari Tanggal</label>
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest ml-1">Dari Tanggal</label>
                         <div className="relative">
                             <input type="date" className="w-full px-4 py-2.5 rounded-2xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm focus:ring-primary-500" value={startDate} onChange={e => setStartDate(e.target.value)} />
                         </div>
@@ -74,7 +74,7 @@ export default function Products({ products, categories, filters }) {
 
                     {/* End Date */}
                     <div className="w-full md:w-44">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest ml-1">Sampai Tanggal</label>
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest ml-1">Sampai Tanggal</label>
                         <div className="relative">
                             <input type="date" className="w-full px-4 py-2.5 rounded-2xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white text-sm focus:ring-primary-500" value={endDate} onChange={e => setEndDate(e.target.value)} />
                         </div>
@@ -82,7 +82,7 @@ export default function Products({ products, categories, filters }) {
 
                     {/* Category */}
                     <div className="w-full md:w-44">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest ml-1">Kategori</label>
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest ml-1">Kategori</label>
                         <select className="w-full border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-2xl text-sm py-2.5 px-4 focus:ring-primary-500 cursor-pointer" value={category} onChange={e => setCategory(e.target.value)}>
                             <option value="">Semua Kategori</option>
                             {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -100,11 +100,11 @@ export default function Products({ products, categories, filters }) {
                     <table className="w-full min-w-[640px] text-left">
                         <thead className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
                             <tr>
-                                <th className="p-3 sm:p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Produk</th>
-                                <th className="p-3 sm:p-5 text-[10px] font-black uppercase text-slate-400 tracking-widest">Kategori</th>
-                                <th className="p-3 sm:p-5 text-center text-[10px] font-black uppercase text-slate-400 tracking-widest">Stok Sisa</th>
-                                <th className="p-3 sm:p-5 text-center text-[10px] font-black uppercase text-slate-400 tracking-widest">Qty Terjual</th>
-                                <th className="p-3 sm:p-5 text-right text-[10px] font-black uppercase text-slate-400 tracking-widest">Omzet Line</th>
+                                <th className="p-3 sm:p-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Produk</th>
+                                <th className="p-3 sm:p-5 text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Kategori</th>
+                                <th className="p-3 sm:p-5 text-center text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Stok Sisa</th>
+                                <th className="p-3 sm:p-5 text-center text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Qty Terjual</th>
+                                <th className="p-3 sm:p-5 text-right text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest">Omzet Line</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -112,7 +112,7 @@ export default function Products({ products, categories, filters }) {
                                 <tr key={p.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                     <td className="p-3 sm:p-5">
                                         <div className="font-bold text-slate-800 dark:text-white text-xs uppercase">{p.title}</div>
-                                        <div className="text-[10px] text-slate-400 mt-1 font-mono">{p.barcode}</div>
+                                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 font-mono">{p.barcode}</div>
                                     </td>
                                     <td className="p-3 sm:p-5">
                                         <span className="text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-lg font-black text-slate-500 dark:text-slate-400 uppercase tracking-tighter border dark:border-slate-700">

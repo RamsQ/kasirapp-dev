@@ -143,7 +143,7 @@ function SearchInput({
                 {isSearching ? (
                     <div className="w-5 h-5 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
                 ) : (
-                    <IconShoppingBag size={20} className="text-slate-400" />
+                    <IconShoppingBag size={20} className="text-slate-500 dark:text-slate-400" />
                 )}
             </div>
         </div>
@@ -222,7 +222,7 @@ export default function ProductGrid({
                         ))}
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
+                    <div className="h-full flex flex-col items-center justify-center text-slate-500 dark:text-slate-400">
                         <IconShoppingBag
                             size={48}
                             strokeWidth={1.5}

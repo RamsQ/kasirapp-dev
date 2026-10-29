@@ -76,7 +76,7 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
                     </div>
                     <div>
                         <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Settings</h1>
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Konfigurasi Perangkat & Inti Aplikasi</p>
+                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Konfigurasi Perangkat & Inti Aplikasi</p>
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-black uppercase tracking-tighter dark:text-white leading-none">Printer Bluetooth</h3>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-2">Hubungkan kasir dengan Printer Thermal</p>
+                                <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-2">Hubungkan kasir dengan Printer Thermal</p>
                             </div>
                         </div>
                         <Link 
@@ -288,11 +288,11 @@ const SettingIndex = ({ auth, settings, canManageCgos }) => {
                 ) : (
                     /* 4. STATE TERKUNCI (LOCK) - JIKA TIDAK PUNYA PERMISSION */
                     <div className="p-16 bg-slate-100 dark:bg-slate-900/50 rounded-[3.5rem] border border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center text-center">
-                        <div className="w-24 h-24 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 mb-6 shadow-inner">
+                        <div className="w-24 h-24 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 mb-6 shadow-inner">
                             <IconLock size={48} />
                         </div>
-                        <h4 className="text-xl font-black uppercase italic text-slate-400 tracking-tighter">System Core Restricted</h4>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mt-4 max-w-sm leading-relaxed">
+                        <h4 className="text-xl font-black uppercase italic text-slate-500 dark:text-slate-400 tracking-tighter">System Core Restricted</h4>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mt-4 max-w-sm leading-relaxed">
                             Pengaturan tingkat lanjut (CGOS) sedang dikunci. Silakan hubungi Super Admin untuk mendapatkan akses izin settings sistem.
                         </p>
                     </div>

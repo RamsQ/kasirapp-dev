@@ -79,7 +79,7 @@ function KpiCard({ label, value, delta, icon: Icon, tone, hint }) {
                     <Icon
                         size={16}
                         strokeWidth={1.8}
-                        className="shrink-0 text-slate-400"
+                        className="shrink-0 text-slate-500 dark:text-slate-400"
                     />
                 ) : null}
             </div>
@@ -96,7 +96,7 @@ function KpiCard({ label, value, delta, icon: Icon, tone, hint }) {
             </p>
 
             {hint ? (
-                <p className="mt-0.5 text-[11px] text-slate-400">{hint}</p>
+                <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">{hint}</p>
             ) : null}
         </div>
     );
@@ -350,7 +350,7 @@ function PromoPanel({ promo }) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-800">
-                                                <div className="text-[10px] uppercase text-slate-400">
+                                                <div className="text-[10px] uppercase text-slate-500 dark:text-slate-400">
                                                     Berpromo
                                                 </div>
                                                 <div className="text-sm font-black text-cyan-600 dark:text-cyan-400">
@@ -358,7 +358,7 @@ function PromoPanel({ promo }) {
                                                 </div>
                                             </div>
                                             <div className="rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-800">
-                                                <div className="text-[10px] uppercase text-slate-400">
+                                                <div className="text-[10px] uppercase text-slate-500 dark:text-slate-400">
                                                     Tanpa promo
                                                 </div>
                                                 <div className="text-sm font-black text-slate-600 dark:text-slate-300">
@@ -673,7 +673,7 @@ export default function AnalyticsIndex({
                     ) : null}
 
                     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className="flex items-center gap-1 text-[11px] text-slate-400">
+                        <p className="flex items-center gap-1 text-[11px] text-slate-500 dark:text-slate-400">
                             <IconInfoCircle size={12} />
                             {period.start} s/d {period.end} ({period.days} hari, {GRANULARITY_LABELS[period.granularity]}).
                             Pembanding: {comparison.start} s/d {comparison.end}.
@@ -681,7 +681,7 @@ export default function AnalyticsIndex({
 
                         {/* ---------- STATUS KESEGARAN DATA ---------- */}
                         <div className="flex items-center gap-2 text-[11px]">
-                            <span className="text-slate-400">
+                            <span className="text-slate-500 dark:text-slate-400">
                                 Diperbarui {describeFreshness(autoRefresh.lastLoadedAt)}
                                 {autoRefresh.enabled
                                     ? `, lagi ${autoRefresh.secondsLeft} dtk`
@@ -709,7 +709,7 @@ export default function AnalyticsIndex({
                                 </label>
                             ) : (
                                 <span
-                                    className="text-slate-400"
+                                    className="text-slate-500 dark:text-slate-400"
                                     title="Auto-refresh hanya untuk periode yang berubah terus, misal Hari Ini. Untuk periode panjang, angka 1 menit lalu hampir sama dengan sekarang."
                                 >
                                     {GRANULARITY_LABELS[period.granularity]} tidak perlu auto-refresh

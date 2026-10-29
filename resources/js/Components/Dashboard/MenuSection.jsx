@@ -37,7 +37,7 @@ export default function MenuSection({ section, index, isOpen, onToggle, sidebarO
                         className={`text-[10px] font-black uppercase tracking-[0.15em] transition-colors ${
                             isOpen
                                 ? "text-slate-600 dark:text-slate-300"
-                                : "text-slate-400 group-hover:text-slate-500"
+                                : "text-slate-500 dark:text-slate-400 group-hover:text-slate-500"
                         }`}
                     >
                         {section.title}

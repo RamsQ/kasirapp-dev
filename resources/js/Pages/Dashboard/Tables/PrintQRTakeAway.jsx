@@ -78,7 +78,7 @@ const PrintQRTakeAway = () => {
                         </div>
 
                         <div className="mt-14 w-full">
-                            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">3 Langkah Mudah</p>
+                            <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mb-6">3 Langkah Mudah</p>
                             
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="flex flex-col items-center">
@@ -106,7 +106,7 @@ const PrintQRTakeAway = () => {
                     {/* Footer: Brand POS */}
                     <div className="bg-slate-50 py-8 text-center border-t border-slate-100">
                         <div className="flex flex-col items-center gap-1">
-                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Powered by</span>
+                            <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em]">Powered by</span>
                             <h2 className="text-lg font-black text-slate-800 uppercase tracking-tighter italic">
                                 LakuPOS <span className="text-emerald-600">AJA</span>
                             </h2>
@@ -119,7 +119,7 @@ const PrintQRTakeAway = () => {
                 </div>
 
                 {/* Footer Info Cetak */}
-                <p className="mt-8 text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] print:hidden">
+                <p className="mt-8 text-slate-500 dark:text-slate-400 text-[10px] font-medium uppercase tracking-[0.2em] print:hidden">
                     Disarankan mencetak dengan kertas Photo/Art Paper untuk hasil maksimal.
                 </p>
             </div>

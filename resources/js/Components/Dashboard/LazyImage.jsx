@@ -63,7 +63,7 @@ export default function LazyImage({
                 className={`flex items-center justify-center bg-slate-100 dark:bg-slate-800 ${className} ${placeholderClass}`}
                 {...props}
             >
-                {fallback || <IconPhoto size={24} className="text-slate-400" />}
+                {fallback || <IconPhoto size={24} className="text-slate-500 dark:text-slate-400" />}
             </div>
         );
     }
@@ -130,7 +130,7 @@ export function ProductImage({
                 <div className="w-full h-full flex items-center justify-center">
                     <IconPhoto
                         size={size === "sm" ? 16 : 24}
-                        className="text-slate-400"
+                        className="text-slate-500 dark:text-slate-400"
                     />
                 </div>
             }
@@ -149,7 +149,7 @@ export function CategoryImage({ image, name = "Category", className = "" }) {
             src={src}
             alt={name}
             className={`w-full aspect-video rounded-xl ${className}`}
-            fallback={<IconPhoto size={32} className="text-slate-400" />}
+            fallback={<IconPhoto size={32} className="text-slate-500 dark:text-slate-400" />}
         />
     );
 }

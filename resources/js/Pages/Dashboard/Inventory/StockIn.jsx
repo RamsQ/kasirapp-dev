@@ -198,7 +198,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                 {/* --- SEARCH & IMPORT BAR --- */}
                 <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm flex flex-col lg:flex-row items-center gap-4">
                     <form onSubmit={handleSearch} className="relative flex-1 w-full text-slate-900">
-                        <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                         <input type="text" className="pl-10 w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-rose-500 font-bold uppercase" placeholder={`Cari di kategori ${activeTab === 'products' ? 'produk' : 'bahan baku'}...`} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                     </form>
                     
@@ -249,7 +249,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                                 {item.type === 'ingredients' ? <IconDatabase size={14} className="text-emerald-500" /> : <IconPackageImport size={14} className="text-rose-500" />}
                                                 {item.title}
                                             </div>
-                                            <span className="text-[10px] font-mono text-slate-400 font-normal tracking-tighter">{item.barcode}</span>
+                                            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-normal tracking-tighter">{item.barcode}</span>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase">{item.unit}</span>
@@ -275,7 +275,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                         </td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan="6" className="p-10 text-center text-slate-400 uppercase font-bold text-xs tracking-widest italic">Barang tidak ditemukan.</td></tr>
+                                    <tr><td colSpan="6" className="p-10 text-center text-slate-500 dark:text-slate-400 uppercase font-bold text-xs tracking-widest italic">Barang tidak ditemukan.</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -300,7 +300,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                     {option.label}
                                 </button>
                             ))}
-                            <span className="text-[10px] text-slate-400 italic">
+                            <span className="text-[10px] text-slate-500 dark:text-slate-400 italic">
                                 {data.payment_method === "credit"
                                     ? "Akan dicatat sebagai Hutang Usaha."
                                     : "Akan mengurangi Kas di Laci."}
@@ -319,7 +319,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                 <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm mb-10">
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm text-left">
-                            <thead className="text-[10px] text-slate-400 uppercase bg-slate-50 dark:bg-slate-800 font-black tracking-widest border-b border-slate-200 dark:border-slate-800 text-center">
+                            <thead className="text-[10px] text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-800 font-black tracking-widest border-b border-slate-200 dark:border-slate-800 text-center">
                                 <tr>
                                     <th className="px-6 py-4 text-left">Waktu & Admin</th>
                                     <th className="px-6 py-4 text-left">Nama Item</th>
@@ -333,7 +333,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                     <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-center">
                                         <td className="px-6 py-4 text-left">
                                             <div className="font-bold text-slate-900 dark:text-white uppercase text-[11px]">{h.user?.name}</div>
-                                            <div className="text-[10px] text-slate-400 italic">{formatDateTime(h.created_at)}</div>
+                                            <div className="text-[10px] text-slate-500 dark:text-slate-400 italic">{formatDateTime(h.created_at)}</div>
                                         </td>
                                         <td className="px-6 py-4 font-bold uppercase text-[11px] text-left">
                                             {h.product?.title || h.ingredient?.name}
@@ -343,7 +343,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                         </td>
                                         <td className="px-6 py-4 text-emerald-600 font-black">+{h.qty}</td>
                                         <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white">Rp {new Intl.NumberFormat('id-ID').format(h.price)}</td>
-                                        <td className="px-6 py-4 font-mono text-[10px] text-slate-400 uppercase">{h.reference}</td>
+                                        <td className="px-6 py-4 font-mono text-[10px] text-slate-500 dark:text-slate-400 uppercase">{h.reference}</td>
                                     </tr>
                                 )) : (
                                     <tr><td colSpan="5" className="p-10 text-center text-xs opacity-40 uppercase font-bold tracking-widest italic">Belum ada riwayat.</td></tr>
@@ -376,7 +376,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                             <div className="p-4 sm:p-6 max-h-[40vh] overflow-y-auto overflow-x-auto">
                                 <table className="w-full min-w-[560px] text-sm">
                                     <thead className="sticky top-0 bg-white dark:bg-slate-900 shadow-sm">
-                                        <tr className="text-[10px] uppercase font-black text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                                        <tr className="text-[10px] uppercase font-black text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
                                             <th className="py-3 text-left">Ref / Batch</th>
                                             <th className="py-3 text-center">Sisa Stok</th>
                                             <th className="py-3 text-right">Harga Modal</th>
@@ -389,13 +389,13 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                             <tr key={batch.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                                                 <td className="py-4 font-mono text-slate-500 dark:text-slate-400 uppercase">
                                                     {batch.serial_number}
-                                                    <div className="text-[9px] text-slate-400 normal-case mt-0.5">Masuk: {formatDate(batch.created_at)}</div>
+                                                    <div className="text-[9px] text-slate-500 dark:text-slate-400 normal-case mt-0.5">Masuk: {formatDate(batch.created_at)}</div>
                                                 </td>
                                                 <td className="py-4 text-center">
                                                     <span className="font-black text-blue-600">{batch.qty_remaining}</span>
-                                                    <div className="text-[9px] text-slate-400 font-bold uppercase">{batch.weight}% Stok</div>
+                                                    <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase">{batch.weight}% Stok</div>
                                                 </td>
-                                                <td className="py-4 text-right font-bold text-slate-400">
+                                                <td className="py-4 text-right font-bold text-slate-500 dark:text-slate-400">
                                                     Rp {new Intl.NumberFormat('id-ID').format(batch.buy_price)}
                                                 </td>
                                                 <td className="py-4 text-right font-black text-emerald-600">
@@ -412,7 +412,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                                 </td>
                                             </tr>
                                         )) : (
-                                            <tr><td colSpan="5" className="py-12 text-center text-slate-400 uppercase font-black text-[10px] opacity-60 italic">Semua batch telah habis digunakan.</td></tr>
+                                            <tr><td colSpan="5" className="py-12 text-center text-slate-500 dark:text-slate-400 uppercase font-black text-[10px] opacity-60 italic">Semua batch telah habis digunakan.</td></tr>
                                         )}
                                     </tbody>
                                 </table>

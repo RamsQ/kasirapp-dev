@@ -132,7 +132,7 @@ const History = ({ transactions, filters }) => {
         if (m === 'xendit') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QRIS Xendit</span>;
         if (m === 'qris_manual') return <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconQrcode size={12}/> QRIS Statis</span>;
         if (m === 'transfer') return <span className="flex items-center gap-1 text-blue-600 bg-blue-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconCreditCard size={12}/> Transfer</span>;
-        return <span className="text-slate-400">-{m}-</span>;
+        return <span className="text-slate-500 dark:text-slate-400">-{m}-</span>;
     };
 
     return (
@@ -173,11 +173,11 @@ const History = ({ transactions, filters }) => {
                     <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-6 shadow-sm animate-in slide-in-from-top-2 duration-300">
                         <form onSubmit={applyFilters} className="grid gap-4 md:grid-cols-5">
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">No. Invoice</label>
+                                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">No. Invoice</label>
                                 <input type="text" placeholder="TRX-..." value={filterData.invoice} onChange={(e) => handleChange("invoice", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 transition-all font-bold text-sm" />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Metode</label>
+                                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Metode</label>
                                 <select value={filterData.payment_method} onChange={(e) => handleChange("payment_method", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-sm">
                                     <option value="">Semua Metode</option>
                                     <option value="cash">Tunai (Cash)</option>
@@ -187,16 +187,16 @@ const History = ({ transactions, filters }) => {
                                 </select>
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dari Tanggal</label>
+                                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Dari Tanggal</label>
                                 <input type="date" value={filterData.start_date} onChange={(e) => handleChange("start_date", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-sm" />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Sampai Tanggal</label>
+                                <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">Sampai Tanggal</label>
                                 <input type="date" value={filterData.end_date} onChange={(e) => handleChange("end_date", e.target.value)} className="w-full rounded-xl border-slate-200 dark:bg-slate-800 dark:border-slate-700 dark:text-white focus:ring-indigo-500 focus:border-indigo-500 font-bold text-sm" />
                             </div>
                             <div className="flex items-end gap-2">
                                 <button type="submit" className="flex-1 bg-slate-900 dark:bg-indigo-600 hover:bg-black text-white rounded-xl font-black py-2.5 transition-all uppercase text-[10px] tracking-[0.2em] shadow-md">Terapkan</button>
-                                <button type="button" onClick={resetFilters} className="p-2.5 text-slate-400 hover:text-red-500 transition-all bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700">
+                                <button type="button" onClick={resetFilters} className="p-2.5 text-slate-500 dark:text-slate-400 hover:text-red-500 transition-all bg-slate-50 dark:bg-slate-800 rounded-xl border dark:border-slate-700">
                                     <IconRefresh size={20} />
                                 </button>
                             </div>
@@ -209,14 +209,14 @@ const History = ({ transactions, filters }) => {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">No</th>
-                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Invoice / Kasir</th>
-                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Waktu Transaksi</th>
-                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Meja / Pelanggan</th>
-                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Metode</th>
-                                    <th className="px-6 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Bayar</th>
+                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">No</th>
+                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Invoice / Kasir</th>
+                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Waktu Transaksi</th>
+                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Meja / Pelanggan</th>
+                                    <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Metode</th>
+                                    <th className="px-6 py-5 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Total Bayar</th>
                                     <th className="px-6 py-5 text-right text-[10px] font-black text-emerald-600 uppercase tracking-widest">Profit Bersih</th>
-                                    <th className="px-6 py-5 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+                                    <th className="px-6 py-5 text-center text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -229,7 +229,7 @@ const History = ({ transactions, filters }) => {
                                                 <span className={`font-black uppercase tracking-tighter ${transaction.status === 'refunded' ? 'text-red-500 line-through' : 'text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors'}`}>
                                                     {transaction.invoice}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-slate-400 uppercase italic">Oleh: {transaction.cashier?.name}</span>
+                                                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase italic">Oleh: {transaction.cashier?.name}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-xs text-slate-500 dark:text-slate-400 font-bold">
@@ -244,7 +244,7 @@ const History = ({ transactions, filters }) => {
                                                     {transaction.table_name || 'BAWA PULANG'}
                                                 </div>
                                                 <div className="flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-200 uppercase truncate max-w-[120px]">
-                                                    <IconUser size={12} className="text-slate-400" />
+                                                    <IconUser size={12} className="text-slate-500 dark:text-slate-400" />
                                                     {transaction.customer_name || transaction.customer?.name || "PELANGGAN UMUM"}
                                                 </div>
                                             </div>
@@ -269,7 +269,7 @@ const History = ({ transactions, filters }) => {
                                             <div className="flex justify-center gap-1">
                                                 <Link 
                                                     href={route("transactions.print", transaction.invoice)} 
-                                                    className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all active:scale-90" 
+                                                    className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all active:scale-90" 
                                                     title="Cetak Ulang"
                                                 >
                                                     <IconPrinter size={20}/>
@@ -285,7 +285,7 @@ const History = ({ transactions, filters }) => {
                                                         href={transaction.receipt_url}
                                                         target="_blank"
                                                         rel="noreferrer"
-                                                        className="p-2 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-all active:scale-90"
+                                                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-xl transition-all active:scale-90"
                                                         title="Struk Digital Pelanggan"
                                                     >
                                                         <IconQrcode size={20}/>
@@ -300,7 +300,7 @@ const History = ({ transactions, filters }) => {
                                                     <button
                                                         type="button"
                                                         onClick={() => toggleTimeline(transaction.id)}
-                                                        className={`p-2 rounded-xl transition-all active:scale-90 ${openTimelines.has(transaction.id) ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'}`}
+                                                        className={`p-2 rounded-xl transition-all active:scale-90 ${openTimelines.has(transaction.id) ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30' : 'text-slate-500 dark:text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'}`}
                                                         title="Riwayat Pembayaran"
                                                     >
                                                         <IconHistory size={20}/>
@@ -311,7 +311,7 @@ const History = ({ transactions, filters }) => {
                                                 {auth.user.roles.some(role => role.name === 'super-admin') && transaction.status !== "refunded" ? (
                                                     <button
                                                         onClick={() => handleRefund(transaction.id)}
-                                                        className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all active:scale-90"
+                                                        className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-xl transition-all active:scale-90"
                                                         title="Refund"
                                                     >
                                                         <IconRefresh size={20}/>
@@ -339,7 +339,7 @@ const History = ({ transactions, filters }) => {
                                     <tr>
                                         <td colSpan="8" className="px-6 py-20 text-center">
                                             <IconHistory size={48} className="mx-auto mb-4 text-slate-200" />
-                                            <p className="text-slate-400 italic font-medium">Tidak ada riwayat transaksi ditemukan.</p>
+                                            <p className="text-slate-500 dark:text-slate-400 italic font-medium">Tidak ada riwayat transaksi ditemukan.</p>
                                         </td>
                                     </tr>
                                 )}

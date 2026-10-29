@@ -528,9 +528,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
                         <div className="fixed bottom-0 inset-x-0 p-4 sm:p-6 bg-white/95 backdrop-blur-xl border-t border-slate-100 rounded-t-[3rem] shadow-2xl z-50 animate-in slide-in-from-bottom-5">
                             <div className="max-w-md mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div className="min-w-0">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Estimasi Total</span>
+                                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase block mb-1">Estimasi Total</span>
                                     <span className={`block text-2xl font-black italic tracking-tighter leading-none truncate ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</span>
-                                     {taxAmount > 0 && <span className="block text-[9px] font-black text-slate-400 uppercase mt-1">Termasuk pajak {taxRate}%</span>}
+                                     {taxAmount > 0 && <span className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase mt-1">Termasuk pajak {taxRate}%</span>}
                                 </div>
                                 <button onClick={() => setShowReview(true)} className={`w-full sm:w-auto shrink-0 px-6 sm:px-8 py-4 min-h-touch text-white rounded-2xl font-black uppercase text-[12px] flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all ${isTakeAway ? 'bg-emerald-600 dark:bg-emerald-700' : 'bg-slate-900'}`}>
                                      Review Order <IconCheck size={20} />
@@ -542,11 +542,11 @@ export default function CustomerMenu({ products, table, categories, activePromos
             ) : (
                 /* --- MODE REVIEW PESANAN --- */
                 <div className="p-6 animate-in slide-in-from-bottom-10 duration-500">
-                    <button onClick={() => setShowReview(false)} className="mb-6 flex items-center gap-2 text-slate-400 font-black uppercase text-[10px] tracking-widest"><IconChevronLeft size={16} /> Kembali</button>
+                    <button onClick={() => setShowReview(false)} className="mb-6 flex items-center gap-2 text-slate-500 dark:text-slate-400 font-black uppercase text-[10px] tracking-widest"><IconChevronLeft size={16} /> Kembali</button>
                     <h2 className="text-3xl font-black italic uppercase tracking-tighter mb-6 text-slate-800">Cek Pesanan</h2>
                     
                     <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-100 mb-6">
-                        <p className="text-[10px] font-black text-slate-400 uppercase mb-3 tracking-widest flex items-center gap-1"><IconUser size={14} /> Nama Pemesan</p>
+                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase mb-3 tracking-widest flex items-center gap-1"><IconUser size={14} /> Nama Pemesan</p>
                         <input type="text" placeholder="Masukkan nama Anda..." className={`w-full p-4 rounded-2xl bg-slate-50 border-none text-sm font-black focus:ring-2 uppercase ${isTakeAway ? 'focus:ring-emerald-500' : 'focus:ring-indigo-500'}`} value={name} onChange={e => setName(e.target.value)} />
                     </div>
 
@@ -571,7 +571,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                         </div>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-slate-100">
-                                        <label className="block text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1.5">Catatan tambahan</label>
+                                        <label className="block text-[9px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Catatan tambahan</label>
                                         <input
                                             type="text"
                                             maxLength={200}
@@ -588,7 +588,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                     <div className={`bg-white p-6 rounded-[2.5rem] mb-10 shadow-xl border-t-4 ${isTakeAway ? 'border-emerald-500' : 'border-indigo-500'}`}>
                         <div className="space-y-2 mb-4 border-b border-slate-50 pb-4">
-                            <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-tighter"><span>Subtotal Produk</span><span>{formatPrice(subtotalNormal)}</span></div>
+                            <div className="flex justify-between text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Subtotal Produk</span><span>{formatPrice(subtotalNormal)}</span></div>
                             {totalSaved > 0 && (
                                 <div className="flex justify-between text-xs font-black text-emerald-600 uppercase tracking-tighter animate-pulse"><span>Anda Hemat!</span><span>-{formatPrice(totalSaved)}</span></div>
                             )}
@@ -596,7 +596,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                         {taxAmount > 0 && (
                              <div className="flex justify-between text-xs font-black text-indigo-600 uppercase tracking-tighter"><span>Pajak ({taxRate}%)</span><span>+{formatPrice(taxAmount)}</span></div>
                          )}
-                         <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-1">
+                         <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center mb-1">
                              {paymentMethod === "gateway" ? "Total yang akan dibayar QRIS" : paymentMethod === "qris_manual" ? "Total yang akan dibayar via QRIS" : "Total yang dibayar di kasir"}
                          </p>
                         <h3 className={`text-4xl font-black italic tracking-tighter text-center leading-none ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</h3>
@@ -604,7 +604,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                     {/* PILIHAN CARA BAYAR */}
                     <div className="bg-white p-5 rounded-[2rem] shadow-sm border border-slate-100 mb-6">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                             <IconCash size={14} /> Cara Bayar
                         </p>
                         <div className={`grid gap-3 ${canSelfPay ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
@@ -615,7 +615,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                             >
                                 <div className="text-2xl mb-1">💵</div>
                                 <p className="text-xs font-black uppercase text-slate-800 leading-none">Tunai</p>
-                                <p className="text-[9px] text-slate-400 mt-1 leading-tight">Bayar di kasir</p>
+                                <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">Bayar di kasir</p>
                             </button>
                             <button
                                 type="button"
@@ -625,7 +625,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                             >
                                 <div className="text-2xl mb-1">📱</div>
                                 <p className="text-xs font-black uppercase text-slate-800 leading-none">QRIS</p>
-                                <p className="text-[9px] text-slate-400 mt-1 leading-tight">
+                                <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">
                                     {qris.enabled ? "Scan dari HP Anda" : "Belum tersedia"}
                                 </p>
                             </button>
@@ -637,7 +637,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                 >
                                     <div className="text-2xl mb-1">⚡</div>
                                     <p className="text-xs font-black uppercase text-slate-800 leading-none">Bayar Sendiri</p>
-                                    <p className="text-[9px] text-slate-400 mt-1 leading-tight">QRIS otomatis</p>
+                                    <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-1 leading-tight">QRIS otomatis</p>
                                 </button>
                             )}
                         </div>
@@ -656,11 +656,11 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                         />
                                     ) : (
                                         <div className="w-52 h-52 rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-center p-4">
-                                            <p className="text-[10px] font-bold text-slate-400">Kode QRIS belum diatur. Silakan minta ke kasir.</p>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400">Kode QRIS belum diatur. Silakan minta ke kasir.</p>
                                         </div>
                                     )}
                                 </div>
-                                <p className="text-[10px] text-slate-400 text-center mt-3 leading-relaxed">
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-3 leading-relaxed">
                                     Bayar dulu, lalu tekan kirim pesanan. Kasir akan
                                     mengecek pembayaran Anda sebelum pesanan diserahkan.
                                 </p>
@@ -726,12 +726,12 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                         {selfPay.status === "expired" ? "Kode QR sudah kedaluwarsa" : "Pembayaran gagal"}
                                     </p>
                                 ) : (
-                                    <p className="text-[10px] text-slate-400 mt-4 animate-pulse font-bold">
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-4 animate-pulse font-bold">
                                         Menunggu pembayaran… jangan tutup halaman ini
                                     </p>
                                 )}
 
-                                <p className="text-[10px] text-slate-400 mt-2">
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-2">
                                     Kode pesanan <span className="font-black text-slate-600 dark:text-slate-400">{selfPay.ref_number}</span>
                                 </p>
                             </div>

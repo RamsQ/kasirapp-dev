@@ -205,7 +205,7 @@ function SidebarBody({ sidebarOpen, mode, onNavigate }) {
                             {/* Section Title */}
                             {wide && (
                                 <div className="px-5 py-2">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-400">
                                         {section.title}
                                     </span>
                                 </div>
@@ -252,7 +252,7 @@ function SidebarBody({ sidebarOpen, mode, onNavigate }) {
             {/* Version/Footer */}
             {wide && (
                 <div className="p-4 shrink-0 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-widest">
+                    <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 text-center uppercase tracking-widest">
                         LakuPOS v2.1
                     </p>
                 </div>
@@ -341,7 +341,7 @@ export default function Sidebar({ sidebarOpen, mobileOpen, onCloseMobile }) {
                         type="button"
                         onClick={onCloseMobile}
                         aria-label="Tutup menu"
-                        className="absolute top-3.5 right-2 z-10 h-9 w-9 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        className="absolute top-3.5 right-2 z-10 h-9 w-9 flex items-center justify-center rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:text-slate-200 dark:hover:bg-slate-800 transition-colors"
                     >
                         <svg
                             xmlns="http://www.w3.org/2000/svg"

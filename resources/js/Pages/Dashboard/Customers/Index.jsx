@@ -149,7 +149,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                             <IconGift size={20} className="text-pink-500" />
                         </div>
                         <div className="mt-4 space-y-2">
-                            {birthdayCustomers.length === 0 && <p className="text-xs text-slate-400">Tidak ada ulang tahun hari ini.</p>}
+                            {birthdayCustomers.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400">Tidak ada ulang tahun hari ini.</p>}
                             {birthdayCustomers.map((customer) => (
                                 <Link key={customer.id} href={route("customers.loyalty", customer.id)} className="flex items-center justify-between rounded-xl bg-pink-50 px-3 py-2 text-xs transition hover:bg-pink-100 dark:bg-pink-950/20 dark:hover:bg-pink-950/40">
                                     <span className="font-black text-pink-700 dark:text-pink-300">{customer.name}</span>
@@ -175,7 +175,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "grid"
                                 ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="Grid View"
                     >
@@ -186,7 +186,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "list"
                                 ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="List View"
                     >
@@ -251,7 +251,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                                         </Table.Td>
                                         <Table.Td>
                                             <p className="text-xs font-black uppercase text-primary-600 dark:text-primary-400 dark:text-primary-300">{customer.loyalty_tier || "bronze"}</p>
-                                            <p className="text-[10px] text-slate-400">{customer.loyalty_points || 0} poin</p>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400">{customer.loyalty_points || 0} poin</p>
                                         </Table.Td>
                                         <Table.Td>
                                             <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-1">
@@ -306,7 +306,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                     <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                         <IconDatabaseOff
                             size={32}
-                            className="text-slate-400"
+                            className="text-slate-500 dark:text-slate-400"
                             strokeWidth={1.5}
                         />
                     </div>

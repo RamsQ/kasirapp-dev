@@ -192,7 +192,7 @@ export default function CustomerHistoryPanel({
                                     <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                         {tx.invoice}
                                     </p>
-                                    <p className="text-xs text-slate-400">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
                                         {tx.date}
                                     </p>
                                 </div>

@@ -103,7 +103,7 @@ export default function Register() {
                                     Nama Lengkap
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                         <IconUser size={20} />
                                     </div>
                                     <input
@@ -133,7 +133,7 @@ export default function Register() {
                                     Email
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                         <IconMail size={20} />
                                     </div>
                                     <input
@@ -163,7 +163,7 @@ export default function Register() {
                                     Password
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                         <IconLock size={20} />
                                     </div>
                                     <input
@@ -186,7 +186,7 @@ export default function Register() {
                                         onClick={() =>
                                             setShowPassword(!showPassword)
                                         }
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-600"
                                     >
                                         {showPassword ? (
                                             <IconEyeOff size={20} />
@@ -208,7 +208,7 @@ export default function Register() {
                                     Konfirmasi Password
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                         <IconLock size={20} />
                                     </div>
                                     <input
@@ -238,7 +238,7 @@ export default function Register() {
                                                 !showConfirmPassword
                                             )
                                         }
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-600"
                                     >
                                         {showConfirmPassword ? (
                                             <IconEyeOff size={20} />

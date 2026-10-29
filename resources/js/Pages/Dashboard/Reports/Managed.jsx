@@ -90,7 +90,7 @@ export default function Managed({ setting }) {
                                             className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Setiap Hari</p>
+                                    <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1">Setiap Hari</p>
                                     <h5 className="font-bold dark:text-white text-sm uppercase">Laporan Harian</h5>
                                 </div>
 
@@ -107,7 +107,7 @@ export default function Managed({ setting }) {
                                             className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Setiap Senin</p>
+                                    <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1">Setiap Senin</p>
                                     <h5 className="font-bold dark:text-white text-sm uppercase">Laporan Mingguan</h5>
                                 </div>
 
@@ -124,7 +124,7 @@ export default function Managed({ setting }) {
                                             className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Tanggal 1</p>
+                                    <p className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1">Tanggal 1</p>
                                     <h5 className="font-bold dark:text-white text-sm uppercase">Rekap Bulanan (PDF)</h5>
                                 </div>
                             </div>
@@ -135,7 +135,7 @@ export default function Managed({ setting }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-4 mb-3 block tracking-widest leading-none">Metode Default</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-4 mb-3 block tracking-widest leading-none">Metode Default</label>
                                         <div className="grid grid-cols-2 gap-3">
                                             <button 
                                                 type="button" 
@@ -157,9 +157,9 @@ export default function Managed({ setting }) {
                                     </div>
 
                                     <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-4 mb-2 block tracking-widest leading-none">Target Penerima</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-4 mb-2 block tracking-widest leading-none">Target Penerima</label>
                                         <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                                 {data.method === 'whatsapp' ? <IconBrandWhatsapp size={18} /> : <IconMail size={18} />}
                                             </div>
                                             <input 
@@ -175,9 +175,9 @@ export default function Managed({ setting }) {
 
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="text-[10px] font-black uppercase text-slate-400 ml-4 mb-2 block tracking-widest leading-none">Waktu Kirim Harian/Mingguan</label>
+                                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-4 mb-2 block tracking-widest leading-none">Waktu Kirim Harian/Mingguan</label>
                                         <div className="relative">
-                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
                                                 <IconClock size={18} />
                                             </div>
                                             <input 
@@ -191,7 +191,7 @@ export default function Managed({ setting }) {
 
                                     {data.method === 'whatsapp' && (
                                         <div>
-                                            <label className="text-[10px] font-black uppercase text-slate-400 ml-4 mb-2 block tracking-widest leading-none flex items-center gap-1">
+                                            <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 ml-4 mb-2 block tracking-widest leading-none flex items-center gap-1">
                                                 API Key Fonnte <IconInfoCircle size={12} className="text-primary-500 dark:text-primary-400" />
                                             </label>
                                             <input 

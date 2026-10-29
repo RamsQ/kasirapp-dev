@@ -117,7 +117,7 @@ const FinanceReport = ({ auth, report }) => {
                                     className={`pb-3 text-[10px] font-black uppercase tracking-[0.2em] transition-all border-b-4 shrink-0 ${
                                         activeTab === tab 
                                         ? 'border-cosmic-main text-cosmic-main' 
-                                        : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                                        : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
                                     }`}
                                 >
                                     {tab.replace('-', ' ')}
@@ -129,7 +129,7 @@ const FinanceReport = ({ auth, report }) => {
                     {activeTab !== 'neraca' && (
                         <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm mb-2">
                             <div className="flex flex-wrap items-center gap-2 px-2 min-w-0">
-                                <IconCalendar size={14} className="text-slate-400" />
+                                <IconCalendar size={14} className="text-slate-500 dark:text-slate-400" />
                                 <input type="date" className="min-w-0 flex-1 sm:flex-none border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                                 <span className="text-[10px] text-slate-300 dark:text-slate-700 font-black">S/D</span>
                                 <input type="date" className="min-w-0 flex-1 sm:flex-none border-none bg-transparent text-[10px] font-black focus:ring-0 p-1 dark:text-white uppercase" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
@@ -153,7 +153,7 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
                                 <div className="p-3 sm:p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Omzet Bersih</p>
+                                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Omzet Bersih</p>
                                     <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(report.revenue)}</h3>
                                 </div>
                             </div>
@@ -167,14 +167,14 @@ const FinanceReport = ({ auth, report }) => {
                              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
                                  <div className="p-3 sm:p-4 bg-orange-500 dark:bg-orange-600 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconWorld size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Beban Komisi</p>
+                                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Beban Komisi</p>
                                     <h3 className="text-xl font-black text-orange-600 dark:text-orange-400 tracking-tighter">{formatCurrency(appCommissionTotal)}</h3>
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
                                 <div className="p-3 sm:p-4 bg-rose-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt2 size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Beban</p>
+                                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Total Beban</p>
                                     <h3 className="text-xl font-black text-rose-600 dark:text-rose-400 tracking-tighter">{formatCurrency(report.expenses)}</h3>
                                 </div>
                             </div>
@@ -211,7 +211,7 @@ const FinanceReport = ({ auth, report }) => {
                                     </div>
                                 </div>
                                 <div className="text-right flex flex-col items-end gap-1">
-                                    <div className="flex gap-2 text-[8px] font-black text-slate-400 uppercase">
+                                    <div className="flex gap-2 text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase">
                                         <span className="flex items-center gap-1"><IconQrcode size={10}/> QRIS STATIS</span>
                                         <span className="flex items-center gap-1"><IconCreditCard size={10}/> TRANSFER</span>
                                     </div>
@@ -222,7 +222,7 @@ const FinanceReport = ({ auth, report }) => {
 
                         {/* Financial Statement Table */}
                         <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-10 shadow-sm relative overflow-hidden">
-                            <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-400 mb-8 italic">Statement of Profit and Loss Analysis</h3>
+                            <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-8 italic">Statement of Profit and Loss Analysis</h3>
                             <div className="space-y-5 text-sm font-bold relative z-10">
                                 <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Gross Revenue (Penjualan Bersih)</span><span>{formatCurrency(report.revenue)}</span></div>
                                  <div className="flex justify-between text-slate-500 dark:text-slate-400 uppercase tracking-tighter"><span>Total Tagihan Pelanggan</span><span>{formatCurrency(report.billedRevenue || report.revenue)}</span></div>
@@ -237,7 +237,7 @@ const FinanceReport = ({ auth, report }) => {
                                 </div>
                                 <div className="pt-5 border-t border-slate-100 dark:border-slate-800 flex justify-between font-black text-blue-600 dark:text-blue-400 text-2xl tracking-tighter italic"><span>GROSS PROFIT (LABA KOTOR)</span><span>{formatCurrency(report.grossProfit)}</span></div>
                                 <div className="space-y-3 pl-6 border-l-2 border-slate-100 dark:border-slate-800 mt-4">
-                                    <div className="flex justify-between text-slate-400 italic text-xs font-bold uppercase tracking-tighter"><span>Beban Operasional & Gaji</span><span>({formatCurrency(generalOperationalTotal)})</span></div>
+                                    <div className="flex justify-between text-slate-500 dark:text-slate-400 italic text-xs font-bold uppercase tracking-tighter"><span>Beban Operasional & Gaji</span><span>({formatCurrency(generalOperationalTotal)})</span></div>
                                     <div className="flex justify-between text-orange-500 italic text-xs font-black uppercase tracking-tighter"><span className="flex items-center gap-1"><IconAlertTriangle size={12}/> Beban Penurunan Nilai Stok (Expired/Opname)</span><span>({formatCurrency(inventoryLossTotal)})</span></div>
                                     <div className="flex justify-between text-emerald-500 italic text-xs font-black uppercase tracking-tighter"><span className="flex items-center gap-1"><IconGift size={12}/> Beban Promosi (Bonus Produk/Free Items)</span><span>({formatCurrency(promotionExpenseTotal)})</span></div>
                                 </div>
@@ -257,7 +257,7 @@ const FinanceReport = ({ auth, report }) => {
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm">
                                 <div className="p-4 bg-blue-500 rounded-2xl text-white shadow-lg"><IconTicket size={28}/></div>
-                                <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Potongan Global</p><h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(globalDiscountTotal)}</h3></div>
+                                <div><p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Potongan Global</p><h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(globalDiscountTotal)}</h3></div>
                             </div>
                             <div className="bg-cosmic p-6 rounded-[2rem] flex items-center gap-5 text-white shadow-xl shadow-cosmic-main/20 group relative overflow-hidden">
                                 <div className="p-4 bg-white/20 rounded-2xl z-10"><IconRosetteDiscount size={28} /></div>
@@ -407,7 +407,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Persediaan — Produk Jadi', val: report.balanceSheet.inventory_products },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-500 dark:text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -430,7 +430,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Hutang Pajak', val: report.balanceSheet.tax_payable, color: 'text-violet-600 dark:text-violet-400' },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-500 dark:text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className={item.color + ' whitespace-nowrap'}>{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -445,7 +445,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Laba Ditahan', val: report.balanceSheet.retained_earnings },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-500 dark:text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -477,10 +477,10 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24">
                                 <div className="p-6 bg-cosmic flex items-center gap-3 border-b border-white/10"><IconPlus size={20} className="text-white" /><span className="font-black text-[10px] uppercase tracking-[0.2em] text-white">Entry Pengeluaran</span></div>
                                 <form onSubmit={submitExpense} className="p-8 space-y-6">
-                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Uang Keluar Dari</label><select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Kas Laci">Kas Laci (beban)</option><option value="Setor ke Bank">Setor ke Bank (pindah ke rekening)</option><option value="Modal Luar">Modal Luar (ambil modal)</option><option value="Hutang Dagang">Hutang Dagang (terima pinjaman)</option></select></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Kategori Beban</label><select value={data.category} onChange={e => setData('category', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Operasional">Operasional</option><option value="Beban Promosi">Beban Promosi (Promo/Gift)</option><option value="Pelunasan Hutang">Pelunasan Hutang</option><option value="Kerugian Stok">Kerugian Stok</option></select></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Keterangan</label><input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Contoh: Belanja Gula / Bayar Listrik" /></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Nominal Rp</label><input type="number" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main" placeholder="0" /></div>
+                                    <div><label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 leading-none">Uang Keluar Dari</label><select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Kas Laci">Kas Laci (beban)</option><option value="Setor ke Bank">Setor ke Bank (pindah ke rekening)</option><option value="Modal Luar">Modal Luar (ambil modal)</option><option value="Hutang Dagang">Hutang Dagang (terima pinjaman)</option></select></div>
+                                    <div><label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 leading-none">Kategori Beban</label><select value={data.category} onChange={e => setData('category', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Operasional">Operasional</option><option value="Beban Promosi">Beban Promosi (Promo/Gift)</option><option value="Pelunasan Hutang">Pelunasan Hutang</option><option value="Kerugian Stok">Kerugian Stok</option></select></div>
+                                    <div><label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 leading-none">Keterangan</label><input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Contoh: Belanja Gula / Bayar Listrik" /></div>
+                                    <div><label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block mb-2 leading-none">Nominal Rp</label><input type="number" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main" placeholder="0" /></div>
                                     {data.source === 'Setor ke Bank' && (
                                         <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-relaxed bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
                                             Ini bukan beban. Uang hanya pindah dari Kas di Laci ke Kas Bank, jadi laba tidak berubah dan neraca tetap balance. Catat setiap kali Anda menyetor kelebihan kas ke rekening.

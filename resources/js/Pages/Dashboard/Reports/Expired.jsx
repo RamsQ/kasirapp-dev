@@ -91,7 +91,7 @@ export default function Expired({ products, filter }) {
             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
                 <form onSubmit={handleFilter} className="flex flex-wrap items-end gap-4">
                     <div className="flex-1 min-w-[200px]">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest flex items-center gap-1">
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest flex items-center gap-1">
                             <IconFilter size={14} /> Dari Tanggal
                         </label>
                         <input 
@@ -102,7 +102,7 @@ export default function Expired({ products, filter }) {
                         />
                     </div>
                     <div className="flex-1 min-w-[200px]">
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-2 block tracking-widest flex items-center gap-1">
+                        <label className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-2 block tracking-widest flex items-center gap-1">
                             <IconFilter size={14} /> Sampai Tanggal
                         </label>
                         <input 
@@ -155,14 +155,14 @@ export default function Expired({ products, filter }) {
                                                 </div>
                                                 <div>
                                                     <div className="font-bold text-slate-900 dark:text-white uppercase leading-tight">{product.title}</div>
-                                                    <div className="text-[10px] text-slate-400 font-mono mt-0.5 tracking-tighter">SKU: {product.barcode || '-'}</div>
+                                                    <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 tracking-tighter">SKU: {product.barcode || '-'}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5 text-center">
                                             <div className="inline-flex flex-col">
                                                 <span className="text-sm font-black text-slate-700 dark:text-slate-300">{product.stock}</span>
-                                                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">{product.unit || 'Pcs'}</span>
+                                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">{product.unit || 'Pcs'}</span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
@@ -215,7 +215,7 @@ export default function Expired({ products, filter }) {
                                 <tr>
                                     <td colSpan="5" className="py-24 text-center">
                                         <div className="flex flex-col items-center opacity-20">
-                                            <IconCheckupList size={64} className="text-slate-400" />
+                                            <IconCheckupList size={64} className="text-slate-500 dark:text-slate-400" />
                                             <p className="mt-4 text-sm font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Data Tidak Ditemukan</p>
                                         </div>
                                     </td>

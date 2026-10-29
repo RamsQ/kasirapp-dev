@@ -111,7 +111,7 @@ export default function CustomerSelect({
                                 className={
                                     selected
                                         ? "text-primary-600 dark:text-primary-400"
-                                        : "text-slate-400"
+                                        : "text-slate-500 dark:text-slate-400"
                                 }
                             />
                         </div>
@@ -128,14 +128,14 @@ export default function CustomerSelect({
                                     )}
                                 </>
                             ) : (
-                                <p className="text-sm text-slate-400">
+                                <p className="text-sm text-slate-500 dark:text-slate-400">
                                     {placeholder}
                                 </p>
                             )}
                         </div>
                         <IconChevronDown
                             size={18}
-                            className={`text-slate-400 transition-transform ${
+                            className={`text-slate-500 dark:text-slate-400 transition-transform ${
                                 isOpen ? "rotate-180" : ""
                             }`}
                         />
@@ -175,7 +175,7 @@ export default function CustomerSelect({
                             <div className="relative">
                                 <IconSearch
                                     size={18}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
                                 />
                                 <input
                                     ref={inputRef}
@@ -247,7 +247,7 @@ export default function CustomerSelect({
                                     ))}
                                 </ul>
                             ) : (
-                                <div className="py-8 text-center text-slate-400">
+                                <div className="py-8 text-center text-slate-500 dark:text-slate-400">
                                     <IconUser
                                         size={24}
                                         className="mx-auto mb-2 opacity-50"

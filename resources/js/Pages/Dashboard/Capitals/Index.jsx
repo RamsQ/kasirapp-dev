@@ -74,7 +74,7 @@ export default function Index({ auth, capitals, summary }) {
                             <IconPigMoney size={24} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total Setoran</p>
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Setoran</p>
                             <p className="text-xl font-bold text-slate-700 dark:text-white leading-tight">
                                 {formatCurrency(summary.total_in)}
                             </p>
@@ -85,7 +85,7 @@ export default function Index({ auth, capitals, summary }) {
                             <IconPlus size={24} />
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Jumlah Setoran</p>
+                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Jumlah Setoran</p>
                             <p className="text-xl font-bold text-slate-700 dark:text-white leading-tight">
                                 {summary.count} kali
                             </p>
@@ -110,7 +110,7 @@ export default function Index({ auth, capitals, summary }) {
                     >
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2">
+                                <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest mb-2">
                                     Sumber / Keterangan
                                 </label>
                                 <input
@@ -126,7 +126,7 @@ export default function Index({ auth, capitals, summary }) {
                                 )}
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2">
+                                <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest mb-2">
                                     Nominal (Rp)
                                 </label>
                                 <input
@@ -144,7 +144,7 @@ export default function Index({ auth, capitals, summary }) {
                                 )}
                             </div>
                             <div>
-                                <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-2">
+                                <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest mb-2">
                                     Tanggal
                                 </label>
                                 <input
@@ -197,7 +197,7 @@ export default function Index({ auth, capitals, summary }) {
                                 {capitals.data.length > 0 ? (
                                     capitals.data.map((row, i) => (
                                         <tr key={row.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50">
-                                            <td className="px-6 py-4 text-slate-400 font-bold">{i + 1}</td>
+                                            <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-bold">{i + 1}</td>
                                             <td className="px-4 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">
                                                 {row.date}
                                             </td>
@@ -221,7 +221,7 @@ export default function Index({ auth, capitals, summary }) {
                                     <tr>
                                         <td colSpan={5} className="py-20 text-center">
                                             <IconPigMoney size={48} className="mx-auto text-slate-200 mb-4" />
-                                            <p className="text-sm font-bold uppercase text-slate-400 tracking-widest">
+                                            <p className="text-sm font-bold uppercase text-slate-500 dark:text-slate-400 tracking-widest">
                                                 Belum Ada Setoran Modal
                                             </p>
                                         </td>

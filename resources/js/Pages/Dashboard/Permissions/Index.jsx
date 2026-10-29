@@ -47,7 +47,7 @@ export default function Index() {
                 
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                     <div className="flex items-center gap-2">
-                        <IconListNumbers size={18} className="text-slate-400" />
+                        <IconListNumbers size={18} className="text-slate-500 dark:text-slate-400" />
                         <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                             Tampilkan:
                         </span>
@@ -84,7 +84,7 @@ export default function Index() {
                                             key={permission.id || i}
                                             className="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors group"
                                         >
-                                            <td className="px-6 py-4 text-sm text-slate-400 font-mono text-center">
+                                            <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 font-mono text-center">
                                                 {String(i + permissions.from).padStart(2, '0')}
                                             </td>
                                             <td className="px-6 py-4">
@@ -110,7 +110,7 @@ export default function Index() {
                     </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                        <IconDatabaseOff size={32} strokeWidth={1.5} className="text-slate-400 mb-4" />
+                        <IconDatabaseOff size={32} strokeWidth={1.5} className="text-slate-500 dark:text-slate-400 mb-4" />
                         <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">Data Kosong</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada hak akses yang ditemukan.</p>
                     </div>

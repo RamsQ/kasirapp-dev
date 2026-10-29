@@ -173,7 +173,7 @@ export default function Online({ settings = [] }) {
                                         </tr>
                                     )) : (
                                         <tr>
-                                            <td colSpan="4" className="px-6 py-10 text-center text-slate-400 font-black uppercase text-[10px] italic opacity-50">
+                                            <td colSpan="4" className="px-6 py-10 text-center text-slate-500 dark:text-slate-400 font-black uppercase text-[10px] italic opacity-50">
                                                 Belum ada platform kustom yang ditambahkan
                                             </td>
                                         </tr>

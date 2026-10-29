@@ -80,7 +80,7 @@ export default function PaymentTimeline({ transaction }) {
 
     if (!events.length) {
         return (
-            <p className="text-xs text-slate-400 font-bold italic">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-bold italic">
                 Tidak ada riwayat pembayaran gateway untuk transaksi ini.
             </p>
         );
@@ -90,7 +90,7 @@ export default function PaymentTimeline({ transaction }) {
         <div className="space-y-4">
             {summary && (
                 <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                         Ringkasan
                     </span>
                     <span className="px-2.5 py-1 rounded-lg bg-slate-900 text-white dark:bg-slate-800 text-[9px] font-black uppercase tracking-wider">
@@ -109,7 +109,7 @@ export default function PaymentTimeline({ transaction }) {
                         </span>
                     )}
                     {summary.settled_at && (
-                        <span className="text-[9px] font-bold text-slate-400">
+                        <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400">
                             Lunas {waktu(summary.settled_at)}
                         </span>
                     )}
@@ -142,7 +142,7 @@ export default function PaymentTimeline({ transaction }) {
                                     <Icon size={11} stroke={3} />
                                     {event.status_label}
                                 </span>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                                     {event.provider_label}
                                 </span>
                                 <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">

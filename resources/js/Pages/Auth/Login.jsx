@@ -171,7 +171,7 @@ export default function Login({ status, canResetPassword }) {
                             <Link href="/" className="flex items-center gap-3">
                                 <img src="/laku-pos-logo.jpg" alt="LakuPOS" className="w-12 h-12 rounded-2xl object-contain shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all" />
                                 <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
-                                    LakuPOS <br/> <span className="text-indigo-600 text-sm tracking-[0.3em]">AJA</span>
+                                    LakuPOS <br/> <span className="text-indigo-600 dark:text-indigo-400 text-sm tracking-[0.3em]">AJA</span>
                                 </span>
                             </Link>
                         </div>
@@ -189,14 +189,14 @@ export default function Login({ status, canResetPassword }) {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => setIsScanning(false)} className="w-full mt-6 py-4 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-50 hover:text-red-500 transition-all">Batalkan</button>
+                            <button onClick={() => setIsScanning(false)} className="w-full mt-6 py-4 bg-slate-100 text-slate-600 dark:text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-red-50 hover:text-red-500 transition-all">Batalkan</button>
                         </div>
                     ) : (
                         <form onSubmit={submit} className="space-y-5">
                             <div>
-                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email Kasir</label>
+                                <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] mb-2 ml-1">Email Kasir</label>
                                 <div className="relative group">
-                                    <IconMail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                                    <IconMail className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
                                     <input 
                                         type="email" 
                                         value={data.email} 
@@ -212,7 +212,7 @@ export default function Login({ status, canResetPassword }) {
                                 type="button"
                                 onClick={handleFaceLogin}
                                 disabled={!modelsLoaded || faceAuthLoading}
-                                className={`w-full h-15 border-2 ${isFaceMandatory ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'border-indigo-600/20 text-indigo-600 hover:bg-indigo-50'} rounded-2xl font-black uppercase text-[11px] tracking-[0.15em] transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-50`}
+                                className={`w-full h-15 border-2 ${isFaceMandatory ? 'bg-indigo-600 border-indigo-600 text-white shadow-xl' : 'border-indigo-600/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50'} rounded-2xl font-black uppercase text-[11px] tracking-[0.15em] transition-all flex items-center justify-center gap-4 active:scale-95 disabled:opacity-50`}
                             >
                                 {faceAuthLoading ? <IconLoader2 className="animate-spin" size={20} /> : <IconFaceId size={24} />}
                                 {isFaceMandatory ? "WAJIB SCAN WAJAH" : "Masuk Dengan Wajah"}
@@ -222,13 +222,13 @@ export default function Login({ status, canResetPassword }) {
                                 <div className="space-y-5 animate-in slide-in-from-top-2 duration-500">
                                     <div className="relative py-2 flex items-center">
                                         <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
-                                        <span className="flex-shrink mx-4 text-[10px] uppercase font-black text-slate-300 tracking-widest">Atau Password</span>
+                                        <span className="flex-shrink mx-4 text-[10px] uppercase font-black text-slate-600 dark:text-slate-300 tracking-widest">Atau Password</span>
                                         <div className="flex-grow border-t border-slate-100 dark:border-slate-800"></div>
                                     </div>
                                     <div className="relative group">
-                                        <IconLock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
+                                        <IconLock className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 group-focus-within:text-indigo-500 transition-colors" size={20} />
                                         <input type={showPassword ? "text" : "password"} value={data.password} onChange={e => setData('password', e.target.value)} placeholder="••••••••" className="w-full h-14 pl-14 pr-14 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 dark:text-white outline-none focus:border-indigo-500 font-bold transition-all" />
-                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 transition-colors">
+                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-indigo-500 transition-colors">
                                             {showPassword ? <IconEyeOff size={20} /> : <IconEye size={20} />}
                                         </button>
                                     </div>
@@ -243,7 +243,7 @@ export default function Login({ status, canResetPassword }) {
                                         {canResetPassword && (
                                             <Link 
                                                 href={route("password.request")} 
-                                                className="text-xs font-black text-indigo-600 hover:text-indigo-700 uppercase tracking-tighter underline underline-offset-4 decoration-indigo-500/30 hover:decoration-indigo-500 transition-all"
+                                                className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 uppercase tracking-tighter underline underline-offset-4 decoration-indigo-500/30 hover:decoration-indigo-500 transition-all"
                                             >
                                                 Lupa Sandi?
                                             </Link>
@@ -256,7 +256,7 @@ export default function Login({ status, canResetPassword }) {
                         </form>
                     )}
                 </div>
-                <div className="absolute bottom-8 text-[9px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">© 2026 LakuPOS AJA • MANGKUJAGAD TECH</div>
+                <div className="absolute bottom-8 text-[9px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-[0.3em]">© 2026 LakuPOS AJA • MANGKUJAGAD TECH</div>
             </div>
 
             {/* SISI KANAN: ANIME SCENERY + MODERN ORGANIC CURVE */}

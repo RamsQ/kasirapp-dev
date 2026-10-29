@@ -31,7 +31,7 @@ export default function ChartCard({
                             <Icon
                                 size={16}
                                 strokeWidth={1.8}
-                                className="shrink-0 text-slate-400"
+                                className="shrink-0 text-slate-500 dark:text-slate-400"
                             />
                         ) : null}
                         <span className="truncate">{title}</span>
@@ -70,7 +70,7 @@ export function EmptyPanel({ message, height = 280 }) {
             style={{ minHeight: height }}
         >
             <p className="text-sm text-slate-500 dark:text-slate-400">{message}</p>
-            <p className="text-xs text-slate-400">Tidak ada data pada periode ini.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Tidak ada data pada periode ini.</p>
         </div>
     );
 }

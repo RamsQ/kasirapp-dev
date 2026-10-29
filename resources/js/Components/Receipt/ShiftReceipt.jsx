@@ -61,7 +61,7 @@ export default function ShiftReceipt({ shift, storeName }) {
                 <p className="mt-2 font-bold uppercase">{shift.user?.name}</p>
             </div>
             
-            <div className="mt-6 text-center text-[9px] text-gray-400 italic">
+            <div className="mt-6 text-center text-[9px] text-gray-500 dark:text-gray-400 italic">
                 Dicetak pada: {nowStamp()}
                 <br />
                 PWA KASIR DIGITAL

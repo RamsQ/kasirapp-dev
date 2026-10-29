@@ -122,7 +122,7 @@ const KitchenIndex = ({ enabled = false, paymentFilter = "both", orders: initial
                 <Head title="Kitchen Display | LakuPOS" />
                 <div className="min-h-[60vh] flex items-center justify-center">
                     <div className="max-w-lg w-full p-10 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
-                        <div className="mx-auto w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 mb-6">
+                        <div className="mx-auto w-20 h-20 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 mb-6">
                             <IconToolsKitchen2 size={42} />
                         </div>
                         <h1 className="text-2xl font-black text-slate-900 dark:text-white">Kitchen Display Nonaktif</h1>
@@ -195,7 +195,7 @@ const KitchenIndex = ({ enabled = false, paymentFilter = "both", orders: initial
                     <div className="py-20 rounded-[2rem] bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 text-center">
                         <IconChefHat size={52} className="mx-auto text-slate-300 dark:text-slate-400 mb-4" />
                         <h2 className="text-lg font-black text-slate-700 dark:text-slate-200">Belum ada pesanan</h2>
-                        <p className="text-sm text-slate-400 mt-1">Pesanan yang masuk akan otomatis muncul di layar ini.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Pesanan yang masuk akan otomatis muncul di layar ini.</p>
                     </div>
                 ) : (
                     <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -233,7 +233,7 @@ const KitchenOrderCard = ({ order, onUpdateStatus }) => {
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[9px] font-black uppercase tracking-wider ${paymentClass(order.payment_status)}`}>
                         <IconCreditCard size={12} /> {paymentLabel(order.payment_status)}
                     </span>
-                    <p className="text-[10px] text-slate-400 font-bold mt-2 flex items-center justify-end gap-1">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-2 flex items-center justify-end gap-1">
                         <IconClock size={12} /> {formatTime(order.created_at)}
                     </p>
                 </div>

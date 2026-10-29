@@ -209,7 +209,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                             </div>
                         </nav>
                     </div>
-                    <Link href={route("transactions.index")} className="w-full flex items-center justify-center gap-2 text-slate-400 hover:text-white py-2 text-sm font-medium transition-colors border-t border-slate-700/50 pt-6">
+                    <Link href={route("transactions.index")} className="w-full flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-white py-2 text-sm font-medium transition-colors border-t border-slate-700/50 pt-6">
                         <IconArrowLeft size={18} /> Kembali ke Kasir
                     </Link>
                 </aside>

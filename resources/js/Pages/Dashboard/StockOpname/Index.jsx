@@ -136,7 +136,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                 {activeTab !== 'history' && (
                     <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm flex flex-col lg:flex-row items-center gap-4">
                         <form onSubmit={handleSearch} className="relative flex-1 w-full">
-                            <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                             <input type="text" className="pl-10 w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold uppercase focus:ring-indigo-500" placeholder={`Cari ${activeTab}...`} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
                         </form>
                         
@@ -190,7 +190,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                                         <tr key={h.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1 uppercase text-[11px]"><IconUser size={14}/> {h.user?.name}</div>
-                                                <div className="text-[10px] text-slate-400 italic">{formatDateTime(h.created_at)}</div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 italic">{formatDateTime(h.created_at)}</div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-black uppercase text-xs text-slate-900 dark:text-white">
@@ -200,7 +200,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                                                     {h.product_id ? 'PRODUK' : 'BAHAN'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-center text-slate-400">{h.stock_system}</td>
+                                            <td className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">{h.stock_system}</td>
                                             <td className="px-6 py-4 text-center font-black text-slate-900 dark:text-white">{h.stock_actual}</td>
                                             <td className="px-6 py-4 text-center">
                                                 <span className={`px-2 py-1 rounded-md text-[11px] font-black ${h.difference < 0 ? 'bg-red-100 text-red-600' : h.difference > 0 ? 'bg-green-100 text-green-600 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:text-slate-400'}`}>
@@ -210,7 +210,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                                             <td className="px-6 py-4 text-[11px] italic text-slate-500 dark:text-slate-400">{h.reason}</td>
                                         </tr>
                                     )) : (
-                                        <tr><td colSpan="6" className="p-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest opacity-60">Belum ada riwayat opname.</td></tr>
+                                        <tr><td colSpan="6" className="p-20 text-center text-slate-500 dark:text-slate-400 font-bold uppercase text-xs tracking-widest opacity-60">Belum ada riwayat opname.</td></tr>
                                     )}
                                 </tbody>
                             </table>
@@ -236,9 +236,9 @@ export default function Index({ auth, products, ingredients, history, filters })
                                                         {item.type === 'ingredients' ? <IconDatabase size={14} className="text-emerald-500" /> : <IconPackage size={14} className="text-indigo-500" />}
                                                         {item.title}
                                                     </div>
-                                                    <span className="text-[10px] font-mono text-slate-400">{item.barcode}</span>
+                                                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">{item.barcode}</span>
                                                 </td>
-                                                <td className="px-6 py-4 text-center font-bold text-slate-400">{item.stock_system}</td>
+                                                <td className="px-6 py-4 text-center font-bold text-slate-500 dark:text-slate-400">{item.stock_system}</td>
                                                 <td className="px-6 py-4 bg-indigo-50/20 dark:bg-indigo-900/5 text-center">
                                                     <input type="number" step="any" className="w-32 mx-auto rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-center font-black text-indigo-600 focus:ring-indigo-500 py-2" value={item.stock_actual} onChange={e => handleInputChange(index, 'stock_actual', e.target.value)} placeholder={item.stock_system} />
                                                 </td>
@@ -253,7 +253,7 @@ export default function Index({ auth, products, ingredients, history, filters })
                                             </tr>
                                         );
                                     }) : (
-                                        <tr><td colSpan="5" className="p-20 text-center text-slate-400 font-bold uppercase text-xs italic tracking-widest">Data tidak ditemukan.</td></tr>
+                                        <tr><td colSpan="5" className="p-20 text-center text-slate-500 dark:text-slate-400 font-bold uppercase text-xs italic tracking-widest">Data tidak ditemukan.</td></tr>
                                     )}
                                 </tbody>
                             </table>

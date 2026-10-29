@@ -71,7 +71,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                     <form onSubmit={handleFilter} className="flex flex-wrap items-center gap-3 bg-white dark:bg-slate-900 p-3 rounded-[1.5rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                         {/* Input Search Invoice */}
                         <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
-                            <IconHash size={18} className="text-slate-400" />
+                            <IconHash size={18} className="text-slate-500 dark:text-slate-400" />
                             <input
                                 type="text"
                                 placeholder="Cari Invoice..."
@@ -83,7 +83,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
 
                         {/* Input Date Range */}
                         <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700">
-                            <IconCalendar size={18} className="text-slate-400" />
+                            <IconCalendar size={18} className="text-slate-500 dark:text-slate-400" />
                             <input
                                 type="date"
                                 className="border-none bg-transparent text-sm focus:ring-0 p-0 text-slate-700 dark:text-slate-300 cursor-pointer font-bold"
@@ -179,7 +179,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                                         day: "numeric", month: "long", year: "numeric"
                                                     })}
                                                 </div>
-                                                <div className="text-[10px] font-black text-slate-400 uppercase mt-1 flex items-center gap-1.5">
+                                                <div className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase mt-1 flex items-center gap-1.5">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-300"></div>
                                                     Pukul {formatTime(item.updated_at, {
                                                         hour: "2-digit", minute:"2-digit"
@@ -198,7 +198,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="font-black text-xs uppercase tracking-tight text-slate-700 dark:text-slate-200">{item.cashier?.name || 'Authorized Admin'}</span>
-                                                        <span className="text-[9px] font-bold text-slate-400 uppercase">Super Admin Role</span>
+                                                        <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">Super Admin Role</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -214,10 +214,10 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                         <td colSpan="4" className="px-8 py-24 text-center">
                                             <div className="flex flex-col items-center justify-center opacity-40 grayscale">
                                                 <div className="w-20 h-20 bg-slate-100 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mb-5">
-                                                    <IconRefresh size={48} className="text-slate-400 animate-spin-slow" />
+                                                    <IconRefresh size={48} className="text-slate-500 dark:text-slate-400 animate-spin-slow" />
                                                 </div>
                                                 <p className="text-xl font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">Zero Data Found</p>
-                                                <p className="text-sm text-slate-400 font-medium mt-2 italic">Belum ada riwayat pembatalan transaksi yang tersimpan.</p>
+                                                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-2 italic">Belum ada riwayat pembatalan transaksi yang tersimpan.</p>
                                             </div>
                                         </td>
                                     </tr>

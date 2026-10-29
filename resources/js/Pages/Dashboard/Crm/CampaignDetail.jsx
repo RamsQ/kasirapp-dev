@@ -180,7 +180,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                     <div className="flex flex-wrap items-start justify-between gap-2">
                                         <div>
                                             <p className="text-sm font-black">{row.customer.name}</p>
-                                            <p className="mt-0.5 text-[11px] text-slate-400">
+                                            <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
                                                 {row.customer.loyalty_tier || "bronze"} ·{" "}
                                                 {row.customer.loyalty_points || 0} poin ·{" "}
                                                 {row.target || "tanpa kontak"}
@@ -244,7 +244,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                         <div className="relative flex-1 min-w-[220px]">
                             <IconSearch
                                 size={16}
-                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
                             />
                             <input
                                 value={search}
@@ -295,7 +295,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                                 <p className="font-black">
                                                     {delivery.customer?.name || "Pelanggan dihapus"}
                                                 </p>
-                                                <p className="mt-0.5 text-[11px] text-slate-400">
+                                                <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400">
                                                     {delivery.target || "tanpa kontak"} ·{" "}
                                                     {waktuSingkat(delivery.sent_at || delivery.created_at)}
                                                 </p>

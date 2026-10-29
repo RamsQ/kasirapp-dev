@@ -70,7 +70,7 @@ export default function Edit({ category }) {
                             
                             {/* Image Section - Opsional */}
                             <div>
-                                <h3 className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2 tracking-widest">
+                                <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2 tracking-widest">
                                     <IconPhoto size={16} />
                                     Gambar (Opsional)
                                 </h3>
@@ -85,9 +85,9 @@ export default function Edit({ category }) {
                                         <div className="text-center">
                                             <IconPhoto
                                                 size={32}
-                                                className="text-slate-400 mx-auto mb-1"
+                                                className="text-slate-500 dark:text-slate-400 mx-auto mb-1"
                                             />
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">No Image</p>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">No Image</p>
                                         </div>
                                     )}
                                 </div>
@@ -98,7 +98,7 @@ export default function Edit({ category }) {
                                     errors={errors.image}
                                     accept="image/*"
                                 />
-                                <p className="mt-2 text-[10px] text-slate-400 italic">
+                                <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 italic">
                                     *Kosongkan jika tidak ingin mengubah gambar
                                 </p>
                             </div>

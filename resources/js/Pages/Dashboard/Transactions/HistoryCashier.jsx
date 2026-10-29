@@ -248,7 +248,7 @@ export default function HistoryCashier({ transactions, filters }) {
                                 showFilters || hasActiveFilters
                                     ? "bg-primary-500 dark:bg-primary-600 text-white"
                                     : darkMode
-                                      ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                                      ? "bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-700"
                                       : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                         >
@@ -277,7 +277,7 @@ export default function HistoryCashier({ transactions, filters }) {
                             title="Muat ulang"
                             className={`rounded-xl p-2 transition-all active:scale-95 ${
                                 darkMode
-                                    ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                                    ? "bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-700"
                                     : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                         >
@@ -377,7 +377,7 @@ export default function HistoryCashier({ transactions, filters }) {
                                     title="Reset filter"
                                     className={`rounded-lg p-2 transition-colors ${
                                         darkMode
-                                            ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                                            ? "bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-700"
                                             : "bg-slate-100 text-slate-500 dark:text-slate-400 hover:bg-slate-200"
                                     }`}
                                 >
@@ -608,7 +608,7 @@ export default function HistoryCashier({ transactions, filters }) {
                     <footer
                         className={`flex shrink-0 flex-wrap items-center gap-3 border-t px-3 py-2 text-[10px] ${
                             darkMode
-                                ? "border-slate-800 bg-slate-900 text-slate-400"
+                                ? "border-slate-800 bg-slate-900 text-slate-500 dark:text-slate-400"
                                 : "border-slate-200 bg-white text-slate-500 dark:text-slate-400"
                         }`}
                     >

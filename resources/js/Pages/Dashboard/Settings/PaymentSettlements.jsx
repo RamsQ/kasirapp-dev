@@ -133,7 +133,7 @@ export default function PaymentSettlements({
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <form onSubmit={applyFilters} className="grid gap-3 md:grid-cols-[1fr_180px_180px_auto]">
                         <div className="relative">
-                            <IconSearch size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <IconSearch size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                             <input
                                 value={search}
                                 onChange={(event) => setSearch(event.target.value)}
@@ -172,11 +172,11 @@ export default function PaymentSettlements({
                                     <tr key={settlement.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                         <td className="px-5 py-4">
                                             <p className="font-bold text-slate-800 dark:text-slate-100">{settlement.transaction?.invoice || '-'}</p>
-                                            <p className="mt-1 text-[10px] text-slate-400">{settlement.transaction?.customer_name || 'Pelanggan'}</p>
+                                            <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400">{settlement.transaction?.customer_name || 'Pelanggan'}</p>
                                         </td>
                                         <td className="px-5 py-4">
                                             <p className="font-semibold uppercase">{settlement.provider}</p>
-                                            <p className="mt-1 max-w-[180px] truncate text-[10px] text-slate-400">{settlement.provider_reference || '-'}</p>
+                                            <p className="mt-1 max-w-[180px] truncate text-[10px] text-slate-500 dark:text-slate-400">{settlement.provider_reference || '-'}</p>
                                         </td>
                                         <td className="px-5 py-4">
                                             <span className={`rounded-full px-2.5 py-1 text-[10px] font-black uppercase ${statusStyle[settlement.status] || statusStyle.unknown}`}>{settlement.status}</span>
@@ -195,7 +195,7 @@ export default function PaymentSettlements({
                                     </tr>
                                 ))}
                                 {(!settlements.data || settlements.data.length === 0) && (
-                                    <tr><td colSpan="7" className="px-5 py-12 text-center text-sm text-slate-400">Belum ada data settlement.</td></tr>
+                                    <tr><td colSpan="7" className="px-5 py-12 text-center text-sm text-slate-500 dark:text-slate-400">Belum ada data settlement.</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -206,7 +206,7 @@ export default function PaymentSettlements({
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <h2 className="text-sm font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Recent webhook events</h2>
                     <div className="mt-4 space-y-2">
-                        {events.length === 0 && <p className="text-sm text-slate-400">Belum ada event.</p>}
+                        {events.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada event.</p>}
                         {events.map((event) => (
                             <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 px-4 py-3 text-xs dark:bg-slate-800/70">
                                 <div><span className="font-bold uppercase">{event.provider}</span><span className="ml-2 text-slate-500 dark:text-slate-400">{event.transaction?.invoice || event.provider_reference || '-'}</span></div>

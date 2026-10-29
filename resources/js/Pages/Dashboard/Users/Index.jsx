@@ -83,7 +83,7 @@ function UserCard({ user, isSelected, onSelect, onDelete, isSuperAdmin }) {
                         <IconShieldCheck size={12} /> Wajib Face ID
                     </span>
                 ) : (
-                    <span className="text-[9px] font-black text-slate-400 flex items-center gap-1 uppercase bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
+                    <span className="text-[9px] font-black text-slate-500 dark:text-slate-400 flex items-center gap-1 uppercase bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-md border border-slate-100 dark:border-slate-700">
                          Standard Login
                     </span>
                 )}
@@ -216,7 +216,7 @@ export default function Index() {
                         className={`p-2 rounded-lg transition-all ${
                             viewMode === "grid"
                                 ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                     >
                         <IconLayoutGrid size={20} />
@@ -226,7 +226,7 @@ export default function Index() {
                         className={`p-2 rounded-lg transition-all ${
                             viewMode === "list"
                                 ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md"
-                                : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                     >
                         <IconList size={20} />
@@ -284,7 +284,7 @@ export default function Index() {
                                                 />
                                             </Table.Td>
                                         )}
-                                        <Table.Td className={"text-center font-bold text-slate-400"}>
+                                        <Table.Td className={"text-center font-bold text-slate-500 dark:text-slate-400"}>
                                             {++i + (users.current_page - 1) * users.per_page}
                                         </Table.Td>
                                         <Table.Td>
@@ -318,7 +318,7 @@ export default function Index() {
                                                         <IconShieldCheck size={14} /> Mandatory
                                                     </span>
                                                 ) : (
-                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-400 uppercase">
+                                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                                                         <IconShieldX size={14} /> Optional
                                                     </span>
                                                 )}
@@ -356,7 +356,7 @@ export default function Index() {
             ) : (
                 <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                     <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-                        <IconDatabaseOff size={32} className="text-slate-400" strokeWidth={1.5} />
+                        <IconDatabaseOff size={32} className="text-slate-500 dark:text-slate-400" strokeWidth={1.5} />
                     </div>
                     <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">
                         Belum Ada Pengguna

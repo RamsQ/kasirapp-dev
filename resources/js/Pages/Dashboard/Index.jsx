@@ -77,14 +77,14 @@ function InfoCard({ title, value, subtitle, icon: Icon, colorClass = "text-indig
         <div className="rounded-[1.5rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 transition-all hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-900 group">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">
                         {title}
                     </p>
                     <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
                         {value}
                     </p>
                     {subtitle && (
-                        <p className="mt-1 text-[10px] text-slate-400 flex items-center gap-1 leading-none font-bold uppercase">
+                        <p className="mt-1 text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1 leading-none font-bold uppercase">
                             <Icon size={12} />
                             {subtitle}
                         </p>
@@ -128,7 +128,7 @@ function ListCard({ title, subtitle, icon: Icon, children, emptyMessage }) {
             </div>
             <div className="p-6">
                 {children || (
-                    <div className="flex h-40 items-center justify-center text-sm text-slate-400 italic font-medium">
+                    <div className="flex h-40 items-center justify-center text-sm text-slate-500 dark:text-slate-400 italic font-medium">
                         {emptyMessage}
                     </div>
                 )}
@@ -313,9 +313,9 @@ export default function Dashboard({
                             <div className="flex-1 z-10 text-center md:text-left">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/10 mb-6">
                                     <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></div>
-                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Payment Breakdown Today</span>
+                                    <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Payment Breakdown Today</span>
                                 </div>
-                                <h4 className="text-sm font-black uppercase text-slate-400 tracking-widest mb-2">Total Tagihan Hari Ini</h4>
+                                <h4 className="text-sm font-black uppercase text-slate-500 dark:text-slate-400 tracking-widest mb-2">Total Tagihan Hari Ini</h4>
                                 <p className="text-5xl font-black italic tracking-tighter text-indigo-400 mb-2 drop-shadow-xl">
                                     {formatCurrency(todayBilledRevenue)}
                                 </p>
@@ -326,14 +326,14 @@ export default function Dashboard({
                                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-md">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                                            <span className="text-[10px] font-black uppercase text-slate-400">Tunai (bruto)</span>
+                                            <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Tunai (bruto)</span>
                                         </div>
                                         <p className="text-lg font-black text-white">{formatCurrency(todayCashRevenue)}</p>
                                     </div>
                                     <div className="p-4 rounded-2xl bg-white/5 border border-white/5 backdrop-blur-md">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="w-2 h-2 rounded-full bg-indigo-500" />
-                                            <span className="text-[10px] font-black uppercase text-slate-400">Digital (bruto)</span>
+                                            <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">Digital (bruto)</span>
                                         </div>
                                         <p className="text-lg font-black text-white">{formatCurrency(todayDigitalRevenue)}</p>
                                     </div>

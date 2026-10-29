@@ -145,7 +145,7 @@ export default function Index({ products, search }) {
 
             <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 mb-6 shadow-sm">
                 <form onSubmit={handleSearch} className="relative w-full">
-                    <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <IconSearch size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" />
                     <input
                         type="text"
                         value={searchQuery}
@@ -208,7 +208,7 @@ export default function Index({ products, search }) {
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-0.5">
                                                 <div className="font-bold text-slate-900 dark:text-white uppercase leading-tight">{product.title}</div>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-500 dark:text-slate-400">
                                                     <IconBarcode size={12} /> {product.barcode || 'TANPA BARCODE'}
                                                 </div>
                                                 {product.expired_date && (
@@ -223,14 +223,14 @@ export default function Index({ products, search }) {
                                                 <span className={`text-sm font-black ${product.stock <= 5 ? 'text-red-500 animate-pulse' : 'text-slate-700 dark:text-slate-300'}`}>
                                                     {product.stock}
                                                 </span>
-                                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-tighter">
+                                                <span className="text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 tracking-tighter">
                                                     {product.unit || 'Pcs'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400 italic">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] text-slate-400 uppercase not-italic font-black leading-none mb-1">{hppLabel}</span>
+                                                <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase not-italic font-black leading-none mb-1">{hppLabel}</span>
                                                 <div>
                                                     <span className="text-xs mr-1 uppercase">Rp</span>
                                                     {new Intl.NumberFormat("id-ID").format(finalHpp)}
@@ -239,7 +239,7 @@ export default function Index({ products, search }) {
                                         </td>
                                         <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] text-slate-400 uppercase font-black leading-none mb-1">Harga Jual</span>
+                                                <span className="text-[9px] text-slate-500 dark:text-slate-400 uppercase font-black leading-none mb-1">Harga Jual</span>
                                                 <div>
                                                     <span className="text-xs mr-1">Rp</span>
                                                     {new Intl.NumberFormat("id-ID").format(product.sell_price)}
@@ -270,7 +270,7 @@ export default function Index({ products, search }) {
                                 <tr>
                                     <td colSpan="7" className="p-20 text-center">
                                         <div className="flex flex-col items-center gap-2 opacity-20">
-                                            <IconInbox size={64} className="text-slate-400" />
+                                            <IconInbox size={64} className="text-slate-500 dark:text-slate-400" />
                                             <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Produk Tidak Ditemukan</p>
                                         </div>
                                     </td>

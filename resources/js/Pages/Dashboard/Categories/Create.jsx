@@ -63,7 +63,7 @@ export default function Create() {
                             
                             {/* Image Section - Sekarang Opsional */}
                             <div>
-                                <h3 className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2 tracking-widest">
+                                <h3 className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-3 flex items-center gap-2 tracking-widest">
                                     <IconPhoto size={16} />
                                     Gambar (Opsional)
                                 </h3>
@@ -78,9 +78,9 @@ export default function Create() {
                                         <div className="text-center">
                                             <IconPhoto
                                                 size={32}
-                                                className="text-slate-400 mx-auto mb-1"
+                                                className="text-slate-500 dark:text-slate-400 mx-auto mb-1"
                                             />
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Preview</p>
+                                            <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Preview</p>
                                         </div>
                                     )}
                                 </div>
@@ -91,7 +91,7 @@ export default function Create() {
                                     errors={errors.image}
                                     accept="image/*"
                                 />
-                                <p className="mt-2 text-[10px] text-slate-400 italic">*Format: JPG, PNG, JPEG. Max: 2MB</p>
+                                <p className="mt-2 text-[10px] text-slate-500 dark:text-slate-400 italic">*Format: JPG, PNG, JPEG. Max: 2MB</p>
                             </div>
 
                             {/* Info Section */}

@@ -119,7 +119,7 @@ export default function Create({ products }) {
                             {/* Produk Utama (Target) */}
                             <div className={data.type === 'buy_get' ? 'md:col-span-1' : 'md:col-span-2'}>
                                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">
-                                    <IconPackage size={18} className="text-slate-400"/> {data.type === 'fixed' ? 'Berlaku Untuk' : 'Produk Syarat (Trigger)'}
+                                    <IconPackage size={18} className="text-slate-500 dark:text-slate-400"/> {data.type === 'fixed' ? 'Berlaku Untuk' : 'Produk Syarat (Trigger)'}
                                 </label>
                                 <select 
                                     value={data.product_id} 

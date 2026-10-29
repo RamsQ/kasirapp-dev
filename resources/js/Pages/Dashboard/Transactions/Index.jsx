@@ -596,7 +596,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h2 className="text-xl font-black dark:text-white uppercase mb-6 tracking-tighter">Buka Shift Kasir</h2>
                         {lastClosedShift && (
                             <div className="mb-4 text-left bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
-                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-400">Shift sebelumnya ({formatDateTime(lastClosedShift.closed_at)})</p>
+                                <p className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Shift sebelumnya ({formatDateTime(lastClosedShift.closed_at)})</p>
                                 <p className="text-lg font-black text-slate-800 dark:text-white mt-1">
                                     Rp {Number(lastClosedShift.total_cash_actual).toLocaleString('id-ID')}
                                 </p>
@@ -607,9 +607,9 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                 )}
                             </div>
                         )}
-                        <label className="block text-left text-[9px] font-black uppercase tracking-widest text-slate-400 mb-2">Modal Awal Laci (sisa shift lalu)</label>
+                        <label className="block text-left text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 mb-2">Modal Awal Laci (sisa shift lalu)</label>
                         <input type="number" className="w-full pt-8 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none" value={shiftData.starting_cash} onChange={e => setShiftData('starting_cash', e.target.value)} required />
-                        <p className="text-left text-[9px] text-slate-400 mt-2 leading-relaxed">
+                        <p className="text-left text-[9px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
                             Isi dengan uang yang benar-benar ada di laci sekarang. Jangan diisi nominal tetap setiap hari, karena akan membuat selisih neraca naik terus.
                         </p>
                         <button type="button" onClick={() => postShift(route('shifts.store'))} className="w-full py-4 mt-6 bg-primary-600 text-white rounded-2xl font-black uppercase shadow-lg">Mulai Bertugas</button>
@@ -679,7 +679,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     <div className="flex-1 flex flex-col min-w-0">
                         <div className="p-3 md:p-4 bg-white/50 dark:bg-slate-900/50 border-b dark:border-slate-800 flex flex-wrap items-center gap-4 backdrop-blur-sm shadow-sm">
                             <div className="relative flex-1 min-w-[200px] max-w-xl">
-                                <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                                <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={18} />
                                 <input type="text" value={search} onChange={handleSearchChange} placeholder="Cari Nama Produk atau Barcode..." className="w-full pl-11 pr-4 py-2.5 rounded-xl border-none bg-white dark:bg-slate-800 dark:text-white shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-primary-500" />
                             </div>
                             <div className={`flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-xl border shadow-sm transition-all ${selectedPlatform ? 'border-primary-500 ring-1 ring-primary-500' : 'dark:border-slate-700'}`}>
@@ -690,8 +690,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                 </select>
                             </div>
                             <div className="flex bg-white dark:bg-slate-800 p-1 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 shadow-sm shrink-0">
-                                <button type="button" onClick={() => setViewMode('grid')} className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-400'}`}><IconLayoutGrid size={18} /></button>
-                                <button type="button" onClick={() => setViewMode('list')} className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-400'}`}><IconList size={18} /></button>
+                                <button type="button" onClick={() => setViewMode('grid')} className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400'}`}><IconLayoutGrid size={18} /></button>
+                                <button type="button" onClick={() => setViewMode('list')} className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-500 dark:text-slate-400'}`}><IconList size={18} /></button>
                             </div>
                         </div>
 
@@ -728,7 +728,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                             <div className="flex-1 min-w-0">
                                                 <h3 className="font-black dark:text-white uppercase text-[10px] line-clamp-1 leading-none">{p.title}</h3>
                                                 <div className="flex justify-between items-end mt-1 leading-none">
-                                                    <p className="text-[8px] font-bold text-slate-400 uppercase">STOK: {p.stock}</p>
+                                                    <p className="text-[8px] font-bold text-slate-500 dark:text-slate-400 uppercase">STOK: {p.stock}</p>
                                                     <div className="text-right">
                                                         {isDisc && <p className="text-[7px] text-red-500 line-through leading-none mb-0.5">{formatPrice(p.sell_price)}</p>}
                                                         <p className={`font-black text-xs ${isDisc || selectedPlatform ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary-600 dark:text-primary-400'}`}>{formatPrice(finalPrice)}</p>
@@ -798,12 +798,12 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                 )}
 
                                 <div className="flex justify-between items-end">
-                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Akhir</span>
+                                    <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Akhir</span>
                                     <span className="text-3xl font-black text-primary-600 dark:text-primary-400 italic tracking-tighter">{formatPrice(grandTotal)}</span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                    <div className="relative"><span className="absolute top-2 left-3 text-[7px] font-black text-slate-400 uppercase leading-none">Diterima</span><input type="number" value={cash || ''} onChange={(e) => setCash(Number(e.target.value))} placeholder="0" className="w-full pt-5 pb-2 px-3 text-base font-black rounded-2xl border-none bg-slate-100 dark:bg-slate-800 dark:text-white focus:ring-0 shadow-inner" /></div>
-                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-2 text-center flex flex-col justify-center border dark:border-slate-700 shadow-sm leading-none"><span className="text-[7px] font-black text-slate-400 uppercase mb-1 leading-none">Kembalian</span><span className={`text-xs font-black truncate leading-none ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatPrice(change)}</span></div>
+                                    <div className="relative"><span className="absolute top-2 left-3 text-[7px] font-black text-slate-500 dark:text-slate-400 uppercase leading-none">Diterima</span><input type="number" value={cash || ''} onChange={(e) => setCash(Number(e.target.value))} placeholder="0" className="w-full pt-5 pb-2 px-3 text-base font-black rounded-2xl border-none bg-slate-100 dark:bg-slate-800 dark:text-white focus:ring-0 shadow-inner" /></div>
+                                    <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-2 text-center flex flex-col justify-center border dark:border-slate-700 shadow-sm leading-none"><span className="text-[7px] font-black text-slate-500 dark:text-slate-400 uppercase mb-1 leading-none">Kembalian</span><span className={`text-xs font-black truncate leading-none ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatPrice(change)}</span></div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3">
@@ -817,15 +817,15 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                             <div className="absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border dark:border-slate-700 overflow-hidden z-50 animate-in slide-in-from-bottom-2 duration-200">
                                                 <button onClick={() => { setShowNonTunaiMenu(false); submitTransaction('auto_gateway', grandTotal); }} className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors border-b dark:border-slate-700">
                                                     <div className="p-2 bg-blue-100 text-blue-600 rounded-lg"><IconDeviceMobileVibration size={18}/></div>
-                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS OTOMATIS</p><p className="text-[8px] text-slate-400 font-bold mt-1 tracking-tighter italic">Verifikasi Sistem</p></div>
+                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS OTOMATIS</p><p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold mt-1 tracking-tighter italic">Verifikasi Sistem</p></div>
                                                 </button>
                                                 <button onClick={() => { setShowNonTunaiMenu(false); submitTransaction('qris_manual', grandTotal, true); setShowManualQrisModal(false); }} className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors border-b dark:border-slate-700">
                                                     <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg"><IconQrcode size={18}/></div>
-                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS STATIS</p><p className="text-[8px] text-slate-400 font-bold mt-1 tracking-tighter italic">Scan QR Toko</p></div>
+                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">QRIS STATIS</p><p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold mt-1 tracking-tighter italic">Scan QR Toko</p></div>
                                                 </button>
                                                 <button onClick={() => { setShowNonTunaiMenu(false); submitTransaction('transfer', grandTotal); }} className="w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors">
                                                     <div className="p-2 bg-purple-100 text-purple-600 rounded-lg"><IconCreditCard size={18}/></div>
-                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">TRANSFER BANK</p><p className="text-[8px] text-slate-400 font-bold mt-1 tracking-tighter italic">Cek Mutasi</p></div>
+                                                    <div><p className="text-[10px] font-black uppercase dark:text-white leading-none">TRANSFER BANK</p><p className="text-[8px] text-slate-500 dark:text-slate-400 font-bold mt-1 tracking-tighter italic">Cek Mutasi</p></div>
                                                 </button>
                                             </div>
                                         )}
@@ -842,12 +842,12 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             {showManualQrisModal && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in zoom-in-95 duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-6 max-w-sm w-full border dark:border-slate-800 shadow-2xl text-center">
-                        <div className="flex justify-between items-center mb-6 leading-none"><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter">Scan QRIS Toko</h3><button type="button" onClick={() => setShowManualQrisModal(false)} className="text-slate-400 hover:text-red-500 active:scale-90 transition-all"><IconX /></button></div>
+                        <div className="flex justify-between items-center mb-6 leading-none"><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter">Scan QRIS Toko</h3><button type="button" onClick={() => setShowManualQrisModal(false)} className="text-slate-500 dark:text-slate-400 hover:text-red-500 active:scale-90 transition-all"><IconX /></button></div>
                         <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl mb-6 border dark:border-slate-700 flex items-center justify-center shadow-inner">
                             {paymentSetting.qris_manual_image ? <img src={`/storage/payments/${paymentSetting.qris_manual_image}`} alt="QRIS" className="w-full max-w-[240px] h-auto rounded-xl shadow-md border-4 border-white" /> : <div className="py-10 text-slate-300 flex flex-col items-center"><IconPhoto size={48} /><span className="text-[10px] font-bold mt-2 uppercase tracking-widest leading-none">QRIS Belum Diunggah</span></div>}
                         </div>
                         <div className="mb-6 bg-primary-50 dark:bg-primary-950/20 py-3 rounded-2xl border border-primary-100 dark:border-primary-900 leading-none">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tagihan Pelanggan</p>
+                            <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mb-1">Tagihan Pelanggan</p>
                             <h2 className="text-2xl font-black text-primary-600 dark:text-primary-400 italic tracking-tighter leading-none">{formatPrice(grandTotal)}</h2>
                         </div>
                         <button type="button" onClick={() => { submitTransaction('qris_manual', grandTotal, true); setShowManualQrisModal(false); }} className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 flex items-center justify-center gap-2 tracking-widest transition-all"><IconCheck size={18} /> KONFIRMASI PEMBAYARAN</button>
@@ -861,10 +861,10 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     <div className="h-20 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between px-6 md:px-10 shrink-0 shadow-sm">
                         <div className="flex items-center gap-4">
                             <div className="p-3 bg-primary-500 dark:bg-primary-600 text-white rounded-2xl shadow-lg"><IconClockPause size={28} /></div>
-                            <div><h3 className="text-xl font-black uppercase dark:text-white italic tracking-tighter leading-none">Antrean Pesanan</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 leading-none">{filteredHolds.length} Pesanan Aktif</p></div>
+                            <div><h3 className="text-xl font-black uppercase dark:text-white italic tracking-tighter leading-none">Antrean Pesanan</h3><p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 leading-none">{filteredHolds.length} Pesanan Aktif</p></div>
                         </div>
                         <div className="hidden md:flex relative w-full max-w-md mx-8">
-                            <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                            <IconSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400" size={18} />
                             <input type="text" placeholder="Cari Nama / No Antrean / Meja..." className="w-full pl-11 pr-4 py-3 rounded-2xl border-none bg-slate-100 dark:bg-slate-800 dark:text-white focus:ring-2 focus:ring-primary-500 transition-all shadow-inner" value={searchHold} onChange={(e) => setSearchHold(e.target.value)} />
                         </div>
                         <button type="button" onClick={() => setShowModalHold(false)} className="p-3 bg-red-50 dark:bg-red-950/30 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all active:scale-90 shadow-sm"><IconX size={24} /></button>
@@ -955,10 +955,10 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-md w-full border dark:border-slate-800 shadow-2xl">
                          <div className="flex items-center gap-4 mb-6"><div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl shadow-sm leading-none shadow-orange-500/20"><IconCashOff size={24}/></div><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter leading-none">Pengeluaran Kas Laci</h3></div>
                          <div className="space-y-4">
-                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Keterangan</label><input type="text" placeholder="Contoh: Belanja Bahan Baku" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-bold focus:ring-primary-500 shadow-inner transition-all" value={cashOutName} onChange={e => setCashOutName(e.target.value)} /></div>
-                            <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Nominal (Rp)</label><input type="number" placeholder="0" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-black focus:ring-primary-500 shadow-inner transition-all" value={cashOutAmount} onChange={e => setCashOutAmount(e.target.value)} /></div>
+                            <div><label className="block text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 ml-4 tracking-widest leading-none">Keterangan</label><input type="text" placeholder="Contoh: Belanja Bahan Baku" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-bold focus:ring-primary-500 shadow-inner transition-all" value={cashOutName} onChange={e => setCashOutName(e.target.value)} /></div>
+                            <div><label className="block text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 ml-4 tracking-widest leading-none">Nominal (Rp)</label><input type="number" placeholder="0" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-black focus:ring-primary-500 shadow-inner transition-all" value={cashOutAmount} onChange={e => setCashOutAmount(e.target.value)} /></div>
                             <div className="flex gap-3 mt-4">
-                                <button type="button" onClick={() => setShowCashOut(false)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400 hover:text-red-500 transition-colors tracking-widest leading-none">Batal</button>
+                                <button type="button" onClick={() => setShowCashOut(false)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-500 dark:text-slate-400 hover:text-red-500 transition-colors tracking-widest leading-none">Batal</button>
                                 <button type="button" onClick={handleCashOutSubmit} disabled={isCashOutLoading || !cashOutName || !cashOutAmount} className="flex-[2] py-4 bg-orange-500 dark:bg-orange-600 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 disabled:opacity-50 tracking-widest leading-none transition-all">{isCashOutLoading ? <IconLoader className="animate-spin inline mr-2" size={18} /> : <IconCheck className="inline mr-2" size={18} />} SIMPAN DATA</button>
                             </div>
                          </div>
@@ -974,11 +974,11 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h3 className="text-xl font-black uppercase mb-2 dark:text-white tracking-tighter leading-none italic">Akhiri Sesi Kasir?</h3>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-8 font-black uppercase italic text-center px-4 leading-tight">Laporan shift akan otomatis dicetak. Pastikan uang laci sudah dihitung secara manual.</p>
                         <div className="relative mb-6 text-left">
-                            <span className="absolute top-2 left-4 text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Uang Fisik Laci (Rp)</span>
+                            <span className="absolute top-2 left-4 text-[7px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Uang Fisik Laci (Rp)</span>
                             <input type="number" className="w-full pt-6 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none focus:ring-0 dark:text-white shadow-inner" value={closeShiftData.total_cash_physical} onChange={e => setCloseShiftData('total_cash_physical', e.target.value)} required />
                         </div>
                         <button type="button" onClick={(e) => { e.preventDefault(); postCloseShift(route('shifts.close')); }} disabled={processingCloseShift} className="w-full py-4 bg-red-600 text-white rounded-2xl font-black uppercase text-[11px] shadow-xl flex items-center justify-center gap-2 hover:bg-red-700 transition-all active:scale-95 tracking-widest leading-none">{processingCloseShift ? <IconLoader size={18} className="animate-spin" /> : <><IconPower size={18} /> TUTUP & CETAK LAPORAN</>}</button>
-                        <button type="button" onClick={() => setShowCloseShift(false)} className="text-slate-400 text-[10px] font-black uppercase mt-6 tracking-widest block mx-auto hover:text-slate-600 transition-colors uppercase tracking-tighter">Batalkan</button>
+                        <button type="button" onClick={() => setShowCloseShift(false)} className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase mt-6 tracking-widest block mx-auto hover:text-slate-600 transition-colors uppercase tracking-tighter">Batalkan</button>
                     </div>
                 </div>
             )}

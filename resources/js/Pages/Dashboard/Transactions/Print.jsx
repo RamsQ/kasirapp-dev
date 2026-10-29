@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react";
 import { printUsbRaw } from "@/Utils/UsbRawPrinter"; 
 import { smartPrint } from "@/Utils/BluetoothHybridService"; 
+import { formatDateTime } from "@/Utils/DateTime";
 import { paymentLabel, isSelfPaidGateway } from "@/Utils/PaymentLabels";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
@@ -234,10 +235,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                         {formatRow("Plg:", (transaction.customer_name || "UMUM").toUpperCase().substring(0, 15))}
                         {"\n" + formatRow("No.Trx:", transaction.invoice)}
                         {"\n" + formatRow("Order:", `#${displayOrder}`)}
-                        {"\n" + (() => {
-                            const d = new Date(transaction.created_at);
-                            return formatRow("Tgl:", `${String(d.getDate()).padStart(2,'0')}-${String(d.getMonth()+1).padStart(2,'0')}-${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`);
-                        })()}
+                        {formatRow("Tgl:", formatDateTime(transaction.created_at, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }))}
                         {"\n" + formatRow("Kasir:", (transaction.cashier?.name || "KASIR").split(' ')[0].toUpperCase())}
                         {"\n" + formatRow("METODE:", getPaymentLabel(transaction.payment_method))}
                         

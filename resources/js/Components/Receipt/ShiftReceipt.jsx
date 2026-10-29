@@ -1,5 +1,5 @@
 import React from "react";
-import { nowStamp } from "@/Utils/DateTime";
+import { formatDateTime, nowStamp } from "@/Utils/DateTime";
 
 const formatPrice = (value) =>
     new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", minimumFractionDigits: 0 }).format(value || 0);
@@ -17,8 +17,8 @@ export default function ShiftReceipt({ shift, storeName }) {
 
             <div className="space-y-1 mb-4 text-[11px]">
                 <div className="flex justify-between"><span>KASIR</span><span className="font-bold">{shift.user?.name || '---'}</span></div>
-                <div className="flex justify-between"><span>BUKA</span><span>{new Intl.DateTimeFormat('id-ID', {dateStyle: 'short', timeStyle: 'short'}).format(new Date(shift.opened_at))}</span></div>
-                <div className="flex justify-between"><span>TUTUP</span><span>{new Intl.DateTimeFormat('id-ID', {dateStyle: 'short', timeStyle: 'short'}).format(new Date(shift.closed_at))}</span></div>
+                <div className="flex justify-between"><span>BUKA</span><span>{formatDateTime(shift.opened_at, { dateStyle: "short", timeStyle: "short" })}</span></div>
+                <div className="flex justify-between"><span>TUTUP</span><span>{formatDateTime(shift.closed_at, { dateStyle: "short", timeStyle: "short" })}</span></div>
             </div>
 
             <p className="text-center opacity-30">--------------------------------</p>

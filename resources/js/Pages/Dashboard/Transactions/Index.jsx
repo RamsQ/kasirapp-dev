@@ -300,7 +300,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
     const performSearch = (query, categoryId) => {
         router.get(route('transactions.index'), 
             { search: query, category_id: categoryId === 'all' ? '' : categoryId }, 
-            { preserveState: true, preserveScroll: true, only: ['products', 'filters'] }
+            { preserveState: false, preserveScroll: true, only: ['products', 'filters'] }
         );
     };
 

@@ -19,6 +19,7 @@ import {
     IconArrowDownRight,
     IconAlertCircle
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 
 // Summary Card with modern gradient & glassmorphism effect
 const SummaryCard = ({ title, value, description, icon, gradient }) => (
@@ -435,7 +436,7 @@ const ProfitReport = ({
                                             </td>
                                             <td className="px-6 py-5">
                                                 <div className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tighter">{trx.invoice}</div>
-                                                <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{trx.created_at}</div>
+                                                <div className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter mt-0.5">{formatDateTime(trx.created_at)}</div>
                                             </td>
                                             <td className="px-6 py-5 border-l dark:border-slate-800">
                                                 {trx.online_platform ? (

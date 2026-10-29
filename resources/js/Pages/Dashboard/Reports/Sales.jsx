@@ -20,6 +20,7 @@ import {
     IconCash,
     IconPercentage
 } from "@tabler/icons-react";
+import { formatDateTime } from "@/Utils/DateTime";
 
 // Summary Card Component
 const SummaryCard = ({ icon, title, value, description, gradient }) => (
@@ -339,7 +340,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <div className="text-sm font-bold text-slate-900 dark:text-white">{trx.invoice}</div>
-                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">{trx.created_at}</div>
+                                                <div className="text-[10px] text-slate-500 dark:text-slate-400 uppercase">{formatDateTime(trx.created_at)}</div>
                                             </td>
                                             <td className="px-4 py-4">
                                                 {trx.online_platform ? (

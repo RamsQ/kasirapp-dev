@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { IconArrowLeft, IconPrinter, IconUsb } from "@tabler/icons-react";
 import { printUsbRaw } from "@/Utils/UsbRawPrinter"; 
+import { formatDateTime } from "@/Utils/DateTime";
 import { paymentLabel } from "@/Utils/PaymentLabels";
 
 export default function Print({ transaction, receiptSetting, isPublic = false, autoPrint = false }) {
@@ -64,7 +65,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                         {/* METADATA */}
                         <pre className="whitespace-pre-wrap font-mono uppercase leading-tight">
                             {formatRow("Kode Pesan:", `#${displayCode}`) + "\n"}
-                            {formatRow("Tgl:", (transaction.created_at || "").substring(0,16).replace('T', ' ')) + "\n"}
+                            {formatRow("Tgl:", formatDateTime(transaction.created_at, { timeStyle: "short" })) + "\n"}
                             {formatRow("Plg:", (transaction.customer_name || "APAN #9698").substring(0, 20)) + "\n"}
                             {formatRow("Type:", (transaction.table_name || "MEJA 2")) + "\n"}
                             {formatRow("Kasir:", (transaction.cashier?.name?.split(' ')[0] || "ARYA")) + "\n"}

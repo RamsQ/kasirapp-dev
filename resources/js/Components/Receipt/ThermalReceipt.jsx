@@ -1,5 +1,5 @@
 import React from "react";
-import { nowStamp } from "@/Utils/DateTime";
+import { formatDateTime, nowStamp } from "@/Utils/DateTime";
 import { paymentLabel, isPaid, isSelfPaidGateway } from "@/Utils/PaymentLabels";
 
 // Helper format uang khusus struk
@@ -122,7 +122,7 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
                     <span className="font-bold shrink-0">{transaction.table_name || 'TAKE AWAY'}</span>
                 </div>
                 <div className="flex justify-between">
-                    <span>Tgl: {transaction.created_at}</span>
+                    <span>Tgl: {formatDateTime(transaction.created_at, { timeStyle: "short" })}</span>
                 </div>
 
                 {/* INTEGRASI PLATFORM ONLINE */}

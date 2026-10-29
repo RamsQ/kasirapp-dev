@@ -235,7 +235,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                         {formatRow("Plg:", (transaction.customer_name || "UMUM").toUpperCase().substring(0, 15))}
                         {"\n" + formatRow("No.Trx:", transaction.invoice)}
                         {"\n" + formatRow("Order:", `#${displayOrder}`)}
-                        {formatRow("Tgl:", formatDateTime(transaction.created_at, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }))}
+                        {formatRow("Tgl:", formatDateTime(transaction.created_at, { timeStyle: "short" }))}
                         {"\n" + formatRow("Kasir:", (transaction.cashier?.name || "KASIR").split(' ')[0].toUpperCase())}
                         {"\n" + formatRow("METODE:", getPaymentLabel(transaction.payment_method))}
                         

@@ -60,12 +60,13 @@ export function formatDateTime(value, options = {}) {
 
     if (!date) return "-";
 
-    return new Intl.DateTimeFormat("id-ID", {
-        dateStyle: "medium",
-        timeStyle: "short",
-        timeZone: APP_TIMEZONE,
-        ...options,
-    }).format(date);
+    const opts = { ...options, timeZone: APP_TIMEZONE };
+    const hasDateComponents = opts.day !== undefined || opts.month !== undefined || opts.year !== undefined;
+    const hasTimeComponents = opts.hour !== undefined || opts.minute !== undefined || opts.second !== undefined;
+    if (hasDateComponents) delete opts.dateStyle;
+    if (hasTimeComponents) delete opts.timeStyle;
+
+    return new Intl.DateTimeFormat("id-ID", opts).format(date);
 }
 
 /**
@@ -78,11 +79,11 @@ export function formatTime(value, options = {}) {
 
     if (!date) return "-";
 
-    return new Intl.DateTimeFormat("id-ID", {
-        timeStyle: "short",
-        timeZone: APP_TIMEZONE,
-        ...options,
-    }).format(date);
+    const opts = { ...options, timeZone: APP_TIMEZONE };
+    const hasTimeComponents = opts.hour !== undefined || opts.minute !== undefined || opts.second !== undefined;
+    if (hasTimeComponents) delete opts.timeStyle;
+
+    return new Intl.DateTimeFormat("id-ID", opts).format(date);
 }
 
 /**
@@ -95,11 +96,11 @@ export function formatDate(value, options = {}) {
 
     if (!date) return "-";
 
-    return new Intl.DateTimeFormat("id-ID", {
-        dateStyle: "medium",
-        timeZone: APP_TIMEZONE,
-        ...options,
-    }).format(date);
+    const opts = { ...options, timeZone: APP_TIMEZONE };
+    const hasDateComponents = opts.day !== undefined || opts.month !== undefined || opts.year !== undefined;
+    if (hasDateComponents) delete opts.dateStyle;
+
+    return new Intl.DateTimeFormat("id-ID", opts).format(date);
 }
 
 /**

@@ -31,13 +31,13 @@ export default function ChartCard({
                             <Icon
                                 size={16}
                                 strokeWidth={1.8}
-                                className="shrink-0 text-slate-400 dark:text-slate-500"
+                                className="shrink-0 text-slate-400"
                             />
                         ) : null}
                         <span className="truncate">{title}</span>
                     </h2>
                     {subtitle ? (
-                        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-500">{subtitle}</p>
+                        <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
                     ) : null}
                 </div>
                 {action}
@@ -48,7 +48,7 @@ export default function ChartCard({
             </div>
 
             {footer ? (
-                <footer className="border-t border-slate-200 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-500">
+                <footer className="border-t border-slate-200 px-4 py-2 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
                     {footer}
                 </footer>
             ) : null}
@@ -70,7 +70,7 @@ export function EmptyPanel({ message, height = 280 }) {
             style={{ minHeight: height }}
         >
             <p className="text-sm text-slate-500 dark:text-slate-400">{message}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-600">Tidak ada data pada periode ini.</p>
+            <p className="text-xs text-slate-400">Tidak ada data pada periode ini.</p>
         </div>
     );
 }

@@ -43,12 +43,12 @@ export default function Products({ products, categories, filters }) {
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter flex items-center gap-2">
-                            <IconPackage className="text-primary-500" size={32} /> Laporan Produk
+                            <IconPackage className="text-primary-500 dark:text-primary-400" size={32} /> Laporan Produk
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1">Monitor stok dan akumulasi penjualan produk berdasarkan periode.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Monitor stok dan akumulasi penjualan produk berdasarkan periode.</p>
                     <p className="text-[10px] text-slate-400 mt-1">Omzet produk menggunakan harga line setelah diskon item, sebelum diskon global dan pajak.</p>
                     </div>
-                    <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20">
+                    <button onClick={handleExport} className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-emerald-500/20">
                         <IconPrinter size={18} /> CETAK PDF
                     </button>
                 </div>

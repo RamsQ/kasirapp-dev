@@ -85,7 +85,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <IconCreditCard size={28} className="text-primary-500" />
+                    <IconCreditCard size={28} className="text-primary-500 dark:text-primary-400" />
                     Pengaturan Pembayaran
                 </h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -98,7 +98,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 {/* Gateway Default & Global Settings */}
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
                     <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                        <IconSettings size={18} className="text-primary-500" />
+                        <IconSettings size={18} className="text-primary-500 dark:text-primary-400" />
                         Konfigurasi Utama
                     </h3>
                     <div className="grid md:grid-cols-2 gap-6">
@@ -121,7 +121,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                                     </option>
                                 ))}
                             </select>
-                            <p className="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+                            <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                 <IconInfoCircle size={12} /> Metode ini akan terpilih otomatis di layar kasir.
                             </p>
                         </div>
@@ -132,12 +132,12 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all p-6 ${data.qris_manual_enabled ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${data.qris_manual_enabled ? 'bg-primary-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`p-2 rounded-lg ${data.qris_manual_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
                                 <IconQrcode size={20} />
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">QRIS Manual (Statis)</h3>
-                                <p className="text-xs text-slate-500">Tampilkan gambar QRIS untuk di-scan pelanggan</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Tampilkan gambar QRIS untuk di-scan pelanggan</p>
                             </div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
@@ -194,7 +194,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Midtrans Snap</h3>
-                                <p className="text-xs text-slate-500">Integrasi pembayaran otomatis (QRIS Dinamis, E-Wallet, VA)</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Integrasi pembayaran otomatis (QRIS Dinamis, E-Wallet, VA)</p>
                             </div>
                         </div>
                         <Checkbox
@@ -246,12 +246,12 @@ export default function Payment({ setting, supportedGateways = [] }) {
                 <div className={`rounded-2xl border bg-white p-6 shadow-sm transition-all dark:bg-slate-900 ${data.xendit_enabled ? 'border-primary-500 ring-4 ring-primary-500/5' : 'border-slate-200 dark:border-slate-800'}`}>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className={`rounded-lg p-2 ${data.xendit_enabled ? 'bg-primary-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <div className={`rounded-lg p-2 ${data.xendit_enabled ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
                                 <IconCreditCard size={20} />
                             </div>
                             <div>
                                 <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">Xendit Invoice</h3>
-                                <p className="text-xs text-slate-500">Callback settlement diverifikasi dengan callback token.</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">Callback settlement diverifikasi dengan callback token.</p>
                             </div>
                         </div>
                         <Checkbox checked={data.xendit_enabled} onChange={(e) => setData("xendit_enabled", e.target.checked)} />
@@ -274,7 +274,7 @@ export default function Payment({ setting, supportedGateways = [] }) {
 
                 {/* Actions */}
                 <div className="flex items-center justify-between p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800">
-                    <div className="flex items-center gap-2 text-slate-500">
+                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                         <IconInfoCircle size={16} />
                         <span className="text-xs">Pastikan API Keys sudah sesuai dengan dashboard masing-masing vendor.</span>
                     </div>

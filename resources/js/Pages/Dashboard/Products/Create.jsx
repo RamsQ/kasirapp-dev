@@ -124,11 +124,11 @@ export default function Create({ categories, products }) {
         <>
             <Head title="Tambah Produk" />
             <div className="mb-6">
-                <Link href={route("products.index")} className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600 mb-3 uppercase font-bold tracking-tight transition-colors">
+                <Link href={route("products.index")} className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 mb-3 uppercase font-bold tracking-tight transition-colors">
                     <IconArrowLeft size={16} /> Kembali ke Produk
                 </Link>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                    <IconPackage size={28} className="text-primary-500" /> Tambah Produk Baru
+                    <IconPackage size={28} className="text-primary-500 dark:text-primary-400" /> Tambah Produk Baru
                 </h1>
             </div>
 
@@ -136,14 +136,14 @@ export default function Create({ categories, products }) {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-1 space-y-6">
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-                            <h3 className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2 tracking-widest">
+                            <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest">
                                 <IconPhoto size={18} /> Gambar Produk
                             </h3>
                             <div className="aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-700 flex items-center justify-center overflow-hidden mb-4 transition-all">
                                 {imagePreview ? <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /> : (
                                     <div className="text-center p-6">
                                         <IconPhoto size={48} className="mx-auto text-slate-400 mb-2 opacity-50" />
-                                        <p className="text-xs font-bold text-slate-500 uppercase">Belum ada gambar</p>
+                                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase">Belum ada gambar</p>
                                     </div>
                                 )}
                             </div>
@@ -156,11 +156,11 @@ export default function Create({ categories, products }) {
                             </h3>
                             <div className="flex flex-col gap-3">
                                 <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${data.type === 'single' ? 'bg-primary-50 border-primary-200 dark:bg-primary-900/20 dark:border-primary-800 ring-1 ring-primary-200' : 'border-slate-200 dark:border-slate-700'}`}>
-                                    <input type="radio" name="type" value="single" checked={data.type === "single"} onChange={(e) => setData("type", e.target.value)} className="w-4 h-4 text-primary-600 focus:ring-primary-500" />
+                                    <input type="radio" name="type" value="single" checked={data.type === "single"} onChange={(e) => setData("type", e.target.value)} className="w-4 h-4 text-primary-600 dark:text-primary-400 focus:ring-primary-500" />
                                     <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-200">Retail / Single</span>
                                 </label>
                                 <label className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-all ${data.type === 'bundle' ? 'bg-primary-50 border-primary-200 dark:bg-primary-900/20 dark:border-primary-800 ring-1 ring-primary-200' : 'border-slate-200 dark:border-slate-700'}`}>
-                                    <input type="radio" name="type" value="bundle" checked={data.type === "bundle"} onChange={(e) => setData("type", e.target.value)} className="w-4 h-4 text-primary-600 focus:ring-primary-500" />
+                                    <input type="radio" name="type" value="bundle" checked={data.type === "bundle"} onChange={(e) => setData("type", e.target.value)} className="w-4 h-4 text-primary-600 dark:text-primary-400 focus:ring-primary-500" />
                                     <span className="text-xs font-bold uppercase text-slate-700 dark:text-slate-200">Paket Bundling</span>
                                 </label>
                             </div>
@@ -184,7 +184,7 @@ export default function Create({ categories, products }) {
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
                             <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconCurrencyDollar size={18} /> Harga & Stok Dasar</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Input type="number" label={data.type === 'bundle' ? "Total Modal (Auto)" : "Harga Beli"} value={data.buy_price} onChange={(e) => setData("buy_price", e.target.value)} readOnly={data.type === 'bundle'} className={data.type === 'bundle' ? 'bg-slate-50 dark:bg-slate-800 font-bold text-primary-600' : ''} />
+                                <Input type="number" label={data.type === 'bundle' ? "Total Modal (Auto)" : "Harga Beli"} value={data.buy_price} onChange={(e) => setData("buy_price", e.target.value)} readOnly={data.type === 'bundle'} className={data.type === 'bundle' ? 'bg-slate-50 dark:bg-slate-800 font-bold text-primary-600 dark:text-primary-400' : ''} />
                                 <Input type="number" label="Harga Jual" value={data.sell_price} onChange={(e) => setData("sell_price", e.target.value)} errors={errors.sell_price} />
                                 {data.type === "single" && <Input type="number" label="Stok Tersedia" value={data.stock} onChange={(e) => setData("stock", e.target.value)} errors={errors.stock} />}
                                 <Input type="date" label="Tanggal Kadaluarsa" value={data.expired_date} onChange={(e) => setData("expired_date", e.target.value)} />
@@ -195,7 +195,7 @@ export default function Create({ categories, products }) {
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 tracking-widest"><IconScale size={18} /> Konversi Satuan Lain</h3>
-                                    <button type="button" onClick={addUnitRow} className="text-[10px] font-black uppercase bg-primary-50 dark:bg-primary-900/30 text-primary-600 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-colors flex items-center gap-1">
+                                    <button type="button" onClick={addUnitRow} className="text-[10px] font-black uppercase bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg hover:bg-primary-100 transition-colors flex items-center gap-1">
                                         <IconPlus size={14} /> Tambah
                                     </button>
                                 </div>
@@ -252,7 +252,7 @@ export default function Create({ categories, products }) {
                                         );
                                     })}
                                 </div>
-                                <button type="button" onClick={addBundleItem} className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-primary-600 hover:text-primary-700 transition-colors">
+                                <button type="button" onClick={addBundleItem} className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-primary-600 dark:text-primary-400 hover:text-primary-700 transition-colors">
                                     <IconPlus size={18} /> Tambah Produk Ke Paket
                                 </button>
                             </div>
@@ -262,7 +262,7 @@ export default function Create({ categories, products }) {
                             <Link href={route("products.index")} className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs uppercase tracking-widest transition-all">
                                 Batal
                             </Link>
-                            <button type="submit" disabled={processing} className="px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary-500/25 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <button type="submit" disabled={processing} className="px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary-500/25 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
                                 {processing ? "Sedang Memproses..." : "Simpan Produk"}
                             </button>
                         </div>

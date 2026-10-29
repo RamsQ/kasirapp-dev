@@ -60,7 +60,7 @@ import {
 /**
  * Kartu KPI dengan pembanding periode sebelumnya.
  *
- * Warna tanda naik/turun diambil lewat useDeltaColor, bukan kelas Tailawayl
+ * Warna tanda naik/turun diambil lewat useDeltaColor, bukan kelas Tailwind
  * yang terkunci. Hijau emerald-400 hampir tak terlihat di atas kartu putih,
  * jadi di mode terang kartu ini akan terlihat seperti tidak berubah sama
  * sekali.
@@ -72,14 +72,14 @@ function KpiCard({ label, value, delta, icon: Icon, tone, hint }) {
     return (
         <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-500">
+                <span className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     {label}
                 </span>
                 {Icon ? (
                     <Icon
                         size={16}
                         strokeWidth={1.8}
-                        className="shrink-0 text-slate-400 dark:text-slate-600"
+                        className="shrink-0 text-slate-400"
                     />
                 ) : null}
             </div>
@@ -96,7 +96,7 @@ function KpiCard({ label, value, delta, icon: Icon, tone, hint }) {
             </p>
 
             {hint ? (
-                <p className="mt-0.5 text-[11px] text-slate-400 dark:text-slate-600">{hint}</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">{hint}</p>
             ) : null}
         </div>
     );
@@ -350,7 +350,7 @@ function PromoPanel({ promo }) {
                                         </div>
                                         <div className="grid grid-cols-2 gap-2">
                                             <div className="rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-800">
-                                                <div className="text-[10px] uppercase text-slate-400 dark:text-slate-500">
+                                                <div className="text-[10px] uppercase text-slate-400">
                                                     Berpromo
                                                 </div>
                                                 <div className="text-sm font-black text-cyan-600 dark:text-cyan-400">
@@ -358,7 +358,7 @@ function PromoPanel({ promo }) {
                                                 </div>
                                             </div>
                                             <div className="rounded-lg border border-slate-200 px-3 py-2 dark:border-slate-800">
-                                                <div className="text-[10px] uppercase text-slate-400 dark:text-slate-500">
+                                                <div className="text-[10px] uppercase text-slate-400">
                                                     Tanpa promo
                                                 </div>
                                                 <div className="text-sm font-black text-slate-600 dark:text-slate-300">
@@ -441,7 +441,7 @@ function PromoPanel({ promo }) {
                             <div className="overflow-x-auto px-2">
                                 <table className="min-w-full text-sm">
                                     <thead>
-                                        <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
+                                        <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:border-slate-800">
                                             <th className="py-2 pr-4 font-medium">Kode</th>
                                             <th className="py-2 pr-4 text-right font-medium">Transaksi</th>
                                             <th className="py-2 pr-4 text-right font-medium">Diskon Diberi</th>
@@ -609,7 +609,7 @@ export default function AnalyticsIndex({
                         </div>
 
                         <div className="ml-auto flex items-center gap-2">
-                            <span className="text-xs text-slate-500">Granularitas</span>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">Granularitas</span>
                             <div className="relative">
                                 <select
                                     value={period.granularity === "auto" ? "auto" : period.granularity}
@@ -627,7 +627,7 @@ export default function AnalyticsIndex({
                                 </select>
                                 <IconChevronDown
                                     size={14}
-                                    className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-500"
+                                    className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400"
                                 />
                             </div>
                         </div>
@@ -635,7 +635,7 @@ export default function AnalyticsIndex({
 
                     {showCustom ? (
                         <div className="mt-3 flex flex-wrap items-end gap-2 border-t border-slate-200 pt-3 dark:border-slate-800">
-                            <label className="text-xs text-slate-500">
+                            <label className="text-xs text-slate-500 dark:text-slate-400">
                                 Dari
                                 <input
                                     type="date"
@@ -646,7 +646,7 @@ export default function AnalyticsIndex({
                                 />
                             </label>
 
-                            <label className="text-xs text-slate-500">
+                            <label className="text-xs text-slate-500 dark:text-slate-400">
                                 Sampai
                                 <input
                                     type="date"
@@ -673,7 +673,7 @@ export default function AnalyticsIndex({
                     ) : null}
 
                     <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className="flex items-center gap-1 text-[11px] text-slate-400 dark:text-slate-600">
+                        <p className="flex items-center gap-1 text-[11px] text-slate-400">
                             <IconInfoCircle size={12} />
                             {period.start} s/d {period.end} ({period.days} hari, {GRANULARITY_LABELS[period.granularity]}).
                             Pembanding: {comparison.start} s/d {comparison.end}.
@@ -681,7 +681,7 @@ export default function AnalyticsIndex({
 
                         {/* ---------- STATUS KESEGARAN DATA ---------- */}
                         <div className="flex items-center gap-2 text-[11px]">
-                            <span className="text-slate-400 dark:text-slate-600">
+                            <span className="text-slate-400">
                                 Diperbarui {describeFreshness(autoRefresh.lastLoadedAt)}
                                 {autoRefresh.enabled
                                     ? `, lagi ${autoRefresh.secondsLeft} dtk`
@@ -698,7 +698,7 @@ export default function AnalyticsIndex({
                             </button>
 
                             {autoRefresh.canAutoRefresh ? (
-                                <label className="flex cursor-pointer items-center gap-1 text-slate-500">
+                                <label className="flex cursor-pointer items-center gap-1 text-slate-500 dark:text-slate-400">
                                     <input
                                         type="checkbox"
                                         checked={autoRefresh.enabled}
@@ -709,7 +709,7 @@ export default function AnalyticsIndex({
                                 </label>
                             ) : (
                                 <span
-                                    className="text-slate-400 dark:text-slate-600"
+                                    className="text-slate-400"
                                     title="Auto-refresh hanya untuk periode yang berubah terus, misal Hari Ini. Untuk periode panjang, angka 1 menit lalu hampir sama dengan sekarang."
                                 >
                                     {GRANULARITY_LABELS[period.granularity]} tidak perlu auto-refresh
@@ -732,7 +732,7 @@ export default function AnalyticsIndex({
                             aria-selected={tab === item.key}
                             className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-colors ${
                                 tab === item.key
-                                    ? "bg-primary-500 text-white shadow-sm"
+                                    ? "bg-primary-500 dark:bg-primary-600 text-white shadow-sm"
                                     : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                             }`}
                         >
@@ -1209,7 +1209,7 @@ export default function AnalyticsIndex({
                                             <span className="truncate text-slate-700 dark:text-slate-300">
                                                 {item.name}
                                             </span>
-                                            <span className="shrink-0 text-slate-500">
+                                            <span className="shrink-0 text-slate-500 dark:text-slate-400">
                                                 {formatNumber(item.stock)} / {formatNumber(item.min_stock)} {item.unit}
                                             </span>
                                         </div>
@@ -1248,7 +1248,7 @@ export default function AnalyticsIndex({
                         <div className="overflow-x-auto px-2">
                             <table className="min-w-full text-sm">
                                 <thead>
-                                    <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-800">
+                                    <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400 dark:border-slate-800">
                                         <th className="py-2 pr-4 font-medium">Kasir</th>
                                         <th className="py-2 pr-4 text-right font-medium">Transaksi</th>
                                         <th className="py-2 pr-4 text-right font-medium">Omzet Bersih</th>
@@ -1273,10 +1273,10 @@ export default function AnalyticsIndex({
                                             <td className="py-2 pr-4 text-right text-slate-800 dark:text-slate-200">
                                                 {formatCurrency(row.net_revenue)}
                                             </td>
-                                            <td className="py-2 pr-4 text-right text-slate-500">
+                                            <td className="py-2 pr-4 text-right text-slate-500 dark:text-slate-400">
                                                 {formatCurrency(row.average_order)}
                                             </td>
-                                            <td className="py-2 pr-4 text-right text-slate-500">
+                                            <td className="py-2 pr-4 text-right text-slate-500 dark:text-slate-400">
                                                 {formatCurrency(row.hpp)}
                                             </td>
                                             <td className="py-2 pr-4 text-right text-emerald-700 dark:text-emerald-300">

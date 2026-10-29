@@ -11,7 +11,7 @@ export default function ListBox({ selected, data, setSelected, label, errors }) 
 
     return (
         <div className='flex flex-col gap-2'>
-            <label className='text-gray-600 text-sm'>{label}</label>
+            <label className='text-gray-600 dark:text-gray-400 text-sm'>{label}</label>
             <Listbox value={selected} onChange={setSelected} multiple by="id">
                 <Listbox.Button className={'w-full px-3 py-1.5 border text-sm rounded-md focus:outline-none focus:ring-0 flex justify-between items-center gap-8 bg-white text-gray-700 focus:border-gray-200 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:focus:border-gray-700 dark:border-gray-800'}>
                     {preview}

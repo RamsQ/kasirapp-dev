@@ -159,11 +159,11 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                         <nav className="space-y-6">
                             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700/30 space-y-2">
                                 <div className="flex justify-between text-xs font-bold border-b border-slate-700/30 pb-2 mb-2 italic">
-                                    <span className="text-slate-500 uppercase tracking-tighter">Antrean</span>
+                                    <span className="text-slate-500 dark:text-slate-400 uppercase tracking-tighter">Antrean</span>
                                     <span className="text-white text-xl font-black">{displayQueue}</span>
                                 </div>
                                 <div className="flex justify-between text-xs font-bold border-b border-slate-700/30 pb-2 mb-2">
-                                    <span className="text-slate-500 uppercase">Status</span>
+                                    <span className="text-slate-500 dark:text-slate-400 uppercase">Status</span>
                                     <span className={isBill ? "text-blue-400 font-black" : "text-emerald-400 font-black"}>
                                         {isBill ? "DRAF PESANAN" : getPaymentLabel(transaction.payment_method)}
                                     </span>
@@ -178,7 +178,7 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                                     </div>
                                 )}
                                 <div className="flex justify-between text-xs">
-                                    <span className="text-slate-500">Order ID</span>
+                                    <span className="text-slate-500 dark:text-slate-400">Order ID</span>
                                     <span className="text-orange-400 font-mono font-bold">#{displayOrder}</span>
                                 </div>
                             </div>
@@ -194,12 +194,12 @@ export default function Print({ transaction, receiptSetting, isPublic = false, a
                                     {isBtPrinting ? "PROSES..." : isBill ? "CETAK BILL (BT)" : "CETAK STRUK (BT)"}
                                 </button>
                                 
-                                <button onClick={handleSendWhatsapp} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all active:scale-95">
+                                <button onClick={handleSendWhatsapp} className="w-full py-4 bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-500 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 transition-all active:scale-95">
                                     <IconBrandWhatsapp size={24} /> KIRIM WA
                                 </button>
 
                                 <div className="grid grid-cols-2 gap-2">
-                                    <button onClick={() => printUsbRaw(transaction, receiptSetting)} className="bg-orange-500 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95">
+                                    <button onClick={() => printUsbRaw(transaction, receiptSetting)} className="bg-orange-500 dark:bg-orange-600 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95">
                                         <IconUsb size={16} /> USB RAW
                                     </button>
                                     <button onClick={() => window.print()} className="bg-slate-700 text-white py-3 rounded-xl font-bold text-[10px] flex justify-center gap-2 active:scale-95">

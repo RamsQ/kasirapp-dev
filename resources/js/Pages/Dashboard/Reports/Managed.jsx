@@ -54,12 +54,12 @@ export default function Managed({ setting }) {
                         
                         <div className="relative z-10">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 bg-primary-500 text-white rounded-2xl shadow-lg shadow-primary-500/20">
+                                <div className="p-3 bg-primary-500 dark:bg-primary-600 text-white rounded-2xl shadow-lg shadow-primary-500/20">
                                     <IconBellRinging size={24} />
                                 </div>
                                 <div>
                                     <h2 className="text-2xl font-black uppercase italic dark:text-white tracking-tighter">Managed Reports</h2>
-                                    <p className="text-[10px] text-slate-500 uppercase font-black tracking-[0.2em]">Otomatisasi Laporan Penjualan</p>
+                                    <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-[0.2em]">Otomatisasi Laporan Penjualan</p>
                                 </div>
                             </div>
                             <p className="text-sm text-slate-600 dark:text-slate-400 max-w-md">
@@ -72,7 +72,7 @@ export default function Managed({ setting }) {
                         {/* Section 1: Aktivasi & Siklus */}
                         <div className="bg-white dark:bg-slate-900 rounded-[2rem] p-8 shadow-sm border dark:border-slate-800">
                             <div className="flex items-center gap-2 mb-6 ml-2">
-                                <IconCalendarStats size={20} className="text-primary-500" />
+                                <IconCalendarStats size={20} className="text-primary-500 dark:text-primary-400" />
                                 <h4 className="text-xs font-black uppercase dark:text-white tracking-widest">Konfigurasi Jadwal</h4>
                             </div>
 
@@ -81,13 +81,13 @@ export default function Managed({ setting }) {
                                 <div className={`p-6 rounded-[2rem] border-2 transition-all ${data.is_active ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/10' : 'border-slate-100 dark:border-slate-800 opacity-60'}`}>
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                                            <IconClock size={20} className="text-primary-500" />
+                                            <IconClock size={20} className="text-primary-500 dark:text-primary-400" />
                                         </div>
                                         <input 
                                             type="checkbox" 
                                             checked={data.is_active}
                                             onChange={e => setData('is_active', e.target.checked)}
-                                            className="w-5 h-5 rounded-full text-primary-600 focus:ring-primary-500 border-slate-300 cursor-pointer"
+                                            className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Setiap Hari</p>
@@ -98,13 +98,13 @@ export default function Managed({ setting }) {
                                 <div className={`p-6 rounded-[2rem] border-2 transition-all ${data.is_weekly ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/10' : 'border-slate-100 dark:border-slate-800 opacity-60'}`}>
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                                            <IconCalendarStats size={20} className="text-primary-500" />
+                                            <IconCalendarStats size={20} className="text-primary-500 dark:text-primary-400" />
                                         </div>
                                         <input 
                                             type="checkbox" 
                                             checked={data.is_weekly}
                                             onChange={e => setData('is_weekly', e.target.checked)}
-                                            className="w-5 h-5 rounded-full text-primary-600 focus:ring-primary-500 border-slate-300 cursor-pointer"
+                                            className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Setiap Senin</p>
@@ -115,13 +115,13 @@ export default function Managed({ setting }) {
                                 <div className={`p-6 rounded-[2rem] border-2 transition-all ${data.is_monthly ? 'border-primary-500 bg-primary-50/50 dark:bg-primary-950/10' : 'border-slate-100 dark:border-slate-800 opacity-60'}`}>
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="p-2 bg-white dark:bg-slate-800 rounded-xl shadow-sm">
-                                            <IconCalendarMonth size={20} className="text-primary-500" />
+                                            <IconCalendarMonth size={20} className="text-primary-500 dark:text-primary-400" />
                                         </div>
                                         <input 
                                             type="checkbox" 
                                             checked={data.is_monthly}
                                             onChange={e => setData('is_monthly', e.target.checked)}
-                                            className="w-5 h-5 rounded-full text-primary-600 focus:ring-primary-500 border-slate-300 cursor-pointer"
+                                            className="w-5 h-5 rounded-full text-primary-600 dark:text-primary-400 focus:ring-primary-500 border-slate-300 cursor-pointer"
                                         />
                                     </div>
                                     <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Tanggal 1</p>
@@ -140,7 +140,7 @@ export default function Managed({ setting }) {
                                             <button 
                                                 type="button" 
                                                 onClick={() => setData('method', 'whatsapp')} 
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${data.method === 'whatsapp' ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20 text-primary-600' : 'border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'}`}
+                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${data.method === 'whatsapp' ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400' : 'border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'}`}
                                             >
                                                 <IconBrandWhatsapp size={28} />
                                                 <span className="text-[10px] font-black uppercase">WhatsApp</span>
@@ -148,7 +148,7 @@ export default function Managed({ setting }) {
                                             <button 
                                                 type="button" 
                                                 onClick={() => setData('method', 'email')} 
-                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${data.method === 'email' ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20 text-primary-600' : 'border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'}`}
+                                                className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${data.method === 'email' ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/20 text-primary-600 dark:text-primary-400' : 'border-slate-100 dark:border-slate-800 text-slate-400 hover:border-slate-200'}`}
                                             >
                                                 <IconMail size={28} />
                                                 <span className="text-[10px] font-black uppercase">Email</span>
@@ -192,7 +192,7 @@ export default function Managed({ setting }) {
                                     {data.method === 'whatsapp' && (
                                         <div>
                                             <label className="text-[10px] font-black uppercase text-slate-400 ml-4 mb-2 block tracking-widest leading-none flex items-center gap-1">
-                                                API Key Fonnte <IconInfoCircle size={12} className="text-primary-500" />
+                                                API Key Fonnte <IconInfoCircle size={12} className="text-primary-500 dark:text-primary-400" />
                                             </label>
                                             <input 
                                                 type="password" 

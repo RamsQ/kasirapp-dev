@@ -70,7 +70,7 @@ export default function Online({ settings = [] }) {
             
             <div className="mb-6 flex flex-col">
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                    <IconWorld size={28} className="text-primary-500" />
+                    <IconWorld size={28} className="text-primary-500 dark:text-primary-400" />
                     Manajemen Harga Online
                 </h1>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">
@@ -83,11 +83,11 @@ export default function Online({ settings = [] }) {
                 <div className="lg:col-span-1">
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
                         <h3 className="text-sm font-black uppercase mb-4 flex items-center gap-2 dark:text-white">
-                            <IconPlus size={18} className="text-primary-500" /> Tambah Platform
+                            <IconPlus size={18} className="text-primary-500 dark:text-primary-400" /> Tambah Platform
                         </h3>
                         <form onSubmit={submit} className="space-y-4">
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-500 mb-1">Nama Platform</label>
+                                <label className="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1">Nama Platform</label>
                                 <input 
                                     type="text" 
                                     className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-slate-900 dark:text-white text-sm focus:ring-primary-500" 
@@ -99,7 +99,7 @@ export default function Online({ settings = [] }) {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-500 mb-1 flex items-center gap-1">
+                                <label className="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
                                     <IconPercentage size={12} /> Markup (%)
                                 </label>
                                 <input 
@@ -111,7 +111,7 @@ export default function Online({ settings = [] }) {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black uppercase text-slate-500 mb-1 flex items-center gap-1">
+                                <label className="block text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1">
                                     <IconMoneybag size={12} /> Biaya Flat (Rp)
                                 </label>
                                 <input 
@@ -125,7 +125,7 @@ export default function Online({ settings = [] }) {
                             <button 
                                 type="submit" 
                                 disabled={processing}
-                                className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-200 dark:shadow-none"
+                                className="w-full bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-200 dark:shadow-none"
                             >
                                 <IconDeviceFloppy size={16} /> 
                                 {processing ? 'PROSES...' : 'SIMPAN PLATFORM'}

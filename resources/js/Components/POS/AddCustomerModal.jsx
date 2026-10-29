@@ -199,7 +199,7 @@ export default function AddCustomerModal({ isOpen, onClose, onSuccess }) {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex-1 h-11 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
+                            className="flex-1 h-11 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors"
                         >
                             {isSubmitting ? (
                                 <>

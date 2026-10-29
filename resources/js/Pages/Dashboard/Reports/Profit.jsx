@@ -266,7 +266,7 @@ const ProfitReport = ({
                             </div>
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center py-2 px-2">
-                                    <span className="text-sm font-bold text-slate-500">Harga Pokok Penjualan (Total HPP)</span>
+                                    <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Harga Pokok Penjualan (Total HPP)</span>
                                     <span className="font-black text-slate-700 dark:text-slate-300 text-lg">-{formatCurrency(stats.total_hpp)}</span>
                                 </div>
                                 <div className="flex justify-between items-center py-4 px-5 text-amber-700 dark:text-amber-400 bg-amber-50/30 dark:bg-amber-950/10 rounded-2xl border border-dashed border-amber-200 dark:border-amber-900">
@@ -409,7 +409,7 @@ const ProfitReport = ({
                 {/* Table: Itemized Profit per Transaction */}
                 <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                         <h3 className="font-black uppercase text-[10px] tracking-[0.2em] text-slate-500">Transactionized Profit Listing</h3>
+                         <h3 className="font-black uppercase text-[10px] tracking-[0.2em] text-slate-500 dark:text-slate-400">Transactionized Profit Listing</h3>
                          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                     </div>
                     {rows.length > 0 ? (
@@ -417,10 +417,10 @@ const ProfitReport = ({
                             <table className="w-full">
                                 <thead>
                                     <tr className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">No</th>
-                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest">Invoice / Date</th>
-                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 uppercase tracking-widest border-l dark:border-slate-800">Platform Context</th>
-                                        <th className="px-6 py-5 text-right text-[10px] font-black text-slate-500 uppercase tracking-widest">Gross Sales</th>
+                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">No</th>
+                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Invoice / Date</th>
+                                        <th className="px-6 py-5 text-left text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest border-l dark:border-slate-800">Platform Context</th>
+                                        <th className="px-6 py-5 text-right text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Gross Sales</th>
                                         <th className="px-6 py-5 text-right text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50/20 dark:bg-indigo-950/10 border-l dark:border-slate-800">Item Profit</th>
                                     </tr>
                                 </thead>
@@ -459,7 +459,7 @@ const ProfitReport = ({
                         <div className="flex flex-col items-center justify-center py-24 grayscale opacity-40">
                             <IconDatabaseOff size={64} className="text-slate-300 mb-4" />
                             <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase italic tracking-tighter">No Financial Data Found</h3>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-2">Ubah parameter filter untuk melihat hasil analisis</p>
+                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-2">Ubah parameter filter untuk melihat hasil analisis</p>
                         </div>
                     )}
                 </div>

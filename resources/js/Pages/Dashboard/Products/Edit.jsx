@@ -148,11 +148,11 @@ export default function Edit({ categories, product, products }) {
         <>
             <Head title="Edit Produk" />
             <div className="mb-6">
-                <Link href={route("products.index")} className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600 mb-3 uppercase font-bold tracking-tight">
+                <Link href={route("products.index")} className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 mb-3 uppercase font-bold tracking-tight">
                     <IconArrowLeft size={16} /> Kembali ke Produk
                 </Link>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                    <IconPackage size={28} className="text-primary-500" /> Edit Produk
+                    <IconPackage size={28} className="text-primary-500 dark:text-primary-400" /> Edit Produk
                 </h1>
             </div>
 
@@ -200,7 +200,7 @@ export default function Edit({ categories, product, products }) {
                         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
                             <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 flex items-center gap-2 tracking-widest"><IconCurrencyDollar size={18} /> Harga & Stok</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Input label={data.type === 'bundle' ? "Total Modal (Auto)" : "Harga Beli"} value={data.buy_price} readOnly={data.type === 'bundle'} className={data.type === 'bundle' ? 'bg-slate-50 dark:bg-slate-800 font-bold text-primary-600' : ''} onChange={(e) => setData("buy_price", e.target.value)} />
+                                <Input label={data.type === 'bundle' ? "Total Modal (Auto)" : "Harga Beli"} value={data.buy_price} readOnly={data.type === 'bundle'} className={data.type === 'bundle' ? 'bg-slate-50 dark:bg-slate-800 font-bold text-primary-600 dark:text-primary-400' : ''} onChange={(e) => setData("buy_price", e.target.value)} />
                                 <Input label="Harga Jual" value={data.sell_price} onChange={(e) => setData("sell_price", e.target.value)} errors={errors.sell_price} />
                                 {data.type === "single" && <Input label="Stok Saat Ini (Total)" value={data.stock} onChange={(e) => setData("stock", e.target.value)} errors={errors.stock} />}
                                 <Input type="date" label="Kadaluarsa" value={data.expired_date} onChange={(e) => setData("expired_date", e.target.value)} />
@@ -212,7 +212,7 @@ export default function Edit({ categories, product, products }) {
                             <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="flex items-center gap-2">
-                                        <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-xl text-primary-600">
+                                        <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-xl text-primary-600 dark:text-primary-400">
                                             <IconDatabase size={20} />
                                         </div>
                                         <div>
@@ -244,7 +244,7 @@ export default function Edit({ categories, product, products }) {
                                                             </div>
                                                         </td>
                                                         <td className="px-4 py-4 text-[11px] font-black">
-                                                            <span className="text-primary-600 text-sm">{batch.qty_remaining}</span>
+                                                            <span className="text-primary-600 dark:text-primary-400 text-sm">{batch.qty_remaining}</span>
                                                             <span className="text-slate-400 ml-1">/ {batch.qty_in} {product.unit}</span>
                                                         </td>
                                                         <td className="px-4 py-4 text-[11px] font-bold text-right dark:text-white">
@@ -284,7 +284,7 @@ export default function Edit({ categories, product, products }) {
                             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
                                 <div className="flex justify-between items-center mb-4">
                                     <h3 className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-2 tracking-widest"><IconScale size={18} /> Konversi Satuan Luar</h3>
-                                    <button type="button" onClick={addUnitRow} className="bg-primary-50 text-primary-600 px-3 py-1.5 rounded-lg text-[10px] uppercase font-black hover:bg-primary-100 transition-colors flex items-center gap-1"><IconPlus size={14} /> Tambah Satuan</button>
+                                    <button type="button" onClick={addUnitRow} className="bg-primary-50 text-primary-600 dark:text-primary-400 px-3 py-1.5 rounded-lg text-[10px] uppercase font-black hover:bg-primary-100 transition-colors flex items-center gap-1"><IconPlus size={14} /> Tambah Satuan</button>
                                 </div>
                                 {data.units.map((unit, index) => (
                                     <div key={index} className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl mb-2 items-end">
@@ -339,7 +339,7 @@ export default function Edit({ categories, product, products }) {
                                         );
                                     })}
                                 </div>
-                                <button type="button" onClick={addBundleItem} className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-primary-600 hover:text-primary-700 transition-colors">
+                                <button type="button" onClick={addBundleItem} className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase text-primary-600 dark:text-primary-400 hover:text-primary-700 transition-colors">
                                     <IconPlus size={18} /> Tambah Produk Ke Paket
                                 </button>
                             </div>
@@ -347,7 +347,7 @@ export default function Edit({ categories, product, products }) {
 
                         <div className="flex justify-end gap-3 pt-4">
                             <Link href={route("products.index")} className="px-6 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-xs uppercase tracking-widest transition-all">Batal</Link>
-                            <button type="submit" disabled={processing} className="px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary-500/25 transition-all active:scale-95 disabled:opacity-50">
+                            <button type="submit" disabled={processing} className="px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest shadow-lg shadow-primary-500/25 transition-all active:scale-95 disabled:opacity-50">
                                 {processing ? "Sedang Memperbarui..." : "Simpan Perubahan"}
                             </button>
                         </div>

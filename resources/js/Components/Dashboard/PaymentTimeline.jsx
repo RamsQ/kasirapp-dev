@@ -145,7 +145,7 @@ export default function PaymentTimeline({ transaction }) {
                                 <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
                                     {event.provider_label}
                                 </span>
-                                <span className="text-[10px] font-bold text-slate-500">
+                                <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                                     {waktu(event.received_at)}
                                 </span>
                                 {event.amount !== null && (

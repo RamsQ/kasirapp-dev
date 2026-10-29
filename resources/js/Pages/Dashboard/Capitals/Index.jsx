@@ -81,7 +81,7 @@ export default function Index({ auth, capitals, summary }) {
                         </div>
                     </div>
                     <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 flex items-center gap-4">
-                        <div className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-xl">
+                        <div className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl">
                             <IconPlus size={24} />
                         </div>
                         <div>
@@ -94,7 +94,7 @@ export default function Index({ auth, capitals, summary }) {
                     <div className="flex items-center">
                         <button
                             onClick={() => setShowForm((v) => !v)}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 text-white px-5 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
                             {showForm ? <IconX size={18} /> : <IconPlus size={18} />}
                             {showForm ? "Tutup Form" : "Catat Setoran Modal"}

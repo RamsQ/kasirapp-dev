@@ -37,7 +37,7 @@ export default function MenuSection({ section, index, isOpen, onToggle, sidebarO
                         className={`text-[10px] font-black uppercase tracking-[0.15em] transition-colors ${
                             isOpen
                                 ? "text-slate-600 dark:text-slate-300"
-                                : "text-slate-400 dark:text-slate-600 group-hover:text-slate-500"
+                                : "text-slate-400 group-hover:text-slate-500"
                         }`}
                     >
                         {section.title}
@@ -45,7 +45,7 @@ export default function MenuSection({ section, index, isOpen, onToggle, sidebarO
                     <IconChevronRight
                         size={14}
                         strokeWidth={2.5}
-                        className={`shrink-0 text-slate-300 dark:text-slate-600 transition-transform ${
+                        className={`shrink-0 text-slate-300 dark:text-slate-400 transition-transform ${
                             isOpen ? "rotate-90" : ""
                         }`}
                     />
@@ -58,7 +58,7 @@ export default function MenuSection({ section, index, isOpen, onToggle, sidebarO
                     onClick={onToggle}
                     aria-expanded={isOpen}
                     title={section.title}
-                    className="w-full py-2 flex justify-center text-slate-300 dark:text-slate-600 hover:text-slate-500 transition-colors"
+                    className="w-full py-2 flex justify-center text-slate-300 dark:text-slate-400 hover:text-slate-500 transition-colors"
                 >
                     <IconChevronDown
                         size={14}

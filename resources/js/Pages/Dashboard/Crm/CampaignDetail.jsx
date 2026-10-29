@@ -98,7 +98,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
             <div className="space-y-6 pb-12">
                 <Link
                     href={route("crm.campaigns.index")}
-                    className="inline-flex items-center gap-1 text-xs font-black text-primary-600 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-black text-primary-600 dark:text-primary-400 hover:underline"
                 >
                     <IconArrowLeft size={14} /> Kembali ke CRM Campaigns
                 </Link>
@@ -113,7 +113,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                 {statusLabel[campaign.status] || campaign.status}
                             </span>
                         </div>
-                        <p className="mt-1 text-sm text-slate-500">
+                        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                             {campaign.segment?.name || "Tanpa segment"} · channel {campaign.channel} ·{" "}
                             {campaign.is_dry_run ? "mode preview" : "mode live"}
                             {campaign.scheduled_at ? ` · jadwal ${waktuSingkat(campaign.scheduled_at)}` : ""}
@@ -154,7 +154,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                             <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider">
                                 <IconEye size={18} className="text-indigo-500" /> Contoh Pesan Personal
                             </h2>
-                            <p className="mt-1 text-xs text-slate-500">
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                 {sample.length} penerima pertama dari segment. Halaman ini tidak mengirim apa pun
                                 dan tidak mengubah data.
                             </p>
@@ -204,7 +204,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                     )}
 
                                     {campaign.subject && (
-                                        <p className="mt-2 text-[11px] text-slate-500">
+                                        <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
                                             <span className="font-black">Subject:</span> {campaign.subject}
                                         </p>
                                     )}
@@ -224,7 +224,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                     <button
                                         type="button"
                                         onClick={() => copyMessage(row.message)}
-                                        className="mt-2 inline-flex items-center gap-1 text-[10px] font-black text-primary-600 hover:underline"
+                                        className="mt-2 inline-flex items-center gap-1 text-[10px] font-black text-primary-600 dark:text-primary-400 hover:underline"
                                     >
                                         <IconCopy size={12} /> Salin pesan
                                     </button>
@@ -236,7 +236,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
 
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <h2 className="text-sm font-black uppercase tracking-wider">Riwayat Pengiriman</h2>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                         Semua hasil proses campaign beserta pesan yang benar-benar dikirim.
                     </p>
 
@@ -316,7 +316,7 @@ export default function CampaignDetail({ campaign, sample = [], runBlocker = nul
                                         )}
 
                                         <details className="mt-2">
-                                            <summary className="cursor-pointer text-[11px] font-black text-primary-600">
+                                            <summary className="cursor-pointer text-[11px] font-black text-primary-600 dark:text-primary-400">
                                                 Lihat pesan
                                             </summary>
                                             <div className="mt-2 rounded-lg bg-slate-50 p-3 text-xs leading-relaxed whitespace-pre-line text-slate-700 dark:bg-slate-800 dark:text-slate-200">

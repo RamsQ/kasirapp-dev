@@ -31,7 +31,7 @@ const PrintQRTakeAway = () => {
                     
                     <button 
                         onClick={() => window.print()}
-                        className="flex items-center gap-2 px-6 py-3 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95"
+                        className="flex items-center gap-2 px-6 py-3 bg-emerald-600 dark:bg-emerald-700 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-emerald-500/20 hover:bg-emerald-700 transition-all active:scale-95"
                     >
                         <IconPrinter size={18} /> Cetak QR Stand
                     </button>
@@ -85,19 +85,19 @@ const PrintQRTakeAway = () => {
                                     <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm border border-emerald-200/50">
                                         <IconScan size={20} />
                                     </div>
-                                    <span className="text-[8px] font-black uppercase text-slate-500 leading-tight">Scan<br/>Menu</span>
+                                    <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight">Scan<br/>Menu</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm border border-emerald-200/50">
                                         <IconClick size={20} />
                                     </div>
-                                    <span className="text-[8px] font-black uppercase text-slate-500 leading-tight">Pilih<br/>Menu</span>
+                                    <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight">Pilih<br/>Menu</span>
                                 </div>
                                 <div className="flex flex-col items-center">
                                     <div className="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2 shadow-sm border border-emerald-200/50">
                                         <IconPackage size={20} />
                                     </div>
-                                    <span className="text-[8px] font-black uppercase text-slate-500 leading-tight">Ambil<br/>Pesanan</span>
+                                    <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight">Ambil<br/>Pesanan</span>
                                 </div>
                             </div>
                         </div>

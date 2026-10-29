@@ -217,7 +217,7 @@ export function HoldButton({ hasItems = false, onHold, isHolding = false }) {
                     onClick={() => setShowLabelInput(false)}
                     className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
-                    <IconX size={14} className="text-slate-500" />
+                    <IconX size={14} className="text-slate-500 dark:text-slate-400" />
                 </button>
             </div>
         );

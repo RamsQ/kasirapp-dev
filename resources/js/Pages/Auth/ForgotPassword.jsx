@@ -36,7 +36,7 @@ export default function ForgotPassword({ status }) {
                         </Link>
                         
                         <div className="flex items-center justify-center lg:justify-start gap-4 mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-orange-500 flex items-center justify-center shadow-lg shadow-orange-500/20">
+                            <div className="w-12 h-12 rounded-2xl bg-orange-500 dark:bg-orange-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
                                 <IconShieldLock size={28} className="text-white" />
                             </div>
                             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
@@ -95,7 +95,7 @@ export default function ForgotPassword({ status }) {
                     </form>
 
                     <div className="mt-12 text-center">
-                        <p className="text-xs text-slate-300 dark:text-slate-600 font-bold uppercase tracking-widest italic">
+                        <p className="text-xs text-slate-300 dark:text-slate-400 font-bold uppercase tracking-widest italic">
                             Sistem Pemulihan Identitas Otomatis v1.2
                         </p>
                     </div>

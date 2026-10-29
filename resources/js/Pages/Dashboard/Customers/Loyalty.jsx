@@ -65,10 +65,10 @@ export default function Loyalty({ customer, summary, canManageLoyalty = false })
             <Head title={`Loyalty ${customer.name} | LakuPOS`} />
             <div className="space-y-6 pb-10">
                 <div>
-                    <Link href={route("customers.index")} className="mb-3 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600"><IconArrowLeft size={16} /> Kembali ke Pelanggan</Link>
+                    <Link href={route("customers.index")} className="mb-3 inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600"><IconArrowLeft size={16} /> Kembali ke Pelanggan</Link>
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
-                            <h1 className="flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white"><IconUser size={28} className="text-primary-500" /> {customer.name}</h1>
+                            <h1 className="flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white"><IconUser size={28} className="text-primary-500 dark:text-primary-400" /> {customer.name}</h1>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Loyalty & CRM Center · {customer.no_telp || '-'}</p>
                         </div>
                         <span className={`rounded-full bg-gradient-to-r px-4 py-2 text-xs font-black uppercase text-white shadow-lg ${tierClass[summary.tier?.name] || tierClass.bronze}`}>{summary.tier?.label || 'Bronze'}</span>
@@ -76,10 +76,10 @@ export default function Loyalty({ customer, summary, canManageLoyalty = false })
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-4">
-                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Poin tersedia</p><p className="mt-2 text-3xl font-black text-primary-600">{customer.loyalty_points || 0}</p></div>
-                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Lifetime spend</p><p className="mt-2 text-xl font-black">{currency(summary.total_spent)}</p></div>
-                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Transaksi</p><p className="mt-2 text-3xl font-black">{summary.total_transactions}</p></div>
-                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Kunjungan terakhir</p><p className="mt-2 text-sm font-black">{dateOnly(summary.last_visit)}</p></div>
+                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Poin tersedia</p><p className="mt-2 text-3xl font-black text-primary-600 dark:text-primary-400">{customer.loyalty_points || 0}</p></div>
+                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Lifetime spend</p><p className="mt-2 text-xl font-black">{currency(summary.total_spent)}</p></div>
+                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Transaksi</p><p className="mt-2 text-3xl font-black">{summary.total_transactions}</p></div>
+                    <div className="rounded-2xl bg-white p-5 shadow-sm dark:bg-slate-900 dark:border-slate-800"><p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Kunjungan terakhir</p><p className="mt-2 text-sm font-black">{dateOnly(summary.last_visit)}</p></div>
                 </div>
 
                 {canManageLoyalty && (
@@ -98,7 +98,7 @@ export default function Loyalty({ customer, summary, canManageLoyalty = false })
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                    <div className="flex items-center justify-between"><div><h2 className="text-sm font-black uppercase tracking-wider">Progress tier</h2><p className="mt-1 text-xs text-slate-500">{summary.next_tier ? `${summary.next_tier.minimum - customer.loyalty_points} poin lagi menuju ${summary.next_tier.label}` : 'Tier tertinggi tercapai'}</p></div><IconStar size={22} className="text-amber-500" /></div>
+                    <div className="flex items-center justify-between"><div><h2 className="text-sm font-black uppercase tracking-wider">Progress tier</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{summary.next_tier ? `${summary.next_tier.minimum - customer.loyalty_points} poin lagi menuju ${summary.next_tier.label}` : 'Tier tertinggi tercapai'}</p></div><IconStar size={22} className="text-amber-500" /></div>
                     <div className="mt-4 h-3 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800"><div className="h-full rounded-full bg-gradient-to-r from-primary-500 to-amber-400" style={{ width: `${summary.progress}%` }} /></div>
                     <p className="mt-2 text-right text-[10px] font-black text-slate-400">{summary.progress}%</p>
                 </div>
@@ -106,8 +106,8 @@ export default function Loyalty({ customer, summary, canManageLoyalty = false })
                 {!canManageLoyalty && <p className="rounded-xl bg-slate-100 px-4 py-3 text-xs font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-300">Anda memiliki akses melihat loyalty. Hubungi administrator dengan izin customers-edit untuk menyesuaikan poin atau menerbitkan voucher.</p>}
                 <fieldset disabled={!canManageLoyalty} className="grid gap-6 lg:grid-cols-2">
                     <form onSubmit={submitPoints} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider"><IconHistory size={18} className="text-primary-500" /> Penyesuaian Poin</h2>
-                        <p className="mt-1 text-xs text-slate-500">Poin manual tercatat di ledger dan dapat diaudit.</p>
+                        <h2 className="flex items-center gap-2 text-sm font-black uppercase tracking-wider"><IconHistory size={18} className="text-primary-500 dark:text-primary-400" /> Penyesuaian Poin</h2>
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Poin manual tercatat di ledger dan dapat diaudit.</p>
                         <div className="mt-4 grid gap-3 sm:grid-cols-[130px_1fr]"><input type="number" required value={points.points} onChange={(e) => setPoints({ ...points, points: e.target.value })} placeholder="+/- poin" className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 dark:border-slate-700 dark:bg-slate-800" /><input required value={points.description} onChange={(e) => setPoints({ ...points, description: e.target.value })} placeholder="Alasan penyesuaian" className="h-11 rounded-xl border border-slate-200 bg-slate-50 px-3 dark:border-slate-700 dark:bg-slate-800" /></div>
                         <button disabled={savingPoints} className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-xs font-black text-white disabled:opacity-50"><IconPlus size={16} /> {savingPoints ? 'Menyimpan...' : 'Simpan Poin'}</button>
                     </form>
@@ -121,7 +121,7 @@ export default function Loyalty({ customer, summary, canManageLoyalty = false })
 
                 <div className="grid gap-6 lg:grid-cols-2">
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h2 className="text-sm font-black uppercase tracking-wider">Riwayat Poin</h2><div className="mt-4 space-y-2">{summary.ledger.length === 0 && <p className="text-sm text-slate-400">Belum ada mutasi poin.</p>}{summary.ledger.map((entry) => <div key={entry.id} className="flex justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs dark:bg-slate-800"><span>{entry.description || entry.type}</span><strong className={entry.points >= 0 ? 'text-emerald-600' : 'text-rose-600'}>{entry.points >= 0 ? '+' : ''}{entry.points}</strong></div>)}</div></div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h2 className="text-sm font-black uppercase tracking-wider">Voucher Pelanggan</h2><div className="mt-4 space-y-2">{summary.vouchers.length === 0 && <p className="text-sm text-slate-400">Belum ada voucher.</p>}{summary.vouchers.map((item) => <div key={item.id} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs dark:bg-slate-800"><div><p className="font-black">{item.code}</p><p className="text-slate-400">{item.name}</p></div><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase ${item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : item.status === 'used' ? 'bg-slate-200 text-slate-600' : 'bg-amber-100 text-amber-700'}`}>{item.status}</span></div>)}</div></div>
+                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h2 className="text-sm font-black uppercase tracking-wider">Voucher Pelanggan</h2><div className="mt-4 space-y-2">{summary.vouchers.length === 0 && <p className="text-sm text-slate-400">Belum ada voucher.</p>}{summary.vouchers.map((item) => <div key={item.id} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs dark:bg-slate-800"><div><p className="font-black">{item.code}</p><p className="text-slate-400">{item.name}</p></div><span className={`rounded-full px-2 py-1 text-[9px] font-black uppercase ${item.status === 'active' ? 'bg-emerald-100 text-emerald-700' : item.status === 'used' ? 'bg-slate-200 text-slate-600 dark:text-slate-400' : 'bg-amber-100 text-amber-700 dark:text-amber-400'}`}>{item.status}</span></div>)}</div></div>
                 </div>
             </div>
         </>

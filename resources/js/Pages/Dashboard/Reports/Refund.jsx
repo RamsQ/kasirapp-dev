@@ -90,7 +90,7 @@ const RefundReport = ({ refunds, totalRefund, taxRefund = 0, filters }) => {
                                 value={startDate}
                                 onChange={(e) => setStartDate(e.target.value)}
                             />
-                            <span className="text-slate-300 dark:text-slate-600">/</span>
+                            <span className="text-slate-300 dark:text-slate-400">/</span>
                             <input
                                 type="date"
                                 className="border-none bg-transparent text-sm focus:ring-0 p-0 text-slate-700 dark:text-slate-300 cursor-pointer font-bold"

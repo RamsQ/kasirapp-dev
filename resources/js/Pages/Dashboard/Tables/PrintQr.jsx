@@ -87,19 +87,19 @@ export default function PrintQr({ tables, storeName, baseUrl }) {
                                             <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-2 shadow-sm border border-indigo-200/50">
                                                 <IconScan size={20} />
                                             </div>
-                                            <span className="text-[8px] font-black uppercase text-slate-500 leading-tight text-center">Scan<br/>Menu</span>
+                                            <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight text-center">Scan<br/>Menu</span>
                                         </div>
                                         <div className="flex flex-col items-center">
                                             <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-2 shadow-sm border border-indigo-200/50">
                                                 <IconClick size={20} />
                                             </div>
-                                            <span className="text-[8px] font-black uppercase text-slate-500 leading-tight text-center">Pilih<br/>Menu</span>
+                                            <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight text-center">Pilih<br/>Menu</span>
                                         </div>
                                         <div className="flex flex-col items-center">
                                             <div className="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-2 shadow-sm border border-indigo-200/50">
                                                 <IconToolsKitchen2 size={20} />
                                             </div>
-                                            <span className="text-[8px] font-black uppercase text-slate-500 leading-tight text-center">Pesanan<br/>Diantar</span>
+                                            <span className="text-[8px] font-black uppercase text-slate-500 dark:text-slate-400 leading-tight text-center">Pesanan<br/>Diantar</span>
                                         </div>
                                     </div>
                                 </div>

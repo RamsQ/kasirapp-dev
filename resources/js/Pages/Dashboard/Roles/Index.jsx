@@ -43,7 +43,7 @@ function RoleCard({ role, onEdit, onDelete }) {
                 <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-1">
                     {role.permissions?.slice(0, 15).map((permission, index) => (
                         <span key={index} className="inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-black uppercase tracking-tighter rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 shadow-sm">
-                            <IconShield size={10} className="text-primary-500" />
+                            <IconShield size={10} className="text-primary-500 dark:text-primary-400" />
                             {permission.name.replace(/[.-]/g, ' ')}
                         </span>
                     ))}
@@ -60,7 +60,7 @@ function RoleCard({ role, onEdit, onDelete }) {
                     <IconPencilCog size={16} /> <span>Ubah</span>
                 </button>
                 <div className="w-px bg-slate-100 dark:bg-slate-800" />
-                <button onClick={onDelete} className="flex-1 flex items-center justify-center gap-1.5 py-4 text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-950/30 text-[10px] font-black uppercase transition-colors">
+                <button onClick={onDelete} className="flex-1 flex items-center justify-center gap-1.5 py-4 text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-950/30 hover:text-danger-700 dark:hover:text-danger-300 text-[10px] font-black uppercase transition-colors">
                     <IconTrash size={16} /> <span>Hapus</span>
                 </button>
             </div>
@@ -193,11 +193,11 @@ export default function Index() {
             <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 tracking-tighter">
-                        <IconUserShield size={28} className="text-primary-500" /> Manajemen Peran & Akses
+                        <IconUserShield size={28} className="text-primary-500 dark:text-primary-400" /> Manajemen Peran & Akses
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400">Kelola izin akses staf sesuai tanggung jawabnya.</p>
                 </div>
-                <Button type={"button"} icon={<IconCirclePlus size={18} />} className="bg-primary-500 hover:bg-primary-600 text-white shadow-lg font-bold uppercase text-xs" label={"Tambah Role"} onClick={() => setData("isOpen", true)} />
+                <Button type={"button"} icon={<IconCirclePlus size={18} />} className="bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white shadow-lg font-bold uppercase text-xs" label={"Tambah Role"} onClick={() => setData("isOpen", true)} />
             </div>
 
             <div className="mb-8 w-full sm:w-96">
@@ -232,7 +232,7 @@ export default function Index() {
                     <div className="mb-6">
                         <div className="flex justify-between items-center mb-6">
                             <label className="text-xs font-black uppercase text-slate-400 flex items-center gap-2"><IconCategory size={16} /> Konfigurasi Modul</label>
-                            <span className="text-[10px] font-bold text-primary-500 bg-primary-50 px-3 py-1 rounded-full">{data.selectedPermission.length} Akses Dipilih</span>
+                            <span className="text-[10px] font-bold text-primary-500 dark:text-primary-400 bg-primary-50 px-3 py-1 rounded-full">{data.selectedPermission.length} Akses Dipilih</span>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[55vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -242,7 +242,7 @@ export default function Index() {
                                     <div key={groupName} className="bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm transition-all duration-300">
                                         <div className="bg-white dark:bg-slate-900 px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                                             <h4 className="text-[10px] font-black text-slate-800 dark:text-white tracking-widest">{groupName}</h4>
-                                            <button type="button" onClick={() => toggleGroup(perms)} className={`text-[9px] font-black uppercase px-3 py-1 rounded-lg transition-colors ${isAllSelected ? 'bg-red-50 text-red-600 dark:bg-red-900/20' : 'bg-primary-50 text-primary-600 dark:bg-primary-900/20'}`}>
+                                            <button type="button" onClick={() => toggleGroup(perms)} className={`text-[9px] font-black uppercase px-3 py-1 rounded-lg transition-colors ${isAllSelected ? 'bg-red-50 text-red-600 dark:bg-red-900/20' : 'bg-primary-50 text-primary-600 dark:text-primary-400 dark:bg-primary-900/20'}`}>
                                                 {isAllSelected ? 'Batal Semua' : 'Pilih Semua'}
                                             </button>
                                         </div>
@@ -252,7 +252,7 @@ export default function Index() {
                                                 return (
                                                     <label key={permission.id} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer border-2 transition-all ${isSelected ? 'bg-primary-50 dark:bg-primary-900/10 border-primary-500 shadow-sm' : 'bg-transparent border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}>
                                                         <input type="checkbox" className="hidden" checked={isSelected} onChange={() => togglePermission(permission)} />
-                                                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-colors ${isSelected ? 'bg-primary-500 border-primary-500' : 'border-slate-300 dark:border-slate-600'}`}>
+                                                        <div className={`w-5 h-5 rounded-md flex items-center justify-center border-2 transition-colors ${isSelected ? 'bg-primary-500 dark:bg-primary-600 border-primary-500' : 'border-slate-300 dark:border-slate-600'}`}>
                                                             {isSelected && <IconCheck size={14} className="text-white" strokeWidth={4} />}
                                                         </div>
                                                         <span className={`text-[11px] font-bold uppercase tracking-tighter ${isSelected ? 'text-primary-700 dark:text-primary-400' : 'text-slate-500 dark:text-slate-400'}`}>

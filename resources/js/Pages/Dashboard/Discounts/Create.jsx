@@ -35,19 +35,19 @@ export default function Create({ products }) {
             <Head title="Buat Promo Baru" />
             <div className="max-w-3xl mx-auto space-y-6 pb-10">
                 <div className="flex items-center justify-between">
-                    <Link href={route('discounts.index')} className="text-slate-500 hover:text-primary-500 flex items-center gap-2 transition-colors">
+                    <Link href={route('discounts.index')} className="text-slate-500 dark:text-slate-400 hover:text-primary-500 flex items-center gap-2 transition-colors">
                         <IconArrowLeft size={20}/> <span className="font-medium">Kembali</span>
                     </Link>
                 </div>
                 
                 <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
                     <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
-                        <div className="p-3 bg-primary-100 dark:bg-primary-900 text-primary-600 rounded-xl">
+                        <div className="p-3 bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400 rounded-xl">
                             <IconTicket size={28} />
                         </div>
                         <div>
                             <h1 className="text-xl font-bold text-slate-900 dark:text-white">Buat Promo Baru</h1>
-                            <p className="text-sm text-slate-500">Buat diskon produk, potongan invoice, atau hadiah produk.</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Buat diskon produk, potongan invoice, atau hadiah produk.</p>
                         </div>
                     </div>
                     
@@ -72,21 +72,21 @@ export default function Create({ products }) {
                                 <button
                                     type="button"
                                     onClick={() => setData('type', 'percentage')}
-                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'percentage' ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-slate-200 text-slate-500'}`}
+                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'percentage' ? 'bg-primary-50 border-primary-500 text-primary-600 dark:text-primary-400' : 'border-slate-200 text-slate-500 dark:text-slate-400'}`}
                                 >
                                     Persentase (%)
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setData('type', 'fixed')}
-                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'fixed' ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-slate-200 text-slate-500'}`}
+                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'fixed' ? 'bg-primary-50 border-primary-500 text-primary-600 dark:text-primary-400' : 'border-slate-200 text-slate-500 dark:text-slate-400'}`}
                                 >
                                     Nominal (Rp)
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setData('type', 'buy_get')}
-                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'buy_get' ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'border-slate-200 text-slate-500'}`}
+                                    className={`p-3 rounded-xl border text-sm font-semibold transition-all ${data.type === 'buy_get' ? 'bg-emerald-50 border-emerald-500 text-emerald-600 dark:text-emerald-400' : 'border-slate-200 text-slate-500 dark:text-slate-400'}`}
                                 >
                                     Beli X Gratis Y
                                 </button>
@@ -165,7 +165,7 @@ export default function Create({ products }) {
                                 {isQtyBased ? 'Syarat Minimal Pembelian (Qty)' : 'Syarat Minimal Belanja (Rp)'}
                             </label>
                             <div className="relative">
-                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm ${isQtyBased ? 'text-emerald-600' : 'text-primary-600'}`}>
+                                <span className={`absolute left-4 top-1/2 -translate-y-1/2 font-bold text-sm ${isQtyBased ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary-600 dark:text-primary-400'}`}>
                                     {isQtyBased ? 'Qty' : 'Rp'}
                                 </span>
                                 {isQtyBased ? (
@@ -188,7 +188,7 @@ export default function Create({ products }) {
                                     />
                                 )}
                             </div>
-                            <p className="text-[11px] text-slate-500 mt-2 italic">
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-2 italic">
                                 {data.type === 'percentage' && `*Diskon % baru akan aktif jika jumlah produk yang dibeli mencapai Qty ini.`}
                                 {data.type === 'buy_get' && `*Beli minimal ${data.minimum_item} Qty untuk mendapatkan produk bonus.`}
                                 {data.type === 'fixed' && `*Potongan nominal aktif jika total belanja mencapai Rp ${Number(data.min_transaction).toLocaleString('id-ID')}.`}
@@ -235,7 +235,7 @@ export default function Create({ products }) {
                             <button 
                                 type="submit" 
                                 disabled={processing} 
-                                className="bg-primary-500 text-white px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-600 shadow-lg shadow-primary-500/30 transition-all font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="bg-primary-500 dark:bg-primary-600 text-white px-8 py-3 rounded-xl flex items-center gap-2 hover:bg-primary-600 shadow-lg shadow-primary-500/30 transition-all font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
                             >
                                 <IconDeviceFloppy size={20} />
                                 {processing ? 'Menyimpan...' : 'Simpan Promo'}

@@ -128,7 +128,7 @@ export default function CustomerSelect({
                                     )}
                                 </>
                             ) : (
-                                <p className="text-sm text-slate-400 dark:text-slate-500">
+                                <p className="text-sm text-slate-400">
                                     {placeholder}
                                 </p>
                             )}
@@ -154,7 +154,7 @@ export default function CustomerSelect({
                         type="button"
                         onClick={() => setShowAddModal(true)}
                         className="h-12 w-12 rounded-xl border-2 border-dashed border-primary-300 dark:border-primary-700
-                            text-primary-500 hover:bg-primary-50 dark:hover:bg-primary-950/30
+                            text-primary-500 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/30
                             flex items-center justify-center transition-colors"
                         title="Tambah pelanggan baru"
                     >
@@ -216,8 +216,8 @@ export default function CustomerSelect({
                                                     ${
                                                         selected?.id ===
                                                         customer.id
-                                                            ? "bg-primary-500 text-white"
-                                                            : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                                                            ? "bg-primary-500 dark:bg-primary-600 text-white"
+                                                            : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                                                     }
                                                 `}
                                                 >
@@ -247,7 +247,7 @@ export default function CustomerSelect({
                                     ))}
                                 </ul>
                             ) : (
-                                <div className="py-8 text-center text-slate-400 dark:text-slate-500">
+                                <div className="py-8 text-center text-slate-400">
                                     <IconUser
                                         size={24}
                                         className="mx-auto mb-2 opacity-50"
@@ -261,7 +261,7 @@ export default function CustomerSelect({
                                             setIsOpen(false);
                                             setShowAddModal(true);
                                         }}
-                                        className="mt-2 text-sm text-primary-500 hover:text-primary-600 font-medium"
+                                        className="mt-2 text-sm text-primary-500 dark:text-primary-400 hover:text-primary-600 font-medium"
                                     >
                                         + Tambah pelanggan baru
                                     </button>

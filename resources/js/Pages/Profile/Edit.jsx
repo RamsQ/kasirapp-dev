@@ -31,7 +31,7 @@ export default function Edit({ auth, mustVerifyEmail, status }) {
                     {/* KARTU 1: INFORMASI PROFIL & FOTO */}
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-6 md:p-8 shadow-sm transition-colors duration-200">
                         <div className="flex items-center gap-4 mb-8">
-                            <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600">
+                            <div className="w-12 h-12 rounded-2xl bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center text-primary-600 dark:text-primary-400">
                                 <IconUserCircle size={28} />
                             </div>
                             <div>

@@ -133,7 +133,7 @@ export default function AuthDropdown({ auth, isMobile }) {
                                 item.details.some(detail => detail.permissions === true) && (
 
                                     <div key={index}>
-                                        <div className="text-gray-500 text-xs py-3 px-4 font-bold uppercase tracking-widest">
+                                        <div className="text-gray-500 dark:text-gray-400 text-xs py-3 px-4 font-bold uppercase tracking-widest">
                                             {item.title}
                                         </div>
                                         {item.details.map((detail, indexDetail) => (

@@ -26,7 +26,7 @@ export default function Index() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <IconKey size={28} className="text-primary-500" />
+                            <IconKey size={28} className="text-primary-500 dark:text-primary-400" />
                             Hak Akses Sistem
                         </h1>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
@@ -73,9 +73,9 @@ export default function Index() {
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider w-16 text-center">No.</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Nama Permission</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">ID Guard</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider w-16 text-center">No.</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Nama Permission</th>
+                                        <th className="px-6 py-4 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">ID Guard</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -84,7 +84,7 @@ export default function Index() {
                                             key={permission.id || i}
                                             className="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors group"
                                         >
-                                            <td className="px-6 py-4 text-sm text-slate-400 dark:text-slate-500 font-mono text-center">
+                                            <td className="px-6 py-4 text-sm text-slate-400 font-mono text-center">
                                                 {String(i + permissions.from).padStart(2, '0')}
                                             </td>
                                             <td className="px-6 py-4">
@@ -112,7 +112,7 @@ export default function Index() {
                     <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
                         <IconDatabaseOff size={32} strokeWidth={1.5} className="text-slate-400 mb-4" />
                         <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-1">Data Kosong</h3>
-                        <p className="text-sm text-slate-500">Tidak ada hak akses yang ditemukan.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Tidak ada hak akses yang ditemukan.</p>
                     </div>
                 )}
             </div>

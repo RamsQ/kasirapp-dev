@@ -113,13 +113,13 @@ export default function Index({ auth, products, ingredients, history, filters })
                     <div className="flex flex-wrap items-center gap-3">
                         {/* Tab Switcher - 3 TAB SEKARANG */}
                         <div className="flex bg-white dark:bg-slate-800 p-1 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                            <button onClick={() => handleTabChange("products")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "products" ? "bg-indigo-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-50"}`}>
+                            <button onClick={() => handleTabChange("products")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "products" ? "bg-indigo-500 text-white shadow-lg" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}>
                                 Produk Jadi
                             </button>
-                            <button onClick={() => handleTabChange("ingredients")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "ingredients" ? "bg-emerald-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-50"}`}>
+                            <button onClick={() => handleTabChange("ingredients")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "ingredients" ? "bg-emerald-500 text-white shadow-lg" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}>
                                 Bahan Baku
                             </button>
-                            <button onClick={() => handleTabChange("history")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "history" ? "bg-orange-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-50"}`}>
+                            <button onClick={() => handleTabChange("history")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "history" ? "bg-orange-500 dark:bg-orange-600 text-white shadow-lg" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}>
                                 <div className="flex items-center gap-1"><IconHistory size={14}/> Riwayat</div>
                             </button>
                         </div>
@@ -196,18 +196,18 @@ export default function Index({ auth, products, ingredients, history, filters })
                                                 <div className="font-black uppercase text-xs text-slate-900 dark:text-white">
                                                     {h.product?.title || h.ingredient?.name}
                                                 </div>
-                                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-black ${h.product_id ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                                <span className={`text-[9px] px-1.5 py-0.5 rounded font-black ${h.product_id ? 'bg-indigo-100 text-indigo-600' : 'bg-emerald-100 text-emerald-600 dark:text-emerald-400'}`}>
                                                     {h.product_id ? 'PRODUK' : 'BAHAN'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-center text-slate-400">{h.stock_system}</td>
                                             <td className="px-6 py-4 text-center font-black text-slate-900 dark:text-white">{h.stock_actual}</td>
                                             <td className="px-6 py-4 text-center">
-                                                <span className={`px-2 py-1 rounded-md text-[11px] font-black ${h.difference < 0 ? 'bg-red-100 text-red-600' : h.difference > 0 ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}>
+                                                <span className={`px-2 py-1 rounded-md text-[11px] font-black ${h.difference < 0 ? 'bg-red-100 text-red-600' : h.difference > 0 ? 'bg-green-100 text-green-600 dark:text-green-400' : 'bg-slate-100 text-slate-500 dark:text-slate-400'}`}>
                                                     {h.difference > 0 ? `+${h.difference}` : h.difference}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-[11px] italic text-slate-500">{h.reason}</td>
+                                            <td className="px-6 py-4 text-[11px] italic text-slate-500 dark:text-slate-400">{h.reason}</td>
                                         </tr>
                                     )) : (
                                         <tr><td colSpan="6" className="p-20 text-center text-slate-400 font-bold uppercase text-xs tracking-widest opacity-60">Belum ada riwayat opname.</td></tr>
@@ -236,14 +236,14 @@ export default function Index({ auth, products, ingredients, history, filters })
                                                         {item.type === 'ingredients' ? <IconDatabase size={14} className="text-emerald-500" /> : <IconPackage size={14} className="text-indigo-500" />}
                                                         {item.title}
                                                     </div>
-                                                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">{item.barcode}</span>
+                                                    <span className="text-[10px] font-mono text-slate-400">{item.barcode}</span>
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-bold text-slate-400">{item.stock_system}</td>
                                                 <td className="px-6 py-4 bg-indigo-50/20 dark:bg-indigo-900/5 text-center">
                                                     <input type="number" step="any" className="w-32 mx-auto rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-center font-black text-indigo-600 focus:ring-indigo-500 py-2" value={item.stock_actual} onChange={e => handleInputChange(index, 'stock_actual', e.target.value)} placeholder={item.stock_system} />
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    <span className={`text-xs font-black px-2 py-1 rounded-lg ${diff > 0 ? 'bg-emerald-100 text-emerald-600' : diff < 0 ? 'bg-rose-100 text-rose-600' : 'text-slate-300'}`}>
+                                                    <span className={`text-xs font-black px-2 py-1 rounded-lg ${diff > 0 ? 'bg-emerald-100 text-emerald-600 dark:text-emerald-400' : diff < 0 ? 'bg-rose-100 text-rose-600 dark:text-rose-400' : 'text-slate-300'}`}>
                                                         {diff > 0 ? `+${diff}` : diff}
                                                     </span>
                                                 </td>

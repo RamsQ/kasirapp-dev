@@ -108,10 +108,10 @@ export default function BluetoothPairing() {
                     {/* Header */}
                     <div className="flex items-center justify-between mb-10">
                         <div>
-                            <h1 className="text-2xl font-black text-white uppercase tracking-tighter italic text-primary-500">Printer Bluetooth</h1>
-                            <p className="text-slate-500 text-sm font-medium">Model: Panda PRJ CX-58B (Serial Mode)</p>
+                            <h1 className="text-2xl font-black text-white uppercase tracking-tighter italic text-primary-500 dark:text-primary-400">Printer Bluetooth</h1>
+                            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Model: Panda PRJ CX-58B (Serial Mode)</p>
                         </div>
-                        <div className={`p-4 rounded-3xl ${isScanning ? 'bg-primary-500/20 text-primary-500 animate-pulse' : 'bg-slate-800 text-slate-400'}`}>
+                        <div className={`p-4 rounded-3xl ${isScanning ? 'bg-primary-500/20 text-primary-500 dark:text-primary-400 animate-pulse' : 'bg-slate-800 text-slate-400'}`}>
                             <IconBluetooth size={32} />
                         </div>
                     </div>
@@ -138,16 +138,16 @@ export default function BluetoothPairing() {
                         </div>
                     ) : (
                         <div className="mb-10 p-6 bg-slate-800/50 border border-dashed border-slate-700 rounded-[2rem] text-center">
-                            <IconAlertCircle className="mx-auto text-slate-500 mb-2" size={32} />
+                            <IconAlertCircle className="mx-auto text-slate-500 dark:text-slate-400 mb-2" size={32} />
                             <p className="text-slate-400 font-medium">Belum ada printer yang dipilih</p>
-                            <p className="text-slate-600 text-[10px] mt-1 uppercase font-bold tracking-widest">Pairing printer di menu setting HP dulu</p>
+                            <p className="text-slate-600 dark:text-slate-400 text-[10px] mt-1 uppercase font-bold tracking-widest">Pairing printer di menu setting HP dulu</p>
                         </div>
                     )}
 
                     {/* Scan Section */}
                     <div className="space-y-6">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500">Daftar Perangkat Terpasang</h2>
+                            <h2 className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Daftar Perangkat Terpasang</h2>
                             <button 
                                 onClick={startScan} 
                                 disabled={isScanning}
@@ -160,7 +160,7 @@ export default function BluetoothPairing() {
 
                         <div className="grid gap-3">
                             {devices.length === 0 && !isScanning && (
-                                <div className="py-10 text-center text-slate-600 italic text-sm">
+                                <div className="py-10 text-center text-slate-600 dark:text-slate-400 italic text-sm">
                                     Tekan tombol Muat Daftar untuk melihat printer yang sudah dipairing...
                                 </div>
                             )}
@@ -176,7 +176,7 @@ export default function BluetoothPairing() {
                                         </div>
                                         <div>
                                             <h4 className="text-white font-bold">{device.name || 'Unknown Device'}</h4>
-                                            <p className="text-[10px] text-slate-500 font-mono tracking-wider uppercase">{device.address}</p>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono tracking-wider uppercase">{device.address}</p>
                                         </div>
                                     </div>
                                     <button 

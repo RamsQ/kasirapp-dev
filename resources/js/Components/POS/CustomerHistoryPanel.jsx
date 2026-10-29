@@ -74,7 +74,7 @@ export default function CustomerHistoryPanel({
             <div className="p-6 flex items-center justify-center">
                 <IconLoader2
                     size={24}
-                    className="animate-spin text-primary-500"
+                    className="animate-spin text-primary-500 dark:text-primary-400"
                 />
             </div>
         );
@@ -117,7 +117,7 @@ export default function CustomerHistoryPanel({
                 <p className="text-base font-semibold text-slate-900 dark:text-white">
                     {customerName}
                 </p>
-                <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-300">
+                <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-400 dark:text-primary-300">
                     {customer?.loyalty_tier || 'Bronze'} · {customer?.loyalty_points || 0} poin
                 </p>
             </div>
@@ -126,12 +126,12 @@ export default function CustomerHistoryPanel({
             <div className="grid grid-cols-3 gap-px bg-slate-100 dark:bg-slate-800">
                 <div className="bg-white dark:bg-slate-900 p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                        <IconReceipt size={16} className="text-primary-500" />
+                        <IconReceipt size={16} className="text-primary-500 dark:text-primary-400" />
                     </div>
                     <p className="text-lg font-bold text-slate-900 dark:text-white">
                         {stats.total_transactions}
                     </p>
-                    <p className="text-xs text-slate-500">Transaksi</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Transaksi</p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
@@ -140,23 +140,23 @@ export default function CustomerHistoryPanel({
                     <p className="text-sm font-bold text-success-600 dark:text-success-400">
                         {formatPrice(stats.total_spent)}
                     </p>
-                    <p className="text-xs text-slate-500">Total Belanja (tanpa pajak)</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Total Belanja (tanpa pajak)</p>
                 </div>
                 <div className="bg-white dark:bg-slate-900 p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                        <IconCalendar size={16} className="text-slate-500" />
+                        <IconCalendar size={16} className="text-slate-500 dark:text-slate-400" />
                     </div>
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                         {stats.last_visit || "-"}
                     </p>
-                    <p className="text-xs text-slate-500">Kunjungan Terakhir</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Kunjungan Terakhir</p>
                 </div>
             </div>
 
             {/* Frequent Products */}
             {frequent_products && frequent_products.length > 0 && (
                 <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-xs font-semibold text-slate-500 uppercase mb-2 flex items-center gap-1">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2 flex items-center gap-1">
                         <IconShoppingBag size={12} />
                         Produk Favorit
                     </p>
@@ -167,7 +167,7 @@ export default function CustomerHistoryPanel({
                                 className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary-50 dark:bg-primary-950/50 text-xs font-medium text-primary-700 dark:text-primary-300"
                             >
                                 {product.title}
-                                <span className="text-primary-500">
+                                <span className="text-primary-500 dark:text-primary-400">
                                     ×{product.total_qty}
                                 </span>
                             </span>
@@ -179,7 +179,7 @@ export default function CustomerHistoryPanel({
             {/* Recent Transactions */}
             {recent_transactions && recent_transactions.length > 0 && (
                 <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-800">
-                    <p className="text-xs font-semibold text-slate-500 uppercase mb-2">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-2">
                         Transaksi Terakhir
                     </p>
                     <div className="space-y-2 max-h-[150px] overflow-y-auto">
@@ -212,7 +212,7 @@ export default function CustomerHistoryPanel({
                         size={32}
                         className="mx-auto text-slate-300 mb-2"
                     />
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Belum ada transaksi
                     </p>
                 </div>
@@ -237,7 +237,7 @@ export function CustomerHistoryButton({
         <>
             <button
                 onClick={() => setShowHistory(true)}
-                className={`p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 hover:text-primary-500 transition-colors ${className}`}
+                className={`p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-primary-500 transition-colors ${className}`}
                 title="Lihat riwayat"
             >
                 <IconHistory size={16} />

@@ -21,7 +21,7 @@ export default function Error({ status }) {
     const icons = {
         503: <IconAlertTriangle size={80} className="text-warning-500" />,
         500: <IconAlertTriangle size={80} className="text-danger-500" />,
-        404: <IconError404 size={80} className="text-primary-500" />,
+        404: <IconError404 size={80} className="text-primary-500 dark:text-primary-400" />,
         403: <IconLock size={80} className="text-danger-500" />, // Ikon Gembok untuk 403
     }[status];
 
@@ -56,7 +56,7 @@ export default function Error({ status }) {
                         {/* Jika 403/Login, tawarkan ke Dashboard yang aman */}
                         <Link
                             href="/dashboard"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 text-white hover:bg-primary-600 font-medium shadow-lg shadow-primary-500/30 transition-all"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-500 dark:bg-primary-600 text-white hover:bg-primary-600 font-medium shadow-lg shadow-primary-500/30 transition-all"
                         >
                             Ke Dashboard
                         </Link>

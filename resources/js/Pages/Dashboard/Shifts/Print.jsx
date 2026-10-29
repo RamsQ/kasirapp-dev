@@ -88,7 +88,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
 
                     <div className="space-y-6">
                         <section>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4 flex items-center gap-2">
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-2">
                                 <IconInfoCircle size={14} /> Ringkasan Kas
                             </p>
                             <div className="space-y-3 bg-slate-950/50 p-5 rounded-2xl border border-slate-700/30 shadow-inner">
@@ -108,7 +108,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
                             </button>
 
                             <div className="grid grid-cols-2 gap-2">
-                                <button onClick={() => printShiftUsbRaw(shift, receiptSetting)} className="bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-orange-500/20 uppercase tracking-widest">
+                                <button onClick={() => printShiftUsbRaw(shift, receiptSetting)} className="bg-orange-500 dark:bg-orange-600 hover:bg-orange-600 text-white py-3 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-orange-500/20 uppercase tracking-widest">
                                     <IconUsb size={16} /> USB Raw
                                 </button>
                                 <button onClick={() => window.print()} className="bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl font-bold text-[10px] flex items-center justify-center gap-2 active:scale-95 shadow-lg uppercase tracking-widest">
@@ -121,7 +121,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
 
                 <Link 
                     href={route("transactions.index")}
-                    className="w-full flex items-center justify-center gap-2 text-slate-500 hover:text-white py-6 text-xs font-black uppercase tracking-[0.2em] transition-colors border-t border-slate-700/50 mt-6"
+                    className="w-full flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400 hover:text-white py-6 text-xs font-black uppercase tracking-[0.2em] transition-colors border-t border-slate-700/50 mt-6"
                 >
                     <IconArrowLeft size={18} /> Menu Utama
                 </Link>
@@ -129,7 +129,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
 
             {/* PREVIEW AREA */}
             <main className="flex-1 overflow-y-auto p-4 md:p-12 flex flex-col items-center justify-start print:p-0 print:block print:bg-white custom-scrollbar">
-                <div className="mb-6 flex items-center gap-2 text-slate-500 uppercase font-black text-[10px] tracking-[0.3em] print:hidden">
+                <div className="mb-6 flex items-center gap-2 text-slate-500 dark:text-slate-400 uppercase font-black text-[10px] tracking-[0.3em] print:hidden">
                     <IconDeviceDesktop size={14} className="animate-pulse" /> Live Audit Preview
                 </div>
 
@@ -160,7 +160,7 @@ export default function Print({ shift, receiptSetting, auto_print = false }) {
                         <div className="space-y-1">
                             <FlexRow label="Modal Awal" value={formatPrice(startCash)} />
                             <FlexRow label="Sales Tunai" value={formatPrice(cashSales)} />
-                            <FlexRow label="Kas Keluar" value={`-${formatPrice(pettyCash)}`} className="text-slate-500 italic" />
+                            <FlexRow label="Kas Keluar" value={`-${formatPrice(pettyCash)}`} className="text-slate-500 dark:text-slate-400 italic" />
                             <div className="border-b border-dotted border-black/20 my-1"></div>
                             <FlexRow label="Sistem Laci" value={formatPrice(systemSaldo)} className="font-black" />
                             <FlexRow label="Fisik Laci" value={formatPrice(shift.total_cash_actual)} className="font-black" />

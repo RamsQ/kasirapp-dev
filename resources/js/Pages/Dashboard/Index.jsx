@@ -77,14 +77,14 @@ function InfoCard({ title, value, subtitle, icon: Icon, colorClass = "text-indig
         <div className="rounded-[1.5rem] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 transition-all hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-900 group">
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                         {title}
                     </p>
                     <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white leading-tight tracking-tighter">
                         {value}
                     </p>
                     {subtitle && (
-                        <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1 leading-none font-bold uppercase">
+                        <p className="mt-1 text-[10px] text-slate-400 flex items-center gap-1 leading-none font-bold uppercase">
                             <Icon size={12} />
                             {subtitle}
                         </p>
@@ -128,7 +128,7 @@ function ListCard({ title, subtitle, icon: Icon, children, emptyMessage }) {
             </div>
             <div className="p-6">
                 {children || (
-                    <div className="flex h-40 items-center justify-center text-sm text-slate-400 dark:text-slate-500 italic font-medium">
+                    <div className="flex h-40 items-center justify-center text-sm text-slate-400 italic font-medium">
                         {emptyMessage}
                     </div>
                 )}
@@ -319,7 +319,7 @@ export default function Dashboard({
                                 <p className="text-5xl font-black italic tracking-tighter text-indigo-400 mb-2 drop-shadow-xl">
                                     {formatCurrency(todayBilledRevenue)}
                                 </p>
-                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 mb-8">
+                                <p className="text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-8">
                                     Omzet bersih {formatCurrency(todayNetRevenue)} + pajak {formatCurrency(totalTaxCollected)}
                                 </p>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
@@ -347,7 +347,7 @@ export default function Dashboard({
 
                             <div className="w-56 h-56 shrink-0 z-10 relative">
                                 <div className="absolute inset-0 flex items-center justify-center flex-col">
-                                    <span className="text-xs font-black text-slate-500 uppercase">Today</span>
+                                    <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase">Today</span>
                                     <IconChartPie size={20} className="text-indigo-500 mt-1 opacity-50" />
                                 </div>
                                 <canvas ref={methodChartRef} />
@@ -493,7 +493,7 @@ export default function Dashboard({
                                                 <p className="text-sm font-black text-slate-900 dark:text-white tracking-tighter uppercase">{trx.invoice}</p>
                                                 {renderMethodBadge(trx.method)}
                                             </div>
-                                            <div className="flex items-center gap-2 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                                            <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tight">
                                                 <IconCalendarTime size={12} /> {trx.date} 
                                                 <span className="text-slate-300 mx-1">|</span>
                                                 <IconUser size={12} /> {trx.customer}
@@ -522,7 +522,7 @@ export default function Dashboard({
                                             </div>
                                             <div>
                                                 <p className="text-sm font-black text-slate-800 dark:text-slate-200 uppercase tracking-tight">{customer.name}</p>
-                                                <p className="text-[10px] text-slate-500 font-bold mt-1 uppercase tracking-[0.2em]">{customer.orders} Total Transaksi</p>
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold mt-1 uppercase tracking-[0.2em]">{customer.orders} Total Transaksi</p>
                                             </div>
                                         </div>
                                         <p className="text-base font-black text-slate-900 dark:text-white italic tracking-tighter">{formatCurrency(customer.total)}</p>

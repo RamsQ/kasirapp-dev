@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Head, Link, useForm, router } from "@inertiajs/react";
 import { 
-    IconShoppingCart, 
     IconMail, 
     IconLock, 
     IconEye, 
@@ -170,9 +169,7 @@ export default function Login({ status, canResetPassword }) {
                     <div className="mb-10 text-center lg:text-left">
                         <div className="flex items-center justify-center lg:justify-start gap-4 mb-8">
                             <Link href="/" className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all">
-                                    <IconShoppingCart size={28} className="text-white" />
-                                </div>
+                                <img src="/laku-pos-logo.jpg" alt="LakuPOS" className="w-12 h-12 rounded-2xl object-contain shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-all" />
                                 <span className="text-2xl font-black tracking-tighter text-slate-900 dark:text-white uppercase leading-none">
                                     LakuPOS <br/> <span className="text-indigo-600 text-sm tracking-[0.3em]">AJA</span>
                                 </span>

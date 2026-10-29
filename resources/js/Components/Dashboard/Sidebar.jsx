@@ -136,17 +136,13 @@ function SidebarBody({ sidebarOpen, mode, onNavigate }) {
             <div className="flex items-center justify-center h-16 shrink-0 border-b border-slate-100 dark:border-slate-800">
                 {wide ? (
                     <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center">
-                            <span className="text-white font-bold text-sm">K</span>
-                        </div>
+                        <img src="/laku-pos-logo.jpg" alt="LakuPOS" className="w-8 h-8 rounded-lg object-contain" />
                         <span className="text-xl font-bold text-slate-800 dark:text-white uppercase tracking-tighter font-sans">
                             LakuPOS
                         </span>
                     </div>
                 ) : (
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">K</span>
-                    </div>
+                    <img src="/laku-pos-logo.jpg" alt="LakuPOS" className="w-8 h-8 rounded-lg object-contain" />
                 )}
             </div>
 
@@ -209,7 +205,7 @@ function SidebarBody({ sidebarOpen, mode, onNavigate }) {
                             {/* Section Title */}
                             {wide && (
                                 <div className="px-5 py-2">
-                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 dark:text-slate-600">
+                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
                                         {section.title}
                                     </span>
                                 </div>
@@ -256,7 +252,7 @@ function SidebarBody({ sidebarOpen, mode, onNavigate }) {
             {/* Version/Footer */}
             {wide && (
                 <div className="p-4 shrink-0 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                    <p className="text-[9px] font-bold text-slate-400 dark:text-slate-600 text-center uppercase tracking-widest">
+                    <p className="text-[9px] font-bold text-slate-400 text-center uppercase tracking-widest">
                         LakuPOS v2.1
                     </p>
                 </div>

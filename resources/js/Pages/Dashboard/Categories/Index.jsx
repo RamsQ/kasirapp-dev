@@ -33,7 +33,7 @@ function CategoryCard({ category }) {
                     <div className="w-full h-full flex items-center justify-center">
                         <IconCategory
                             size={48}
-                            className="text-slate-300 dark:text-slate-600"
+                            className="text-slate-300 dark:text-slate-400"
                             strokeWidth={1}
                         />
                     </div>
@@ -51,7 +51,7 @@ function CategoryCard({ category }) {
                         type={"delete"}
                         icon={<IconTrash size={18} />}
                         className={
-                            "p-2.5 rounded-xl bg-white text-danger-600 hover:bg-danger-50 shadow-lg"
+                            "p-2.5 rounded-xl bg-white text-danger-600 dark:text-danger-400 hover:bg-danger-50 shadow-lg"
                         }
                         url={route("categories.destroy", category.id)}
                     />
@@ -97,7 +97,7 @@ export default function Index({ categories }) {
                         type={"link"}
                         icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
                         className={
-                            "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
+                            "bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
                         }
                         label={"Tambah Kategori"}
                         href={route("categories.create")}
@@ -118,7 +118,7 @@ export default function Index({ categories }) {
                         onClick={() => setViewMode("grid")}
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "grid"
-                                ? "bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400"
+                                ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="Grid View"
@@ -129,7 +129,7 @@ export default function Index({ categories }) {
                         onClick={() => setViewMode("list")}
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "list"
-                                ? "bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400"
+                                ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="List View"
@@ -264,7 +264,7 @@ export default function Index({ categories }) {
                         type={"link"}
                         icon={<IconCirclePlus size={18} />}
                         className={
-                            "bg-primary-500 hover:bg-primary-600 text-white"
+                            "bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white"
                         }
                         label={"Tambah Kategori"}
                         href={route("categories.create")}

@@ -181,7 +181,7 @@ function ReceiptContent({ size, transaction, storeName, storeAddress, footerMess
 
                             {/* CATATAN PRODUK */}
                             {item.notes && (
-                                <div className="pl-2 text-[8px] font-bold italic text-gray-600 uppercase">
+                                <div className="pl-2 text-[8px] font-bold italic text-gray-600 dark:text-gray-400 uppercase">
                                     ** {item.notes}
                                 </div>
                             )}

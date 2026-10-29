@@ -219,7 +219,7 @@ export default function HistoryCashier({ transactions, filters }) {
                         className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[10px] font-black uppercase transition-all active:scale-95 ${
                             darkMode
                                 ? "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                         }`}
                     >
                         <IconArrowLeft size={18} />
@@ -227,13 +227,13 @@ export default function HistoryCashier({ transactions, filters }) {
                     </button>
 
                     <div className="flex min-w-0 items-center gap-2">
-                        <IconHistory size={20} className="shrink-0 text-primary-500" />
+                        <IconHistory size={20} className="shrink-0 text-primary-500 dark:text-primary-400" />
                         <h1 className="truncate text-sm font-black uppercase tracking-tighter">
                             Riwayat Transaksi
                         </h1>
                         <span
                             className={`hidden rounded-md px-2 py-0.5 text-[10px] font-black sm:inline ${
-                                darkMode ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500"
+                                darkMode ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-500 dark:text-slate-400"
                             }`}
                         >
                             {new Intl.NumberFormat("id-ID").format(total)} transaksi
@@ -246,10 +246,10 @@ export default function HistoryCashier({ transactions, filters }) {
                             onClick={() => setShowFilters((v) => !v)}
                             className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-[10px] font-black uppercase transition-all ${
                                 showFilters || hasActiveFilters
-                                    ? "bg-primary-500 text-white"
+                                    ? "bg-primary-500 dark:bg-primary-600 text-white"
                                     : darkMode
                                       ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                      : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                         >
                             <IconFilter size={16} />
@@ -263,7 +263,7 @@ export default function HistoryCashier({ transactions, filters }) {
                             className={`rounded-xl p-2 transition-all active:scale-95 ${
                                 darkMode
                                     ? "bg-slate-800 text-yellow-400 hover:bg-slate-700"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                         >
                             {darkMode ? <IconSun size={18} /> : <IconMoon size={18} />}
@@ -278,7 +278,7 @@ export default function HistoryCashier({ transactions, filters }) {
                             className={`rounded-xl p-2 transition-all active:scale-95 ${
                                 darkMode
                                     ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    : "bg-slate-100 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
                             }`}
                         >
                             <IconRefresh size={18} />
@@ -378,7 +378,7 @@ export default function HistoryCashier({ transactions, filters }) {
                                     className={`rounded-lg p-2 transition-colors ${
                                         darkMode
                                             ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
-                                            : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                            : "bg-slate-100 text-slate-500 dark:text-slate-400 hover:bg-slate-200"
                                     }`}
                                 >
                                     <IconX size={16} />
@@ -609,7 +609,7 @@ export default function HistoryCashier({ transactions, filters }) {
                         className={`flex shrink-0 flex-wrap items-center gap-3 border-t px-3 py-2 text-[10px] ${
                             darkMode
                                 ? "border-slate-800 bg-slate-900 text-slate-400"
-                                : "border-slate-200 bg-white text-slate-500"
+                                : "border-slate-200 bg-white text-slate-500 dark:text-slate-400"
                         }`}
                     >
                         <span className="font-bold">

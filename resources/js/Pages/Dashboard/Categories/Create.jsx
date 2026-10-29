@@ -45,13 +45,13 @@ export default function Create() {
             <div className="mb-6">
                 <Link
                     href={route("categories.index")}
-                    className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600 mb-3 transition-colors uppercase font-bold tracking-tight"
+                    className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 mb-3 transition-colors uppercase font-bold tracking-tight"
                 >
                     <IconArrowLeft size={16} />
                     Kembali ke Kategori
                 </Link>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                    <IconCategory size={28} className="text-primary-500" />
+                    <IconCategory size={28} className="text-primary-500 dark:text-primary-400" />
                     Tambah Kategori Baru
                 </h1>
             </div>
@@ -63,7 +63,7 @@ export default function Create() {
                             
                             {/* Image Section - Sekarang Opsional */}
                             <div>
-                                <h3 className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 mb-3 flex items-center gap-2 tracking-widest">
+                                <h3 className="text-[10px] font-black uppercase text-slate-400 mb-3 flex items-center gap-2 tracking-widest">
                                     <IconPhoto size={16} />
                                     Gambar (Opsional)
                                 </h3>
@@ -133,7 +133,7 @@ export default function Create() {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary-500/25 active:scale-95 disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-bold text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary-500/25 active:scale-95 disabled:opacity-50"
                             >
                                 <IconDeviceFloppy size={18} />
                                 {processing ? "Menyimpan..." : "Simpan Kategori"}

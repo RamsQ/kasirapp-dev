@@ -106,7 +106,7 @@ function UserCard({ user, isSelected, onSelect, onDelete, isSuperAdmin }) {
                     <div className="w-px bg-slate-100 dark:bg-slate-800" />
                     <button
                         onClick={() => onDelete(user.id)}
-                        className="flex-1 flex items-center justify-center gap-1.5 py-3 text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-950/50 text-sm font-medium transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1.5 py-3 text-danger-600 dark:text-danger-400 hover:bg-danger-50 dark:hover:bg-danger-950/50 hover:text-danger-700 dark:hover:text-danger-300 text-sm font-medium transition-colors"
                     >
                         <IconTrash size={16} />
                         <span>Hapus</span>
@@ -197,7 +197,7 @@ export default function Index() {
                                 type={"link"}
                                 href={route("users.create")}
                                 icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
-                                className={"bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30 font-bold uppercase text-[10px] tracking-widest"}
+                                className={"bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30 font-bold uppercase text-[10px] tracking-widest"}
                                 label={"Tambah User"}
                             />
                         )}
@@ -215,7 +215,7 @@ export default function Index() {
                         onClick={() => setViewMode("grid")}
                         className={`p-2 rounded-lg transition-all ${
                             viewMode === "grid"
-                                ? "bg-primary-500 text-white shadow-md"
+                                ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                     >
@@ -225,7 +225,7 @@ export default function Index() {
                         onClick={() => setViewMode("list")}
                         className={`p-2 rounded-lg transition-all ${
                             viewMode === "list"
-                                ? "bg-primary-500 text-white shadow-md"
+                                ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                     >
@@ -289,7 +289,7 @@ export default function Index() {
                                         </Table.Td>
                                         <Table.Td>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary-600 font-black overflow-hidden border border-slate-200 dark:border-slate-700">
+                                                <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-primary-600 dark:text-primary-400 font-black overflow-hidden border border-slate-200 dark:border-slate-700">
                                                     {user.image ? (
                                                         <img src={`/storage/users/${user.image}`} className="w-full h-full object-cover" />
                                                     ) : (
@@ -298,7 +298,7 @@ export default function Index() {
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-slate-800 dark:text-slate-200">{user.name}</p>
-                                                    <p className="text-[11px] text-slate-500 font-medium">{user.email}</p>
+                                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{user.email}</p>
                                                 </div>
                                             </div>
                                         </Table.Td>
@@ -368,7 +368,7 @@ export default function Index() {
                         <Button
                             type={"link"}
                             icon={<IconCirclePlus size={18} />}
-                            className={"bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"}
+                            className={"bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"}
                             label={"Tambah User"}
                             href={route("users.create")}
                         />

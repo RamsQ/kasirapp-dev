@@ -127,7 +127,7 @@ const History = ({ transactions, filters }) => {
 
     const getPaymentBadge = (method) => {
         const m = method?.toLowerCase();
-        if (m === 'cash') return <span className="flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconCash size={12}/> Tunai</span>;
+        if (m === 'cash') return <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400 bg-slate-100 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconCash size={12}/> Tunai</span>;
         if (m === 'midtrans') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QRIS Midtrans</span>;
         if (m === 'xendit') return <span className="flex items-center gap-1 text-indigo-600 bg-indigo-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconDeviceMobileVibration size={12}/> QRIS Xendit</span>;
         if (m === 'qris_manual') return <span className="flex items-center gap-1 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg text-[9px] font-black uppercase"><IconQrcode size={12}/> QRIS Statis</span>;
@@ -223,7 +223,7 @@ const History = ({ transactions, filters }) => {
                                 {rows.length > 0 ? rows.map((transaction, index) => (
                                     <Fragment key={transaction.id}>
                                     <tr className={`hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-colors group ${transaction.status === 'refunded' ? 'opacity-60 bg-red-50/20' : ''}`}>
-                                        <td className="px-6 py-5 text-sm text-slate-500 font-bold">{index + 1 + (currentPage - 1) * perPage}</td>
+                                        <td className="px-6 py-5 text-sm text-slate-500 dark:text-slate-400 font-bold">{index + 1 + (currentPage - 1) * perPage}</td>
                                         <td className="px-6 py-5">
                                             <div className="flex flex-col">
                                                 <span className={`font-black uppercase tracking-tighter ${transaction.status === 'refunded' ? 'text-red-500 line-through' : 'text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors'}`}>

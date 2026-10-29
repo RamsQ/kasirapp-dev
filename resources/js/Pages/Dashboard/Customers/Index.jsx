@@ -39,7 +39,7 @@ function CustomerCard({ customer }) {
                         <h3 className="text-base font-semibold text-slate-800 dark:text-slate-200">
                             {customer.name}
                         </h3>
-                        <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-300">
+                        <p className="mt-1 text-[10px] font-black uppercase tracking-wider text-primary-600 dark:text-primary-400 dark:text-primary-300">
                             {customer.loyalty_tier || "bronze"} · {customer.loyalty_points || 0} poin
                         </p>
                     </div>
@@ -119,7 +119,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         type={"link"}
                         icon={<IconCirclePlus size={18} strokeWidth={1.5} />}
                         className={
-                            "bg-primary-500 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
+                            "bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white shadow-lg shadow-primary-500/30"
                         }
                         label={"Tambah Pelanggan"}
                         href={route("customers.create")}
@@ -131,21 +131,21 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                 <div className="mb-6 grid gap-4 lg:grid-cols-2">
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex items-center justify-between">
-                            <div><h2 className="text-sm font-black uppercase tracking-wider">Pelanggan Loyal</h2><p className="mt-1 text-xs text-slate-500">Berdasarkan omzet valid pelanggan</p></div>
+                            <div><h2 className="text-sm font-black uppercase tracking-wider">Pelanggan Loyal</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Berdasarkan omzet valid pelanggan</p></div>
                             <IconStar size={20} className="text-amber-500" />
                         </div>
                         <div className="mt-4 space-y-2">
                             {topCustomers.slice(0, 5).map((customer) => (
                                 <Link key={customer.id} href={route("customers.loyalty", customer.id)} className="flex items-center justify-between rounded-xl bg-slate-50 px-3 py-2 text-xs transition hover:bg-primary-50 dark:bg-slate-800 dark:hover:bg-primary-950/30">
                                     <span className="font-black text-slate-700 dark:text-slate-200">{customer.name}</span>
-                                    <span className="text-slate-500">{formatCurrency(customer.crm_spend)} · {customer.crm_transactions} transaksi</span>
+                                    <span className="text-slate-500 dark:text-slate-400">{formatCurrency(customer.crm_spend)} · {customer.crm_transactions} transaksi</span>
                                 </Link>
                             ))}
                         </div>
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex items-center justify-between">
-                            <div><h2 className="text-sm font-black uppercase tracking-wider">Ulang Tahun Hari Ini</h2><p className="mt-1 text-xs text-slate-500">Siapkan penawaran spesial pelanggan</p></div>
+                            <div><h2 className="text-sm font-black uppercase tracking-wider">Ulang Tahun Hari Ini</h2><p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Siapkan penawaran spesial pelanggan</p></div>
                             <IconGift size={20} className="text-pink-500" />
                         </div>
                         <div className="mt-4 space-y-2">
@@ -174,7 +174,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         onClick={() => setViewMode("grid")}
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "grid"
-                                ? "bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400"
+                                ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="Grid View"
@@ -185,7 +185,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         onClick={() => setViewMode("list")}
                         className={`p-2.5 rounded-lg transition-colors ${
                             viewMode === "list"
-                                ? "bg-primary-100 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400"
+                                ? "bg-primary-100 text-primary-600 dark:text-primary-400 dark:bg-primary-900/50 dark:text-primary-400"
                                 : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                         }`}
                         title="List View"
@@ -250,7 +250,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                                             </span>
                                         </Table.Td>
                                         <Table.Td>
-                                            <p className="text-xs font-black uppercase text-primary-600 dark:text-primary-300">{customer.loyalty_tier || "bronze"}</p>
+                                            <p className="text-xs font-black uppercase text-primary-600 dark:text-primary-400 dark:text-primary-300">{customer.loyalty_tier || "bronze"}</p>
                                             <p className="text-[10px] text-slate-400">{customer.loyalty_points || 0} poin</p>
                                         </Table.Td>
                                         <Table.Td>
@@ -320,7 +320,7 @@ export default function Index({ customers, topCustomers = [], birthdayCustomers 
                         type={"link"}
                         icon={<IconCirclePlus size={18} />}
                         className={
-                            "bg-primary-500 hover:bg-primary-600 text-white"
+                            "bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white"
                         }
                         label={"Tambah Pelanggan"}
                         href={route("customers.create")}

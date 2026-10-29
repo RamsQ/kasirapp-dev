@@ -104,13 +104,13 @@ function EmptyCart() {
             <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                 <IconShoppingCart
                     size={32}
-                    className="text-slate-400 dark:text-slate-600"
+                    className="text-slate-400"
                 />
             </div>
             <h3 className="text-base font-medium text-slate-600 dark:text-slate-400">
                 Keranjang Kosong
             </h3>
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+            <p className="text-sm text-slate-400 mt-1">
                 Klik produk untuk menambahkan
             </p>
         </div>

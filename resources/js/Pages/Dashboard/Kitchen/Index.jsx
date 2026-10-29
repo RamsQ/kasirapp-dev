@@ -141,7 +141,7 @@ const KitchenIndex = ({ enabled = false, paymentFilter = "both", orders: initial
             <div className="space-y-6 pb-10">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-2xl bg-orange-500 text-white shadow-lg shadow-orange-500/25">
+                        <div className="p-3 rounded-2xl bg-orange-500 dark:bg-orange-600 text-white shadow-lg shadow-orange-500/25">
                             <IconChefHat size={28} />
                         </div>
                         <div>
@@ -177,8 +177,8 @@ const KitchenIndex = ({ enabled = false, paymentFilter = "both", orders: initial
                             onClick={() => setActiveStatus(status.value)}
                             className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-colors ${
                                 activeStatus === status.value
-                                    ? "bg-orange-500 text-white shadow-md"
-                                    : "text-slate-500 hover:bg-orange-50 dark:hover:bg-orange-950/30"
+                                    ? "bg-orange-500 dark:bg-orange-600 text-white shadow-md"
+                                    : "text-slate-500 dark:text-slate-400 hover:bg-orange-50 dark:hover:bg-orange-950/30"
                             }`}
                         >
                             {status.label}
@@ -193,7 +193,7 @@ const KitchenIndex = ({ enabled = false, paymentFilter = "both", orders: initial
 
                 {visibleOrders.length === 0 ? (
                     <div className="py-20 rounded-[2rem] bg-white dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-700 text-center">
-                        <IconChefHat size={52} className="mx-auto text-slate-300 dark:text-slate-600 mb-4" />
+                        <IconChefHat size={52} className="mx-auto text-slate-300 dark:text-slate-400 mb-4" />
                         <h2 className="text-lg font-black text-slate-700 dark:text-slate-200">Belum ada pesanan</h2>
                         <p className="text-sm text-slate-400 mt-1">Pesanan yang masuk akan otomatis muncul di layar ini.</p>
                     </div>
@@ -265,8 +265,8 @@ const KitchenOrderCard = ({ order, onUpdateStatus }) => {
                         onClick={() => onUpdateStatus(order, nextAction.status)}
                         className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] ${
                             order.kitchen_status === "ready"
-                                ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                                : "bg-orange-500 text-white hover:bg-orange-600"
+                                ? "bg-emerald-600 dark:bg-emerald-700 text-white hover:bg-emerald-700"
+                                : "bg-orange-500 dark:bg-orange-600 text-white hover:bg-orange-600"
                         }`}
                     >
                         <ActionIcon size={17} /> {nextAction.label}

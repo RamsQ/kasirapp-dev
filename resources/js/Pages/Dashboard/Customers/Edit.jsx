@@ -41,16 +41,16 @@ export default function Edit({ customer }) {
             <div className="mb-6">
                 <Link
                     href={route("customers.index")}
-                    className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-primary-600 mb-3"
+                    className="inline-flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 hover:text-primary-600 mb-3"
                 >
                     <IconArrowLeft size={16} />
                     Kembali ke Pelanggan
                 </Link>
                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                    <IconUsers size={28} className="text-primary-500" />
+                    <IconUsers size={28} className="text-primary-500 dark:text-primary-400" />
                     Edit Pelanggan
                 </h1>
-                <p className="text-sm text-slate-500 mt-1">{customer.name}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{customer.name}</p>
             </div>
 
             <form onSubmit={submit}>
@@ -121,7 +121,7 @@ export default function Edit({ customer }) {
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-colors disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-medium transition-colors disabled:opacity-50"
                             >
                                 <IconDeviceFloppy size={18} />
                                 {processing

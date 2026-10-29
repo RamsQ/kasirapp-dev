@@ -155,7 +155,7 @@ export default function FaceRegistration() {
                             type="button"
                             onClick={handleRegister} 
                             disabled={isRegistering}
-                            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
+                            className="flex-1 bg-green-600 dark:bg-green-700 hover:bg-green-700 text-white py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all shadow-lg shadow-green-500/20 flex items-center justify-center gap-2"
                         >
                             {isRegistering ? <IconLoader2 size={18} className="animate-spin" /> : 'Ambil Sampel Wajah'}
                         </button>

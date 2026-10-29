@@ -123,9 +123,9 @@ export default function Consultation() {
                 <div className="flex justify-between items-center font-sans">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <IconRobot className="text-primary-500" /> AI Business Coach
+                            <IconRobot className="text-primary-500 dark:text-primary-400" /> AI Business Coach
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1 uppercase font-bold tracking-tighter">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 uppercase font-bold tracking-tighter">
                             Gunakan asisten AI untuk menganalisis data performa LakuPOS Anda.
                         </p>
                     </div>
@@ -169,7 +169,7 @@ export default function Consultation() {
                                 onClick={() => setPeriod(key)}
                                 className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-tight transition-all active:scale-95 ${
                                     period === key
-                                        ? 'bg-primary-500 text-white shadow-md shadow-primary-500/20'
+                                        ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-md shadow-primary-500/20'
                                         : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                             >
@@ -184,13 +184,13 @@ export default function Consultation() {
                             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
                                     <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${
-                                        msg.role === 'user' ? 'bg-slate-800 text-white' : 'bg-primary-500 text-white shadow-lg shadow-primary-500/20'
+                                        msg.role === 'user' ? 'bg-slate-800 text-white' : 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg shadow-primary-500/20'
                                     }`}>
                                         {msg.role === 'user' ? <IconUser size={18} /> : <IconRobot size={18} />}
                                     </div>
                                     <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                                         msg.role === 'user' 
-                                        ? "bg-primary-500 text-white rounded-tr-none shadow-lg shadow-primary-500/10 font-medium" 
+                                        ? "bg-primary-500 dark:bg-primary-600 text-white rounded-tr-none shadow-lg shadow-primary-500/10 font-medium" 
                                         : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-200 dark:border-slate-700 font-medium"
                                     }`}>
                                         <p className="whitespace-pre-wrap">{msg.text}</p>
@@ -201,7 +201,7 @@ export default function Consultation() {
 
                         {loading && (
                             <div className="flex gap-3 justify-start items-center animate-pulse">
-                                <div className="w-9 h-9 rounded-xl bg-primary-500 flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
+                                <div className="w-9 h-9 rounded-xl bg-primary-500 dark:bg-primary-600 flex items-center justify-center text-white shadow-lg shadow-primary-500/20">
                                     <IconLoader2 size={18} className="animate-spin" />
                                 </div>
                                 <div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-2xl rounded-tl-none text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black italic border border-slate-200 dark:border-slate-700 tracking-widest">
@@ -239,7 +239,7 @@ export default function Consultation() {
                             <button
                                 type="submit"
                                 disabled={loading || !aiConfigured || !input.trim()}
-                                className="bg-primary-500 text-white px-5 rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center"
+                                className="bg-primary-500 dark:bg-primary-600 text-white px-5 rounded-xl hover:bg-primary-600 transition-all shadow-lg shadow-primary-500/20 active:scale-95 disabled:opacity-50 flex items-center justify-center"
                             >
                                 <IconSend size={20} />
                             </button>

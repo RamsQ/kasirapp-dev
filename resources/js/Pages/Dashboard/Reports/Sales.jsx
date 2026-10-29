@@ -234,7 +234,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
                             <IconTrendingUp
                                 size={28}
-                                className="text-primary-500"
+                                className="text-primary-500 dark:text-primary-400"
                             />
                             Laporan Penjualan
                         </h1>
@@ -253,7 +253,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                         <IconFilter size={18} />
                         <span>Filter</span>
                         {hasActiveFilters && (
-                            <span className="w-2 h-2 rounded-full bg-primary-500"></span>
+                            <span className="w-2 h-2 rounded-full bg-primary-500 dark:bg-primary-600"></span>
                         )}
                     </button>
                 </div>
@@ -271,7 +271,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                         <form onSubmit={applyFilters}>
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Tanggal Mulai</label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 dark:text-slate-400 mb-2">Tanggal Mulai</label>
                                     <input
                                         type="date"
                                         value={filterData.start_date}
@@ -280,7 +280,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Tanggal Akhir</label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 dark:text-slate-400 mb-2">Tanggal Akhir</label>
                                     <input
                                         type="date"
                                         value={filterData.end_date}
@@ -289,7 +289,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-black uppercase text-slate-500 mb-2">Invoice</label>
+                                    <label className="block text-xs font-black uppercase text-slate-500 dark:text-slate-400 mb-2">Invoice</label>
                                     <input
                                         type="text"
                                         placeholder="TRX-..."
@@ -307,7 +307,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                         <IconX size={18} />
                                     </button>
                                 )}
-                                <button type="submit" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 hover:bg-primary-600 text-white font-medium transition-colors">
+                                <button type="submit" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-medium transition-colors">
                                     <IconSearch size={18} /> Terapkan
                                 </button>
                             </div>
@@ -334,7 +334,7 @@ const Sales = ({ transactions, summary, filters, cashiers, customers }) => {
                                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                     {rows.map((trx, i) => (
                                         <tr key={trx.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group">
-                                            <td className="px-4 py-4 text-sm text-slate-500">
+                                            <td className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400">
                                                 {i + 1 + (currentPage - 1) * perPage}
                                             </td>
                                             <td className="px-4 py-4">

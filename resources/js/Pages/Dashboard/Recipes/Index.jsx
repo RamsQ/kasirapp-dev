@@ -124,7 +124,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
             {processing && (
                 <div className="fixed inset-0 z-[100] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center">
                     <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col items-center gap-4 border border-slate-200 dark:border-slate-800">
-                        <IconLoader2 size={40} className="text-primary-500 animate-spin" />
+                        <IconLoader2 size={40} className="text-primary-500 dark:text-primary-400 animate-spin" />
                         <span className="font-bold text-xs uppercase tracking-widest dark:text-white">Memproses Data...</span>
                     </div>
                 </div>
@@ -148,7 +148,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                 <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-all">
                     <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-primary-500 rounded-xl text-white shadow-lg shadow-primary-500/20">
+                            <div className="p-3 bg-primary-500 dark:bg-primary-600 rounded-xl text-white shadow-lg shadow-primary-500/20">
                                 <IconToolsKitchen2 size={24} />
                             </div>
                             <div>
@@ -170,7 +170,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                 
                                 <button 
                                     onClick={() => fileInputRef.current.click()} 
-                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold uppercase hover:bg-emerald-700 transition-all"
+                                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg text-xs font-bold uppercase hover:bg-emerald-700 transition-all"
                                 >
                                     <IconFileTypeXls size={18}/> Import
                                 </button>
@@ -193,8 +193,8 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                 </button>
                             </div>
                             <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-                                <button onClick={() => setActiveTab("input")} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all ${activeTab === 'input' ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm' : 'text-slate-500'}`}>Konfigurasi</button>
-                                <button onClick={() => setActiveTab("list")} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all ${activeTab === 'list' ? 'bg-white dark:bg-slate-700 text-primary-600 shadow-sm' : 'text-slate-500'}`}>Daftar Resep</button>
+                                <button onClick={() => setActiveTab("input")} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all ${activeTab === 'input' ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>Konfigurasi</button>
+                                <button onClick={() => setActiveTab("list")} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase transition-all ${activeTab === 'list' ? 'bg-white dark:bg-slate-700 text-primary-600 dark:text-primary-300 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}>Daftar Resep</button>
                             </div>
                         </div>
                     </div>
@@ -205,7 +205,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                         {/* STAT CARDS */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                                <div className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-xl"><IconReceipt2/></div>
+                                <div className="p-3 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-xl"><IconReceipt2/></div>
                                 <div><p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Menu Resep</p><p className="text-xl font-bold dark:text-white leading-tight">{stats.total_menu} Item</p></div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
@@ -247,7 +247,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                 <React.Fragment key={p.id}>
                                                     <tr className={`hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors ${isExpanded ? 'bg-primary-50/30 dark:bg-primary-900/10' : ''}`}>
                                                         <td className="px-6 py-4">
-                                                            <button onClick={() => setExpandedProduct(isExpanded ? null : p.id)} className={`p-1 rounded-lg transition-all ${isExpanded ? 'bg-primary-500 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
+                                                            <button onClick={() => setExpandedProduct(isExpanded ? null : p.id)} className={`p-1 rounded-lg transition-all ${isExpanded ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
                                                                 {isExpanded ? <IconChevronDown size={16} strokeWidth={3} /> : <IconChevronRight size={16} strokeWidth={3} />}
                                                             </button>
                                                         </td>
@@ -264,10 +264,10 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                         </td>
                                                         <td className="px-4 py-4 text-center">
                                                             <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full border shadow-sm
-                                                                ${hppStatus.color === 'rose' ? 'bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800' : 
+                                                                ${hppStatus.color === 'rose' ? 'bg-rose-50 text-rose-600 dark:text-rose-400 border-rose-100 dark:bg-rose-900/20 dark:border-rose-800' : 
                                                                   hppStatus.color === 'amber' ? 'bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:border-amber-800' : 
                                                                   hppStatus.color === 'indigo' ? 'bg-indigo-50 text-indigo-600 border-indigo-100 dark:bg-indigo-900/20 dark:border-indigo-800' :
-                                                                  'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
+                                                                  'bg-emerald-50 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800'}`}>
                                                                 {hppStatus.label}
                                                             </span>
                                                         </td>
@@ -284,7 +284,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                             <td colSpan="6" className="px-6 py-4 bg-slate-50/50 dark:bg-slate-950/50">
                                                                 <div className="bg-white dark:bg-slate-800 rounded-2xl border border-primary-100 dark:border-primary-900/30 shadow-sm overflow-hidden ml-12">
                                                                     <table className="w-full">
-                                                                        <thead className="bg-primary-50/50 dark:bg-primary-900/20 text-[10px] font-black text-primary-500 uppercase tracking-tighter">
+                                                                        <thead className="bg-primary-50/50 dark:bg-primary-900/20 text-[10px] font-black text-primary-500 dark:text-primary-400 uppercase tracking-tighter">
                                                                             <tr>
                                                                                 <th className="px-4 py-3 text-left">Item Bahan Baku</th>
                                                                                 <th className="px-4 py-3 text-center">Takaran</th>
@@ -301,10 +301,10 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                                                                         <td className="px-4 py-3">
                                                                                             <p className="font-bold text-slate-700 dark:text-slate-300 uppercase leading-none">{r.ingredient?.name}</p>
                                                                                             <div className="w-full h-1 bg-slate-100 dark:bg-slate-900 rounded-full mt-2 overflow-hidden flex max-w-[150px]">
-                                                                                                <div className={`h-full rounded-full transition-all duration-700 ${costWeight > 50 ? 'bg-rose-500' : 'bg-primary-500'}`} style={{ width: `${costWeight}%` }}></div>
+                                                                                                <div className={`h-full rounded-full transition-all duration-700 ${costWeight > 50 ? 'bg-rose-500' : 'bg-primary-500 dark:bg-primary-600'}`} style={{ width: `${costWeight}%` }}></div>
                                                                                             </div>
                                                                                         </td>
-                                                                                        <td className="px-4 py-3 text-center font-bold text-slate-500">
+                                                                                        <td className="px-4 py-3 text-center font-bold text-slate-500 dark:text-slate-400">
                                                                                             <span className="font-mono">{r.qty_needed}</span> {r.unit || r.ingredient?.unit}
                                                                                         </td>
                                                                                         <td className="px-4 py-3 text-right">
@@ -352,7 +352,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                     <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm animate-in fade-in slide-in-from-bottom-4">
                         <form onSubmit={submit} className="max-w-3xl mx-auto space-y-8">
                             <div className="flex justify-between items-center pb-4 border-b border-slate-100 dark:border-slate-800">
-                                <h2 className="font-bold text-sm uppercase dark:text-white tracking-widest flex items-center gap-3"><div className="w-2 h-6 bg-primary-500 rounded-full"></div> Susun Bahan Baku</h2>
+                                <h2 className="font-bold text-sm uppercase dark:text-white tracking-widest flex items-center gap-3"><div className="w-2 h-6 bg-primary-500 dark:bg-primary-600 rounded-full"></div> Susun Bahan Baku</h2>
                                 {data.product_id && <button type="button" onClick={() => { reset(); setExpandedProduct(null); }} className="text-[10px] font-bold text-rose-500 uppercase flex items-center gap-1 hover:underline"><IconArrowBackUp size={14}/> Reset Form</button>}
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
@@ -382,7 +382,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                     <div className={`flex items-start gap-3 p-4 rounded-xl border ${status.color === 'rose'
                                         ? 'bg-rose-50 border-rose-200 dark:bg-rose-900/20 dark:border-rose-800'
                                         : 'bg-amber-50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'}`}>
-                                        <IconAlertTriangle size={18} className={`shrink-0 mt-0.5 ${status.color === 'rose' ? 'text-rose-600' : 'text-amber-600'}`} />
+                                        <IconAlertTriangle size={18} className={`shrink-0 mt-0.5 ${status.color === 'rose' ? 'text-rose-600 dark:text-rose-400' : 'text-amber-600'}`} />
                                         <div className="text-xs">
                                             <p className={`font-black uppercase tracking-wider ${status.color === 'rose' ? 'text-rose-700 dark:text-rose-400' : 'text-amber-700 dark:text-amber-400'}`}>
                                                 {status.label === 'Cek Satuan' ? 'Kemungkinan salah satuan' : status.label === 'RUGI' ? 'Menu ini dijual rugi' : 'HPP tinggi, periksa takaran'}
@@ -414,7 +414,7 @@ export default function Index({ auth, products, allProducts, ingredients, stats,
                                         </div>
                                     ))}
                                 </div>
-                                <button type="button" onClick={handleAddRow} className="flex items-center gap-2 text-[10px] font-bold uppercase text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-4 py-2 rounded-lg transition-all border border-dashed border-primary-200 dark:border-primary-800"><IconPlus size={14} /> Tambah Bahan</button>
+                                <button type="button" onClick={handleAddRow} className="flex items-center gap-2 text-[10px] font-bold uppercase text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 px-4 py-2 rounded-lg transition-all border border-dashed border-primary-200 dark:border-primary-800"><IconPlus size={14} /> Tambah Bahan</button>
                             </div>
                             <button type="submit" disabled={processing} className="w-full bg-slate-900 dark:bg-primary-600 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-xl shadow-primary-500/10 hover:opacity-90 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2">
                                 {processing ? <IconLoader2 size={20} className="animate-spin" /> : <IconDeviceFloppy size={20} />} 

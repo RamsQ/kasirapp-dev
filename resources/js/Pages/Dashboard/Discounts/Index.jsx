@@ -30,11 +30,11 @@ export default function Index({ discounts, products = [], categories = [], loyal
                 <div className="flex justify-between items-center">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <IconTicket className="text-primary-500" /> Manajemen Promo & Diskon
+                            <IconTicket className="text-primary-500 dark:text-primary-400" /> Manajemen Promo & Diskon
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1">Kelola diskon khusus produk, potongan invoice, atau promo beli gratis produk.</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola diskon khusus produk, potongan invoice, atau promo beli gratis produk.</p>
                     </div>
-                    <Link href={route("discounts.create")} className="bg-primary-500 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20">
+                    <Link href={route("discounts.create")} className="bg-primary-500 dark:bg-primary-600 text-white px-4 py-2 rounded-xl flex items-center gap-2 hover:bg-primary-600 transition-colors shadow-lg shadow-primary-500/20">
                         <IconPlus size={18} /> Tambah Promo
                     </Link>
                 </div>
@@ -90,7 +90,7 @@ export default function Index({ discounts, products = [], categories = [], loyal
                                             item.type === 'percentage' 
                                             ? 'bg-indigo-100 text-indigo-700' 
                                             : item.type === 'fixed'
-                                            ? 'bg-amber-100 text-amber-700'
+                                            ? 'bg-amber-100 text-amber-700 dark:text-amber-400'
                                             : 'bg-emerald-100 text-emerald-700'
                                         }`}>
                                             {item.type === 'percentage' ? 'Persen' : item.type === 'fixed' ? 'Nominal' : 'Buy X Get Y'}

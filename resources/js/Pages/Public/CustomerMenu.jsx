@@ -467,9 +467,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                     {/* Filter Kategori */}
                     <div className="flex gap-2 overflow-x-auto p-4 sticky top-[124px] sm:top-[145px] bg-slate-50/90 backdrop-blur-sm z-20 scrollbar-hide">
-                        <button onClick={() => setActiveCategory("all")} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all ${activeCategory === "all" ? (isTakeAway ? 'bg-emerald-600 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 border-slate-200'}`}>Semua</button>
+                        <button onClick={() => setActiveCategory("all")} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all ${activeCategory === "all" ? (isTakeAway ? 'bg-emerald-600 dark:bg-emerald-700 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 dark:text-slate-400 border-slate-200'}`}>Semua</button>
                         {categories?.map(cat => (
-                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all whitespace-nowrap ${activeCategory == cat.id ? (isTakeAway ? 'bg-emerald-600 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 border-slate-200'}`}>{cat.name}</button>
+                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase border transition-all whitespace-nowrap ${activeCategory == cat.id ? (isTakeAway ? 'bg-emerald-600 dark:bg-emerald-700 text-white shadow-lg border-emerald-600' : 'bg-slate-900 text-white shadow-lg border-slate-900') : 'bg-white text-slate-500 dark:text-slate-400 border-slate-200'}`}>{cat.name}</button>
                         ))}
                     </div>
 
@@ -492,9 +492,9 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <h3 className="font-black uppercase text-[11px] text-slate-800 leading-tight mb-0.5 truncate">{p.title}</h3>
-                                        <p className={`font-black text-sm mb-1 ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(p.sell_price)}</p>
+                                        <p className={`font-black text-sm mb-1 ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(p.sell_price)}</p>
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-[8px] px-2 py-0.5 rounded-md font-bold uppercase ${!p.is_available ? 'bg-slate-100 text-slate-400' : (isTakeAway ? 'bg-emerald-50 text-emerald-600' : 'bg-indigo-50 text-indigo-600')}`}>
+                                            <span className={`text-[8px] px-2 py-0.5 rounded-md font-bold uppercase ${!p.is_available ? 'bg-slate-100 text-slate-400' : (isTakeAway ? 'bg-emerald-50 text-emerald-600 dark:text-emerald-400' : 'bg-indigo-50 text-indigo-600')}`}>
                                                 {!p.is_available ? 'Habis' : (p.availability_status === 'low' ? `Sisa ${Number(p.available_quantity).toLocaleString('id-ID')}` : 'Tersedia')}
                                             </span>
                                             {promoProd && p.is_available && (
@@ -502,7 +502,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                             )}
                                         </div>
                                     </div>
-                                    <button onClick={() => p.is_available && addToCart(p)} disabled={!p.is_available} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${p.is_available ? (isTakeAway ? 'bg-emerald-100 text-emerald-600 active:scale-90' : 'bg-indigo-100 text-indigo-600 active:scale-90 shadow-sm') : 'bg-slate-100 text-slate-300'}`}>
+                                    <button onClick={() => p.is_available && addToCart(p)} disabled={!p.is_available} className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all ${p.is_available ? (isTakeAway ? 'bg-emerald-100 text-emerald-600 dark:text-emerald-400 active:scale-90' : 'bg-indigo-100 text-indigo-600 active:scale-90 shadow-sm') : 'bg-slate-100 text-slate-300'}`}>
                                         <IconPlus size={24} />
                                     </button>
                                 </div>
@@ -529,10 +529,10 @@ export default function CustomerMenu({ products, table, categories, activePromos
                             <div className="max-w-md mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                                 <div className="min-w-0">
                                     <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Estimasi Total</span>
-                                    <span className={`block text-2xl font-black italic tracking-tighter leading-none truncate ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</span>
+                                    <span className={`block text-2xl font-black italic tracking-tighter leading-none truncate ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</span>
                                      {taxAmount > 0 && <span className="block text-[9px] font-black text-slate-400 uppercase mt-1">Termasuk pajak {taxRate}%</span>}
                                 </div>
-                                <button onClick={() => setShowReview(true)} className={`w-full sm:w-auto shrink-0 px-6 sm:px-8 py-4 min-h-touch text-white rounded-2xl font-black uppercase text-[12px] flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all ${isTakeAway ? 'bg-emerald-600' : 'bg-slate-900'}`}>
+                                <button onClick={() => setShowReview(true)} className={`w-full sm:w-auto shrink-0 px-6 sm:px-8 py-4 min-h-touch text-white rounded-2xl font-black uppercase text-[12px] flex items-center justify-center gap-3 shadow-xl active:scale-95 transition-all ${isTakeAway ? 'bg-emerald-600 dark:bg-emerald-700' : 'bg-slate-900'}`}>
                                      Review Order <IconCheck size={20} />
                                 </button>
                             </div>
@@ -561,13 +561,13 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                             <h4 className="font-black text-[11px] uppercase text-slate-800 truncate">{item.product_title}</h4>
                                             <div className="flex items-center gap-2">
                                                 {isDisc && <span className="text-[9px] text-slate-300 line-through font-bold">{formatPrice(item.sell_price)}</span>}
-                                                <p className={`font-black text-sm ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(item.current_unit_price)}</p>
+                                                <p className={`font-black text-sm ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(item.current_unit_price)}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 bg-slate-50 p-1.5 rounded-2xl ml-4 border border-slate-100">
                                             <button onClick={() => updateQty(item.product_id, -1)} className="w-8 h-8 flex items-center justify-center bg-white rounded-xl text-red-500 shadow-sm"><IconMinus size={16}/></button>
                                             <span className="font-black text-sm w-4 text-center">{item.qty}</span>
-                                            <button onClick={() => updateQty(item.product_id, 1)} className={`w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}><IconPlus size={16}/></button>
+                                            <button onClick={() => updateQty(item.product_id, 1)} className={`w-8 h-8 flex items-center justify-center bg-white rounded-xl shadow-sm ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}><IconPlus size={16}/></button>
                                         </div>
                                     </div>
                                     <div className="mt-3 pt-3 border-t border-slate-100">
@@ -599,7 +599,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center mb-1">
                              {paymentMethod === "gateway" ? "Total yang akan dibayar QRIS" : paymentMethod === "qris_manual" ? "Total yang akan dibayar via QRIS" : "Total yang dibayar di kasir"}
                          </p>
-                        <h3 className={`text-4xl font-black italic tracking-tighter text-center leading-none ${isTakeAway ? 'text-emerald-600' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</h3>
+                        <h3 className={`text-4xl font-black italic tracking-tighter text-center leading-none ${isTakeAway ? 'text-emerald-600 dark:text-emerald-400' : 'text-indigo-600'}`}>{formatPrice(finalTotal)}</h3>
                     </div>
 
                     {/* PILIHAN CARA BAYAR */}
@@ -644,7 +644,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                         {paymentMethod === "qris_manual" && (
                             <div className="mt-4 pt-4 border-t border-slate-100">
-                                <p className="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-3 text-center">
+                                <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3 text-center">
                                     Scan dengan aplikasi apa pun
                                 </p>
                                 <div className="flex justify-center">
@@ -669,7 +669,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
 
                         {paymentMethod === "gateway" && !selfPay && (
                             <div className="mt-4 pt-4 border-t border-slate-100">
-                                <p className="text-[10px] text-slate-500 font-bold leading-relaxed mb-4 text-center">
+                                <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold leading-relaxed mb-4 text-center">
                                     Pesanan langsung tercatat lunas begitu pembayaran
                                     diterima. Tidak perlu antre di kasir untuk membayar.
                                 </p>
@@ -682,7 +682,7 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                             key={g.name}
                                             type="button"
                                             onClick={() => startSelfPay(g.name)}
-                                            className="p-4 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all"
+                                            className="p-4 rounded-2xl bg-emerald-600 dark:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all"
                                         >
                                             Bayar via {g.label}
                                         </button>
@@ -698,13 +698,13 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                         href={selfPay.payment_url}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="block w-full p-4 rounded-2xl bg-emerald-600 text-white font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all"
+                                        className="block w-full p-4 rounded-2xl bg-emerald-600 dark:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-widest active:scale-95 transition-all"
                                     >
                                         Buka Halaman Pembayaran
                                     </a>
                                 ) : selfPay.qr_string ? (
                                     <>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-wide mb-3">
+                                        <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">
                                             Scan dengan aplikasi bank Anda
                                         </p>
                                         <div className="flex justify-center">
@@ -732,14 +732,14 @@ export default function CustomerMenu({ products, table, categories, activePromos
                                 )}
 
                                 <p className="text-[10px] text-slate-400 mt-2">
-                                    Kode pesanan <span className="font-black text-slate-600">{selfPay.ref_number}</span>
+                                    Kode pesanan <span className="font-black text-slate-600 dark:text-slate-400">{selfPay.ref_number}</span>
                                 </p>
                             </div>
                         )}
                     </div>
 
                     {paymentMethod !== "gateway" && (
-                        <button onClick={submitOrder} className={`w-full p-6 rounded-[2rem] flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-2xl text-white group ${isTakeAway ? 'bg-emerald-600' : 'bg-slate-900'}`}>
+                        <button onClick={submitOrder} className={`w-full p-6 rounded-[2rem] flex items-center justify-center gap-4 active:scale-[0.98] transition-all shadow-2xl text-white group ${isTakeAway ? 'bg-emerald-600 dark:bg-emerald-700' : 'bg-slate-900'}`}>
                             <IconCash size={28} className={isTakeAway ? 'text-emerald-200' : 'text-indigo-400'} />
                             <span className="font-black uppercase tracking-widest leading-none">
                                 {paymentMethod === "qris_manual" ? "Kirim & Sudah Bayar QRIS" : "Kirim Pesanan Sekarang"}

@@ -52,7 +52,7 @@ export default function Welcome() {
         { name: "Inertia.js", color: "bg-purple-500" },
         { name: "React", color: "bg-cyan-500" },
         { name: "TailwindCSS", color: "bg-sky-500" },
-        { name: "MySQL", color: "bg-orange-500" },
+        { name: "MySQL", color: "bg-orange-500 dark:bg-orange-600" },
     ];
 
     return (
@@ -165,7 +165,7 @@ export default function Welcome() {
                                         <div className="w-3 h-3 rounded-full bg-yellow-400" />
                                         <div className="w-3 h-3 rounded-full bg-green-400" />
                                     </div>
-                                    <div className="flex-1 text-center text-xs text-slate-500">
+                                    <div className="flex-1 text-center text-xs text-slate-500 dark:text-slate-400">
                                         dashboard.aplikasikasir.com
                                     </div>
                                 </div>
@@ -365,7 +365,7 @@ php artisan serve`}
                             </p>
                             <Link
                                 href="/register"
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-600 font-semibold rounded-2xl hover:bg-slate-50 transition-colors"
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-600 dark:text-primary-400 font-semibold rounded-2xl hover:bg-slate-50 transition-colors"
                             >
                                 Daftar Gratis Sekarang
                                 <IconArrowRight size={20} />
@@ -388,7 +388,7 @@ php artisan serve`}
                                 Aplikasi Kasir
                             </span>
                         </div>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             © {new Date().getFullYear()} 
                            
                         </p>

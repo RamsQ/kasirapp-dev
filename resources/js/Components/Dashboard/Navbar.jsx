@@ -86,9 +86,7 @@ export default function Navbar({
                     karena layar hanya 375px dan tidak ada sidebar yang
                     memberi konteks. */}
                 <div className="md:hidden flex items-center gap-2 min-w-0 shrink-0">
-                    <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shrink-0">
-                        <span className="text-white font-bold text-xs">K</span>
-                    </div>
+                    <img src="/laku-pos-logo.jpg" alt="LakuPOS" className="w-7 h-7 rounded-lg object-contain shrink-0" />
                 </div>
 
                 {/* Current Page Title.

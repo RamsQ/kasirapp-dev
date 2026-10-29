@@ -132,11 +132,11 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                             <IconDatabaseImport size={28} className="text-emerald-500" />
                             Bahan Baku
                         </h1>
-                        <p className="text-sm text-slate-500 uppercase italic">Inventaris & Harga Modal</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 uppercase italic">Inventaris & Harga Modal</p>
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-3">
-                        <button onClick={openCreateModal} className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-black text-xs uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95">
+                        <button onClick={openCreateModal} className="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 text-white px-5 py-3 rounded-xl font-black text-xs uppercase flex items-center gap-2 shadow-lg transition-all active:scale-95">
                             <IconPlus size={18}/> Tambah Baru
                         </button>
 
@@ -170,7 +170,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                             onChange={e => setSearchQuery(e.target.value)} 
                         />
                     </form>
-                    <button onClick={() => router.get(route("ingredients.index"))} className="p-3 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700">
+                    <button onClick={() => router.get(route("ingredients.index"))} className="p-3 rounded-xl bg-slate-100 text-slate-500 dark:text-slate-400 hover:bg-slate-200 transition-all border border-slate-200 dark:border-slate-700">
                         <IconRefresh size={20} />
                     </button>
                 </div>
@@ -192,7 +192,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                                 {ingredients.length > 0 ? ingredients.map((item) => (
                                     <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-center text-slate-900 dark:text-white font-medium">
                                         <td className="px-6 py-4 font-bold uppercase text-left">{item.name}</td>
-                                        <td className="px-6 py-4 uppercase font-black text-slate-500">
+                                        <td className="px-6 py-4 uppercase font-black text-slate-500 dark:text-slate-400">
                                             {item.unit || '-'}
                                         </td>
                                         <td className="px-6 py-4 font-black text-blue-600">Rp {Number(item.buy_price).toLocaleString()}</td>
@@ -220,7 +220,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                                 <h3 className="font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
                                     {modalMode === 'create' ? 'Tambah Bahan Baru' : 'Update Bahan Baku'}
                                 </h3>
-                                <button onClick={closeModal} className="text-slate-500 hover:text-rose-500"><IconX size={24}/></button>
+                                <button onClick={closeModal} className="text-slate-500 dark:text-slate-400 hover:text-rose-500"><IconX size={24}/></button>
                             </div>
                             
                             <form onSubmit={handleSubmit} className="p-6 space-y-4">
@@ -286,7 +286,7 @@ export default function IngredientIndex({ auth, ingredients, filters }) {
                                 <button 
                                     type="submit"
                                     disabled={processing} 
-                                    className={`w-full py-4 rounded-2xl font-black uppercase shadow-lg text-white transition-all active:scale-95 ${modalMode === 'create' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'}`}
+                                    className={`w-full py-4 rounded-2xl font-black uppercase shadow-lg text-white transition-all active:scale-95 ${modalMode === 'create' ? 'bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700' : 'bg-amber-600 hover:bg-amber-700'}`}
                                 >
                                     {processing ? "Memproses..." : "Simpan Data Bahan"}
                                 </button>

@@ -78,12 +78,11 @@ export default function Register() {
                                 href="/"
                                 className="inline-flex items-center gap-3 mb-6"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                                    <IconShoppingCart
-                                        size={24}
-                                        className="text-white"
-                                    />
-                                </div>
+                                <img
+                                    src="/laku-pos-logo.jpg"
+                                    alt="LakuPOS"
+                                    className="w-12 h-12 rounded-xl object-contain"
+                                />
                                 <span className="text-2xl font-bold text-slate-900 dark:text-white">
                                     Aplikasi Kasir
                                 </span>
@@ -279,7 +278,7 @@ export default function Register() {
                                 Sudah punya akun?{" "}
                                 <Link
                                     href="/login"
-                                    className="text-primary-500 hover:text-primary-600 font-semibold"
+                                    className="text-primary-500 dark:text-primary-400 hover:text-primary-600 font-semibold"
                                 >
                                     Masuk disini
                                 </Link>

@@ -101,7 +101,7 @@ export default function PaymentSettlements({
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                     <div>
                         <h1 className="flex items-center gap-2 text-2xl font-black text-slate-900 dark:text-white">
-                            <IconCreditCard size={28} className="text-primary-500" />
+                            <IconCreditCard size={28} className="text-primary-500 dark:text-primary-400" />
                             Payment Settlement Center
                         </h1>
                         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -184,10 +184,10 @@ export default function PaymentSettlements({
                                         </td>
                                         <td className="px-5 py-4 font-bold">{currency(settlement.settled_amount || settlement.amount)}</td>
                                         <td className="px-5 py-4">{settlement.attempt_count || 0}</td>
-                                        <td className="px-5 py-4 text-xs text-slate-500">{dateTime(settlement.last_checked_at)}</td>
+                                        <td className="px-5 py-4 text-xs text-slate-500 dark:text-slate-400">{dateTime(settlement.last_checked_at)}</td>
                                         <td className="px-5 py-4 text-right">
                                             {['pending', 'unknown', 'expired'].includes(settlement.status) && (
-                                                <button type="button" onClick={() => reconcile(settlement)} title={settlement.status === 'expired' ? 'Periksa ulang ke provider (tidak otomatis lagi)' : undefined} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/30">
+                                                <button type="button" onClick={() => reconcile(settlement)} title={settlement.status === 'expired' ? 'Periksa ulang ke provider (tidak otomatis lagi)' : undefined} className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-bold text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-950/30">
                                                     <IconRefresh size={14} /> {settlement.status === 'expired' ? 'Cek Ulang' : 'Cek Status'}
                                                 </button>
                                             )}
@@ -200,7 +200,7 @@ export default function PaymentSettlements({
                             </tbody>
                         </table>
                     </div>
-                    {settlements.links?.length > 0 && <div className="flex flex-wrap gap-2 border-t border-slate-200 px-5 py-4 dark:border-slate-800">{settlements.links.map((link, index) => link.url ? <Link key={index} href={link.url} className={`rounded-lg px-3 py-2 text-xs font-bold ${link.active ? 'bg-primary-600 text-white' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}`} dangerouslySetInnerHTML={{ __html: link.label }} /> : <span key={index} className="rounded-lg px-3 py-2 text-xs text-slate-300" dangerouslySetInnerHTML={{ __html: link.label }} />)}</div>}
+                    {settlements.links?.length > 0 && <div className="flex flex-wrap gap-2 border-t border-slate-200 px-5 py-4 dark:border-slate-800">{settlements.links.map((link, index) => link.url ? <Link key={index} href={link.url} className={`rounded-lg px-3 py-2 text-xs font-bold ${link.active ? 'bg-primary-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`} dangerouslySetInnerHTML={{ __html: link.label }} /> : <span key={index} className="rounded-lg px-3 py-2 text-xs text-slate-300" dangerouslySetInnerHTML={{ __html: link.label }} />)}</div>}
                 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -209,8 +209,8 @@ export default function PaymentSettlements({
                         {events.length === 0 && <p className="text-sm text-slate-400">Belum ada event.</p>}
                         {events.map((event) => (
                             <div key={event.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 px-4 py-3 text-xs dark:bg-slate-800/70">
-                                <div><span className="font-bold uppercase">{event.provider}</span><span className="ml-2 text-slate-500">{event.transaction?.invoice || event.provider_reference || '-'}</span></div>
-                                <div className="flex items-center gap-3 text-slate-500"><span className={event.signature_valid ? 'text-emerald-600' : 'text-rose-600'}>{event.signature_valid ? 'signature valid' : 'signature rejected'}</span><span>{event.status}</span><span>{dateTime(event.received_at)}</span></div>
+                                <div><span className="font-bold uppercase">{event.provider}</span><span className="ml-2 text-slate-500 dark:text-slate-400">{event.transaction?.invoice || event.provider_reference || '-'}</span></div>
+                                <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400"><span className={event.signature_valid ? 'text-emerald-600' : 'text-rose-600'}>{event.signature_valid ? 'signature valid' : 'signature rejected'}</span><span>{event.status}</span><span>{dateTime(event.received_at)}</span></div>
                             </div>
                         ))}
                     </div>

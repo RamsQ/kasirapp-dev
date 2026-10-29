@@ -47,7 +47,7 @@ export default function PublicReceipt({ receipt, store }) {
             ? { text: "text-amber-600", bg: "bg-amber-50", border: "border-amber-200", darkBg: "dark:bg-amber-950/30", darkBorder: "dark:border-amber-800" }
             : failed
                 ? { text: "text-rose-600", bg: "bg-rose-50", border: "border-rose-200", darkBg: "dark:bg-rose-950/30", darkBorder: "dark:border-rose-800" }
-                : { text: "text-slate-600", bg: "bg-slate-50", border: "border-slate-200", darkBg: "dark:bg-slate-800", darkBorder: "dark:border-slate-700" };
+                : { text: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50", border: "border-slate-200", darkBg: "dark:bg-slate-800", darkBorder: "dark:border-slate-700" };
 
     const Headline = paid ? "LUNAS" : pending ? "MENUNGGU PEMBAYARAN" : failed ? "PEMBAYARAN GAGAL" : "BELUM BAYAR";
 
@@ -129,7 +129,7 @@ export default function PublicReceipt({ receipt, store }) {
                                             {item.unit ? ` / ${item.unit}` : ""}
                                         </p>
                                         {item.notes && (
-                                            <p className="text-[10px] text-slate-500 italic mt-0.5">"{item.notes}"</p>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 italic mt-0.5">"{item.notes}"</p>
                                         )}
                                     </div>
                                     <span className="font-black shrink-0">{rp(item.total)}</span>
@@ -147,7 +147,7 @@ export default function PublicReceipt({ receipt, store }) {
                             </div>
                         )}
                         {totals.tax > 0 && (
-                            <div className="flex justify-between text-slate-500">
+                            <div className="flex justify-between text-slate-500 dark:text-slate-400">
                                 <span className="uppercase">Pajak {totals.tax_rate ? `${Number(totals.tax_rate)}%` : ""}</span>
                                 <span>{rp(totals.tax)}</span>
                             </div>
@@ -161,10 +161,10 @@ export default function PublicReceipt({ receipt, store }) {
                     </div>
 
                     <div className="px-6 py-4 text-center border-t border-dashed border-slate-200 dark:border-slate-700">
-                        <p className="text-[10px] font-black uppercase italic tracking-wider text-slate-500">
+                        <p className="text-[10px] font-black uppercase italic tracking-wider text-slate-500 dark:text-slate-400">
                             {store?.footer || "Terima kasih"}
                         </p>
-                        <p className="text-[9px] text-slate-300 dark:text-slate-600 mt-1.5">
+                        <p className="text-[9px] text-slate-300 dark:text-slate-400 mt-1.5">
                             Struk digital. Bukti resmi dicetak oleh kasir.
                         </p>
                     </div>
@@ -172,7 +172,7 @@ export default function PublicReceipt({ receipt, store }) {
 
                 {/* CATATAN UNTUK PELANGGAN */}
                 {paid && (
-                    <p className="text-center text-[11px] text-slate-500 mt-4 leading-relaxed px-4">
+                    <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-4 leading-relaxed px-4">
                         Tunjukkan layar ini ke kasir. Kasir sudah tahu pembayaran
                         Anda masuk, jadi tidak perlu membayar lagi.
                     </p>
@@ -186,7 +186,7 @@ export default function PublicReceipt({ receipt, store }) {
                 )}
 
                 {receipt.order_type === "dine_in" && receipt.table_name && (
-                    <p className="text-center text-[11px] text-slate-500 mt-4 leading-relaxed px-4">
+                    <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 mt-4 leading-relaxed px-4">
                         Pesanan untuk {receipt.table_name}.
                     </p>
                 )}

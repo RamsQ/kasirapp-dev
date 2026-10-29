@@ -62,7 +62,7 @@ const CartItem = ({ c, updateCartItem, deleteCart }) => {
                             {c.product?.recipes?.length > 0 && <IconToolsKitchen2 size={12} className="text-emerald-500" />}
                         </h4>
                         <div className="flex items-center gap-1.5">
-                             <p className={`text-[9px] font-bold ${isBonus ? 'text-emerald-600' : 'text-primary-600 dark:text-primary-400'}`}>
+                             <p className={`text-[9px] font-bold ${isBonus ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary-600 dark:text-primary-400'}`}>
                                 {isBonus ? 'GRATIS' : formatPrice(c.price)}
                              </p>
                         </div>
@@ -70,15 +70,15 @@ const CartItem = ({ c, updateCartItem, deleteCart }) => {
                     
                     {!isBonus ? (
                         <>
-                            <button type="button" onClick={() => setShowNoteInput(!showNoteInput)} className={`p-1 rounded-md transition-colors ${c.notes ? 'text-primary-500 bg-primary-50 dark:bg-primary-950/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}><IconInfoCircle size={14} /></button>
+                            <button type="button" onClick={() => setShowNoteInput(!showNoteInput)} className={`p-1 rounded-md transition-colors ${c.notes ? 'text-primary-500 dark:text-primary-400 bg-primary-50 dark:bg-primary-950/30' : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}><IconInfoCircle size={14} /></button>
                             <select value={c.product_unit_id || ''} onChange={(e) => updateCartItem(c.id, c.qty, e.target.value || null, c.notes)} className="bg-slate-50 dark:bg-slate-800 border-none text-[8px] font-black p-1 rounded-md focus:ring-0 uppercase cursor-pointer">
                                 <option value="">{c.product?.unit || 'UTAMA'}</option>
                                 {c.product?.units?.map(u => <option key={u.id} value={u.id}>{u.unit_name}</option>)}
                             </select>
                             <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5 border dark:border-slate-600">
-                                <button type="button" onClick={() => updateCartItem(c.id, parseFloat(c.qty) - 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">-</button>
+                                <button type="button" onClick={() => updateCartItem(c.id, parseFloat(c.qty) - 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">-</button>
                                 <input type="number" step="0.01" value={localQty} onChange={(e) => setLocalQty(e.target.value)} onBlur={handleBlur} className="w-7 text-[9px] font-black text-center bg-transparent border-none p-0 dark:text-white focus:ring-0" />
-                                <button type="button" onClick={() => updateCartItem(c.id, parseFloat(c.qty) + 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500">+</button>
+                                <button type="button" onClick={() => updateCartItem(c.id, parseFloat(c.qty) + 1, c.product_unit_id, c.notes)} className="w-5 h-5 flex items-center justify-center text-xs font-bold text-slate-500 dark:text-slate-400">+</button>
                             </div>
                         </>
                     ) : (
@@ -110,7 +110,7 @@ const CartItem = ({ c, updateCartItem, deleteCart }) => {
                  {showNoteInput && (
                     <div className="mt-2 flex gap-1 animate-in slide-in-from-top-1 duration-200">
                         <input type="text" maxLength={200} value={noteValue} onChange={(e) => setNoteValue(e.target.value)} placeholder="Contoh: tidak pedas..." className="flex-1 text-[9px] font-bold uppercase bg-slate-50 dark:bg-slate-900 border-none rounded-lg focus:ring-1 focus:ring-primary-500 p-2 dark:text-white" />
-                        <button type="button" onClick={handleSaveNote} className="bg-primary-500 text-white p-1.5 rounded-lg active:scale-90 transition-transform"><IconCheck size={14} /></button>
+                        <button type="button" onClick={handleSaveNote} className="bg-primary-500 dark:bg-primary-600 text-white p-1.5 rounded-lg active:scale-90 transition-transform"><IconCheck size={14} /></button>
                     </div>
                 )}
             </div>
@@ -592,7 +592,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             {!activeShift && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 text-center">
                     <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-8 shadow-2xl">
-                        <IconDoorEnter size={48} className="mx-auto text-primary-500 mb-4" />
+                        <IconDoorEnter size={48} className="mx-auto text-primary-500 dark:text-primary-400 mb-4" />
                         <h2 className="text-xl font-black dark:text-white uppercase mb-6 tracking-tighter">Buka Shift Kasir</h2>
                         {lastClosedShift && (
                             <div className="mb-4 text-left bg-slate-50 dark:bg-slate-800 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
@@ -638,7 +638,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         <h1 className="hidden sm:block text-sm md:text-lg font-black dark:text-white uppercase tracking-tighter italic truncate">{auth?.user?.name}</h1>
                     </div>
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                        <button type="button" onClick={() => setShowCashOut(true)} className="flex px-3 sm:px-4 py-2 bg-orange-100 text-orange-600 dark:bg-orange-950/30 rounded-xl text-[10px] font-black uppercase items-center gap-2 border border-orange-200 shadow-sm"><IconCashOff size={16}/> <span className="hidden sm:inline">Kas Keluar</span></button>
+                        <button type="button" onClick={() => setShowCashOut(true)} className="flex px-3 sm:px-4 py-2 bg-orange-100 text-orange-600 dark:bg-orange-950/30 dark:text-orange-400 rounded-xl text-[10px] font-black uppercase items-center gap-2 border border-orange-200 dark:border-orange-900/40 shadow-sm"><IconCashOff size={16}/> <span className="hidden sm:inline">Kas Keluar</span></button>
                         {/*
                             Pintu masuk ke Riwayat Transaksi dari dalam kasir.
 
@@ -666,7 +666,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                             <IconHistory size={20} />
                             <span className="hidden md:inline text-[10px] font-black uppercase tracking-wider">Riwayat</span>
                         </Link>
-                        <button type="button" onClick={() => setShowModalHold(true)} className="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 border dark:border-slate-700">
+                        <button type="button" onClick={() => setShowModalHold(true)} className="relative p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border dark:border-slate-700">
                             <IconClockPause size={20} />
                             {holds?.length > 0 && <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-[9px] font-black flex items-center justify-center rounded-full animate-bounce">{holds.length}</span>}
                         </button>
@@ -683,15 +683,15 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                 <input type="text" value={search} onChange={handleSearchChange} placeholder="Cari Nama Produk atau Barcode..." className="w-full pl-11 pr-4 py-2.5 rounded-xl border-none bg-white dark:bg-slate-800 dark:text-white shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-primary-500" />
                             </div>
                             <div className={`flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 rounded-xl border shadow-sm transition-all ${selectedPlatform ? 'border-primary-500 ring-1 ring-primary-500' : 'dark:border-slate-700'}`}>
-                                <IconWorld size={18} className={selectedPlatform ? "text-primary-500 animate-pulse" : "text-slate-400"} />
+                                <IconWorld size={18} className={selectedPlatform ? "text-primary-500 dark:text-primary-400 animate-pulse" : "text-slate-400"} />
                                 <select className="bg-transparent border-none text-[10px] font-black uppercase focus:ring-0 dark:text-white p-0 pr-8" value={selectedPlatform?.id || ''} onChange={(e) => setSelectedPlatform(onlineSettings.find(o => o.id == e.target.value) || null)}>
                                     <option value="">HARGA REGULER</option>
                                     {onlineSettings.map(opt => <option key={opt.id} value={opt.id}>{opt.name} (+{opt.markup_percent}%)</option>)}
                                 </select>
                             </div>
                             <div className="flex bg-white dark:bg-slate-800 p-1 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-700 shadow-sm shrink-0">
-                                <button type="button" onClick={() => setViewMode('grid')} className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-400'}`}><IconLayoutGrid size={18} /></button>
-                                <button type="button" onClick={() => setViewMode('list')} className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary-500 text-white shadow-lg' : 'text-slate-400'}`}><IconList size={18} /></button>
+                                <button type="button" onClick={() => setViewMode('grid')} className={`p-2 rounded-xl transition-all ${viewMode === 'grid' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-400'}`}><IconLayoutGrid size={18} /></button>
+                                <button type="button" onClick={() => setViewMode('list')} className={`p-2 rounded-xl transition-all ${viewMode === 'list' ? 'bg-primary-500 dark:bg-primary-600 text-white shadow-lg' : 'text-slate-400'}`}><IconList size={18} /></button>
                             </div>
                         </div>
 
@@ -731,7 +731,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                                     <p className="text-[8px] font-bold text-slate-400 uppercase">STOK: {p.stock}</p>
                                                     <div className="text-right">
                                                         {isDisc && <p className="text-[7px] text-red-500 line-through leading-none mb-0.5">{formatPrice(p.sell_price)}</p>}
-                                                        <p className={`font-black text-xs ${isDisc || selectedPlatform ? 'text-emerald-600' : 'text-primary-600'}`}>{formatPrice(finalPrice)}</p>
+                                                        <p className={`font-black text-xs ${isDisc || selectedPlatform ? 'text-emerald-600 dark:text-emerald-400' : 'text-primary-600 dark:text-primary-400'}`}>{formatPrice(finalPrice)}</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -745,8 +745,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
                     <aside className={`fixed inset-x-0 bottom-0 z-40 lg:relative lg:inset-auto lg:z-auto w-full lg:w-[380px] xl:w-[420px] bg-white dark:bg-slate-900 border-t lg:border-t-0 lg:border-l dark:border-slate-800 flex flex-col shadow-2xl transition-all duration-500 ease-in-out ${showCartDrawer ? 'h-[90vh]' : 'h-16 lg:h-full'}`}>
                         <div onClick={() => !isWideScreen && setShowCartDrawer(!showCartDrawer)} className="h-16 p-4 border-b dark:border-slate-800 flex justify-between items-center bg-slate-50/80 dark:bg-slate-800/50 cursor-pointer lg:cursor-default shrink-0">
-                             <div className="flex items-center gap-3"><IconShoppingCart size={24} className="text-primary-500"/><span className="font-black dark:text-white uppercase text-xs italic tracking-tighter">Keranjang Belanja</span></div>
-                             {!showCartDrawer && <div className="lg:hidden font-black text-primary-600 tracking-tighter">{formatPrice(grandTotal)}</div>}
+                             <div className="flex items-center gap-3"><IconShoppingCart size={24} className="text-primary-500 dark:text-primary-400"/><span className="font-black dark:text-white uppercase text-xs italic tracking-tighter">Keranjang Belanja</span></div>
+                             {!showCartDrawer && <div className="lg:hidden font-black text-primary-600 dark:text-primary-400 tracking-tighter">{formatPrice(grandTotal)}</div>}
                              <div className="lg:hidden">{showCartDrawer ? <IconChevronDown /> : <IconChevronUp className="animate-bounce" />}</div>
                         </div>
 
@@ -759,12 +759,12 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                 {typeof selectedCustomer === 'number' && (
                                      <div className="relative">
                                          <input value={voucherCode} onChange={(e) => setVoucherCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, ''))} placeholder="Kode voucher (opsional)" maxLength={50} className={`w-full pl-4 pr-10 py-2 bg-white dark:bg-slate-800 border-none rounded-xl text-[10px] font-black uppercase shadow-sm focus:ring-primary-500 ${voucherError ? 'ring-1 ring-rose-400' : ''}`} />
-                                         {voucherLoading && <IconLoader size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary-500" />}
+                                         {voucherLoading && <IconLoader size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-primary-500 dark:text-primary-400" />}
                                          {!voucherLoading && voucherDiscount > 0 && <IconCheck size={15} className="absolute right-3 top-1/2 -translate-y-1/2 text-emerald-500" />}
                                          {voucherError && <p className="mt-1 text-[9px] font-bold text-rose-500">{voucherError}</p>}
                                      </div>
                                  )}
-                                 <select value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)} className={`w-full pl-4 py-2 border-none rounded-xl text-[10px] font-black uppercase shadow-sm ${selectedTable ? 'bg-primary-50 text-primary-600 font-black' : 'bg-white dark:bg-slate-800'}`}>
+                                 <select value={selectedTable} onChange={(e) => setSelectedTable(e.target.value)} className={`w-full pl-4 py-2 border-none rounded-xl text-[10px] font-black uppercase shadow-sm ${selectedTable ? 'bg-primary-50 text-primary-600 dark:text-primary-400 font-black' : 'bg-white dark:bg-slate-800'}`}>
                                     <option value="">-- Pilih Tipe Pesanan --</option>
                                     <option value="take_away">Bawa Pulang (Take Away)</option>
                                     {(tables || []).filter(t => t.status === 'available' || t.id == (currentActiveHold?.table_id)).map((t) => <option key={t.id} value={t.id}>Meja: {t.name}</option>)}
@@ -799,7 +799,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
 
                                 <div className="flex justify-between items-end">
                                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Total Akhir</span>
-                                    <span className="text-3xl font-black text-primary-600 italic tracking-tighter">{formatPrice(grandTotal)}</span>
+                                    <span className="text-3xl font-black text-primary-600 dark:text-primary-400 italic tracking-tighter">{formatPrice(grandTotal)}</span>
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="relative"><span className="absolute top-2 left-3 text-[7px] font-black text-slate-400 uppercase leading-none">Diterima</span><input type="number" value={cash || ''} onChange={(e) => setCash(Number(e.target.value))} placeholder="0" className="w-full pt-5 pb-2 px-3 text-base font-black rounded-2xl border-none bg-slate-100 dark:bg-slate-800 dark:text-white focus:ring-0 shadow-inner" /></div>
@@ -831,7 +831,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                         )}
                                     </div>
                                 </div>
-                                <button type="button" onClick={handleSaveOrder} disabled={carts.length === 0 || !selectedTable} className="w-full py-3 bg-white dark:bg-slate-800 border-2 border-primary-500 text-primary-600 font-black text-[10px] rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-500 hover:text-white shadow-sm active:scale-95 uppercase tracking-widest transition-all leading-none"><IconDeviceFloppy size={18} /> {activeHoldId ? "PERBARUI" : "SIMPAN"} PESANAN</button>
+                                <button type="button" onClick={handleSaveOrder} disabled={carts.length === 0 || !selectedTable} className="w-full py-3 bg-white dark:bg-slate-800 border-2 border-primary-500 text-primary-600 dark:text-primary-400 font-black text-[10px] rounded-2xl flex items-center justify-center gap-2 hover:bg-primary-500 hover:text-white shadow-sm active:scale-95 uppercase tracking-widest transition-all leading-none"><IconDeviceFloppy size={18} /> {activeHoldId ? "PERBARUI" : "SIMPAN"} PESANAN</button>
                             </div>
                         </div>
                     </aside>
@@ -848,7 +848,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                         </div>
                         <div className="mb-6 bg-primary-50 dark:bg-primary-950/20 py-3 rounded-2xl border border-primary-100 dark:border-primary-900 leading-none">
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Tagihan Pelanggan</p>
-                            <h2 className="text-2xl font-black text-primary-600 italic tracking-tighter leading-none">{formatPrice(grandTotal)}</h2>
+                            <h2 className="text-2xl font-black text-primary-600 dark:text-primary-400 italic tracking-tighter leading-none">{formatPrice(grandTotal)}</h2>
                         </div>
                         <button type="button" onClick={() => { submitTransaction('qris_manual', grandTotal, true); setShowManualQrisModal(false); }} className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 flex items-center justify-center gap-2 tracking-widest transition-all"><IconCheck size={18} /> KONFIRMASI PEMBAYARAN</button>
                     </div>
@@ -860,7 +860,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                 <div className="fixed inset-0 z-[150] flex flex-col bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="h-20 bg-white dark:bg-slate-900 border-b dark:border-slate-800 flex items-center justify-between px-6 md:px-10 shrink-0 shadow-sm">
                         <div className="flex items-center gap-4">
-                            <div className="p-3 bg-primary-500 text-white rounded-2xl shadow-lg"><IconClockPause size={28} /></div>
+                            <div className="p-3 bg-primary-500 dark:bg-primary-600 text-white rounded-2xl shadow-lg"><IconClockPause size={28} /></div>
                             <div><h3 className="text-xl font-black uppercase dark:text-white italic tracking-tighter leading-none">Antrean Pesanan</h3><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 leading-none">{filteredHolds.length} Pesanan Aktif</p></div>
                         </div>
                         <div className="hidden md:flex relative w-full max-w-md mx-8">
@@ -873,7 +873,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     <div className="flex-1 overflow-y-auto p-6 md:p-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 custom-scrollbar">
                         {filteredHolds.map((h) => (
                             <div key={h.id} className="group flex flex-col bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:shadow-2xl hover:border-primary-500 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1.5 bg-primary-500 opacity-20 group-hover:opacity-100 transition-opacity" />
+                                <div className="absolute top-0 left-0 w-full h-1.5 bg-primary-500 dark:bg-primary-600 opacity-20 group-hover:opacity-100 transition-opacity" />
                                 <div className="p-6 flex flex-col h-full">
                                     <div className="flex justify-between items-start mb-4 leading-none">
                                         <span className="bg-slate-900 dark:bg-slate-800 text-white px-3 py-1.5 rounded-xl font-black text-[10px] tracking-tighter italic">#{h.queue_number}</span>
@@ -907,8 +907,8 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                                     <div className="flex-1 space-y-3 mb-6 bg-slate-50 dark:bg-slate-800/40 p-4 rounded-[1.5rem] overflow-y-auto max-h-[180px] custom-scrollbar shadow-inner border dark:border-slate-700/50">
                                         {(h.cart_data || []).map((item, idx) => (
                                             <div key={idx} className="flex justify-between border-b border-slate-200/50 dark:border-slate-700/50 last:border-none pb-2 mb-2 last:pb-0 last:mb-0">
-                                                <span className="text-[10px] font-black dark:text-white uppercase truncate flex items-center gap-1.5 leading-tight"><div className="w-1.5 h-1.5 rounded-full bg-primary-500 shrink-0" />{item.product?.title || item.product_title}</span>
-                                                <span className="text-primary-500 font-black text-[10px]">x{item.qty}</span>
+                                                <span className="text-[10px] font-black dark:text-white uppercase truncate flex items-center gap-1.5 leading-tight"><div className="w-1.5 h-1.5 rounded-full bg-primary-500 dark:bg-primary-600 shrink-0" />{item.product?.title || item.product_title}</span>
+                                                <span className="text-primary-500 dark:text-primary-400 font-black text-[10px]">x{item.qty}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -953,13 +953,13 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
             {showCashOut && (
                 <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 max-w-md w-full border dark:border-slate-800 shadow-2xl">
-                         <div className="flex items-center gap-4 mb-6"><div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 rounded-2xl shadow-sm leading-none shadow-orange-500/20"><IconCashOff size={24}/></div><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter leading-none">Pengeluaran Kas Laci</h3></div>
+                         <div className="flex items-center gap-4 mb-6"><div className="p-3 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-2xl shadow-sm leading-none shadow-orange-500/20"><IconCashOff size={24}/></div><h3 className="text-lg font-black uppercase dark:text-white italic tracking-tighter leading-none">Pengeluaran Kas Laci</h3></div>
                          <div className="space-y-4">
                             <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Keterangan</label><input type="text" placeholder="Contoh: Belanja Bahan Baku" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-bold focus:ring-primary-500 shadow-inner transition-all" value={cashOutName} onChange={e => setCashOutName(e.target.value)} /></div>
                             <div><label className="block text-[8px] font-black uppercase text-slate-400 mb-1 ml-4 tracking-widest leading-none">Nominal (Rp)</label><input type="number" placeholder="0" className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border-none dark:text-white text-sm font-black focus:ring-primary-500 shadow-inner transition-all" value={cashOutAmount} onChange={e => setCashOutAmount(e.target.value)} /></div>
                             <div className="flex gap-3 mt-4">
                                 <button type="button" onClick={() => setShowCashOut(false)} className="flex-1 py-4 font-black uppercase text-[10px] text-slate-400 hover:text-red-500 transition-colors tracking-widest leading-none">Batal</button>
-                                <button type="button" onClick={handleCashOutSubmit} disabled={isCashOutLoading || !cashOutName || !cashOutAmount} className="flex-[2] py-4 bg-orange-500 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 disabled:opacity-50 tracking-widest leading-none transition-all">{isCashOutLoading ? <IconLoader className="animate-spin inline mr-2" size={18} /> : <IconCheck className="inline mr-2" size={18} />} SIMPAN DATA</button>
+                                <button type="button" onClick={handleCashOutSubmit} disabled={isCashOutLoading || !cashOutName || !cashOutAmount} className="flex-[2] py-4 bg-orange-500 dark:bg-orange-600 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg active:scale-95 disabled:opacity-50 tracking-widest leading-none transition-all">{isCashOutLoading ? <IconLoader className="animate-spin inline mr-2" size={18} /> : <IconCheck className="inline mr-2" size={18} />} SIMPAN DATA</button>
                             </div>
                          </div>
                     </div>
@@ -972,7 +972,7 @@ const Index = ({ carts = [], products: initialProducts, customers = [], discount
                     <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 max-w-md w-full border dark:border-slate-800 shadow-2xl text-center">
                         <IconDoorExit size={56} className="mx-auto text-red-500 mb-6" />
                         <h3 className="text-xl font-black uppercase mb-2 dark:text-white tracking-tighter leading-none italic">Akhiri Sesi Kasir?</h3>
-                        <p className="text-[10px] text-slate-500 mb-8 font-black uppercase italic text-center px-4 leading-tight">Laporan shift akan otomatis dicetak. Pastikan uang laci sudah dihitung secara manual.</p>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-8 font-black uppercase italic text-center px-4 leading-tight">Laporan shift akan otomatis dicetak. Pastikan uang laci sudah dihitung secara manual.</p>
                         <div className="relative mb-6 text-left">
                             <span className="absolute top-2 left-4 text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Uang Fisik Laci (Rp)</span>
                             <input type="number" className="w-full pt-6 pb-4 bg-slate-50 dark:bg-slate-800 rounded-2xl text-center text-xl font-black border-none focus:ring-0 dark:text-white shadow-inner" value={closeShiftData.total_cash_physical} onChange={e => setCloseShiftData('total_cash_physical', e.target.value)} required />

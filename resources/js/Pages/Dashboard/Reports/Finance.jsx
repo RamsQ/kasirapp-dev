@@ -153,7 +153,7 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
                                 <div className="p-3 sm:p-4 bg-blue-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Omzet Bersih</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Omzet Bersih</p>
                                     <h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(report.revenue)}</h3>
                                 </div>
                             </div>
@@ -165,16 +165,16 @@ const FinanceReport = ({ auth, report }) => {
                                  </div>
                              </div>
                              <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
-                                 <div className="p-3 sm:p-4 bg-orange-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconWorld size={28}/></div>
+                                 <div className="p-3 sm:p-4 bg-orange-500 dark:bg-orange-600 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconWorld size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Beban Komisi</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Beban Komisi</p>
                                     <h3 className="text-xl font-black text-orange-600 dark:text-orange-400 tracking-tighter">{formatCurrency(appCommissionTotal)}</h3>
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-3 sm:gap-5 shadow-sm group">
                                 <div className="p-3 sm:p-4 bg-rose-500 rounded-2xl text-white shadow-lg group-hover:rotate-6 transition-transform"><IconReceipt2 size={28}/></div>
                                 <div>
-                                    <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Total Beban</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Beban</p>
                                     <h3 className="text-xl font-black text-rose-600 dark:text-rose-400 tracking-tighter">{formatCurrency(report.expenses)}</h3>
                                 </div>
                             </div>
@@ -253,11 +253,11 @@ const FinanceReport = ({ auth, report }) => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm">
                                 <div className="p-4 bg-emerald-500 rounded-2xl text-white shadow-lg"><IconTag size={28}/></div>
-                                <div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Potongan Grosir</p><h3 className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tighter">{formatCurrency(totalPromoGiven - globalDiscountTotal)}</h3></div>
+                                <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Potongan Grosir</p><h3 className="text-xl font-black text-emerald-600 dark:text-emerald-400 tracking-tighter">{formatCurrency(totalPromoGiven - globalDiscountTotal)}</h3></div>
                             </div>
                             <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 flex items-center gap-5 shadow-sm">
                                 <div className="p-4 bg-blue-500 rounded-2xl text-white shadow-lg"><IconTicket size={28}/></div>
-                                <div><p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest leading-none mb-1">Potongan Global</p><h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(globalDiscountTotal)}</h3></div>
+                                <div><p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Potongan Global</p><h3 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">{formatCurrency(globalDiscountTotal)}</h3></div>
                             </div>
                             <div className="bg-cosmic p-6 rounded-[2rem] flex items-center gap-5 text-white shadow-xl shadow-cosmic-main/20 group relative overflow-hidden">
                                 <div className="p-4 bg-white/20 rounded-2xl z-10"><IconRosetteDiscount size={28} /></div>
@@ -269,7 +269,7 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="lg:col-span-2">
                                 <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-8 shadow-sm h-[400px] flex flex-col">
                                     <div className="flex items-center justify-between mb-8 leading-none">
-                                        <div><h3 className="font-black text-sm uppercase tracking-tight dark:text-white">Top 5 Produk (Diskon Terbesar)</h3><p className="text-[10px] text-slate-500 font-bold uppercase mt-1 italic">Nilai Rupiah Penghematan Pelanggan</p></div>
+                                        <div><h3 className="font-black text-sm uppercase tracking-tight dark:text-white">Top 5 Produk (Diskon Terbesar)</h3><p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mt-1 italic">Nilai Rupiah Penghematan Pelanggan</p></div>
                                         <IconChartArrows className="text-slate-300" size={32} />
                                     </div>
                                     <div className="flex-1 w-full">
@@ -309,7 +309,7 @@ const FinanceReport = ({ auth, report }) => {
                                     <div className="p-4 space-y-3 overflow-y-auto custom-scrollbar flex-1 max-h-[300px]">
                                         {itemPromos.map((promo, i) => (
                                             <div key={i} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 flex justify-between items-center border border-transparent hover:border-slate-200 transition-all group">
-                                                <div><p className="text-[10px] font-black dark:text-white uppercase leading-none mb-1 group-hover:text-cosmic-main transition-colors">{promo.product_name}</p><p className="text-[9px] text-slate-500 font-bold uppercase tracking-tighter leading-none">{promo.total_qty} Unit Terjual</p></div>
+                                                <div><p className="text-[10px] font-black dark:text-white uppercase leading-none mb-1 group-hover:text-cosmic-main transition-colors">{promo.product_name}</p><p className="text-[9px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-tighter leading-none">{promo.total_qty} Unit Terjual</p></div>
                                                 <div className="text-right font-black text-xs text-emerald-500 italic">-{formatCurrency(promo.total_discount_value)}</div>
                                             </div>
                                         ))}
@@ -327,10 +327,10 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 leading-none">
                                 <div>
                                     <h3 className="font-black text-sm uppercase tracking-tight dark:text-white flex items-center gap-2">
-                                        <IconHourglassHigh size={20} className="text-primary-500" />
+                                        <IconHourglassHigh size={20} className="text-primary-500 dark:text-primary-400" />
                                         Analisis Jam Sibuk
                                     </h3>
-                                    <p className="text-xs text-slate-500 italic mt-1 uppercase">Frekuensi jumlah transaksi berdasarkan waktu harian.</p>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 italic mt-1 uppercase">Frekuensi jumlah transaksi berdasarkan waktu harian.</p>
                                 </div>
                                 <div className="px-4 py-2 bg-orange-50 dark:bg-orange-950/20 text-orange-600 rounded-xl border border-orange-100 dark:border-orange-900/40 flex items-center gap-2 animate-pulse">
                                     <IconFlame size={18} />
@@ -407,7 +407,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Persediaan — Produk Jadi', val: report.balanceSheet.inventory_products },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -430,7 +430,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Hutang Pajak', val: report.balanceSheet.tax_payable, color: 'text-violet-600 dark:text-violet-400' },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className={item.color + ' whitespace-nowrap'}>{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -445,7 +445,7 @@ const FinanceReport = ({ auth, report }) => {
                                             { label: 'Laba Ditahan', val: report.balanceSheet.retained_earnings },
                                         ].map((item, i) => (
                                             <div key={i} className="flex justify-between uppercase tracking-tighter gap-4">
-                                                <span className="text-slate-400 dark:text-slate-500 font-black text-[11px]">{item.label}</span>
+                                                <span className="text-slate-400 font-black text-[11px]">{item.label}</span>
                                                 <span className="text-slate-600 dark:text-slate-300 whitespace-nowrap">{formatCurrency(item.val)}</span>
                                             </div>
                                         ))}
@@ -477,10 +477,10 @@ const FinanceReport = ({ auth, report }) => {
                             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden sticky top-24">
                                 <div className="p-6 bg-cosmic flex items-center gap-3 border-b border-white/10"><IconPlus size={20} className="text-white" /><span className="font-black text-[10px] uppercase tracking-[0.2em] text-white">Entry Pengeluaran</span></div>
                                 <form onSubmit={submitExpense} className="p-8 space-y-6">
-                                    <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Uang Keluar Dari</label><select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Kas Laci">Kas Laci (beban)</option><option value="Setor ke Bank">Setor ke Bank (pindah ke rekening)</option><option value="Modal Luar">Modal Luar (ambil modal)</option><option value="Hutang Dagang">Hutang Dagang (terima pinjaman)</option></select></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Kategori Beban</label><select value={data.category} onChange={e => setData('category', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Operasional">Operasional</option><option value="Beban Promosi">Beban Promosi (Promo/Gift)</option><option value="Pelunasan Hutang">Pelunasan Hutang</option><option value="Kerugian Stok">Kerugian Stok</option></select></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Keterangan</label><input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Contoh: Belanja Gula / Bayar Listrik" /></div>
-                                    <div><label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2 leading-none">Nominal Rp</label><input type="number" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main" placeholder="0" /></div>
+                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Uang Keluar Dari</label><select value={data.source} onChange={e => setData('source', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Kas Laci">Kas Laci (beban)</option><option value="Setor ke Bank">Setor ke Bank (pindah ke rekening)</option><option value="Modal Luar">Modal Luar (ambil modal)</option><option value="Hutang Dagang">Hutang Dagang (terima pinjaman)</option></select></div>
+                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Kategori Beban</label><select value={data.category} onChange={e => setData('category', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main uppercase cursor-pointer"><option value="Operasional">Operasional</option><option value="Beban Promosi">Beban Promosi (Promo/Gift)</option><option value="Pelunasan Hutang">Pelunasan Hutang</option><option value="Kerugian Stok">Kerugian Stok</option></select></div>
+                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Keterangan</label><input type="text" value={data.name} onChange={e => setData('name', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-bold dark:text-white focus:ring-cosmic-main" placeholder="Contoh: Belanja Gula / Bayar Listrik" /></div>
+                                    <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2 leading-none">Nominal Rp</label><input type="number" value={data.amount} onChange={e => setData('amount', e.target.value)} className="w-full rounded-xl border-slate-200 dark:border-slate-700 dark:bg-slate-800 text-sm font-black dark:text-white focus:ring-cosmic-main" placeholder="0" /></div>
                                     {data.source === 'Setor ke Bank' && (
                                         <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-relaxed bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
                                             Ini bukan beban. Uang hanya pindah dari Kas di Laci ke Kas Bank, jadi laba tidak berubah dan neraca tetap balance. Catat setiap kali Anda menyetor kelebihan kas ke rekening.
@@ -498,7 +498,7 @@ const FinanceReport = ({ auth, report }) => {
 
                         <div className="lg:col-span-2">
                             <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-                                <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-slate-50 dark:bg-slate-800/80 text-[9px] font-black uppercase text-slate-400 dark:text-slate-500 border-b border-slate-100 dark:border-slate-800 tracking-widest"><tr><th className="p-6 px-8">Deskripsi & Staff</th><th className="text-center">Kategori</th><th className="text-right px-8">Nominal</th><th className="text-center px-6">Nota</th></tr></thead><tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-bold">{report.expenseList.length > 0 ? report.expenseList.map((exp, i) => (<tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group"><td className="p-5 px-8"><span className="uppercase text-slate-800 dark:text-slate-200 mb-1 block group-hover:text-cosmic-main transition-colors leading-none">{exp.name}</span><div className="flex items-center gap-3 text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-tight font-black italic"><span><IconClock size={12} className="inline mr-1"/> {formatTime(exp.created_at)}</span><span className="opacity-30">|</span><span className="text-cosmic-main uppercase">{exp.user?.name || 'SYSTEM AUTOMATION'}</span></div></td><td className="p-5 text-center"><span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase shadow-sm border ${exp.category === 'Beban Promosi' ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/30' : exp.category === 'Kerugian Stok' ? 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-900/30' : 'bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800/80'}`}>{exp.category}</span></td><td className={`p-5 text-right px-8 font-black text-sm tracking-tighter ${exp.category === 'Beban Promosi' ? 'text-emerald-500' : 'text-rose-500'}`}>-{formatCurrency(exp.amount)}</td><td className="p-5 text-center">{exp.image_url ? (<a href={exp.image_url} target="_blank" className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-cosmic-main hover:text-white rounded-xl inline-block transition-all shadow-sm"><IconPhoto size={18} /></a>) : <span className="opacity-20 italic font-black text-[9px]">NO ATTACH</span>}</td></tr>)) : <tr><td colSpan="4" className="p-20 text-center opacity-30 uppercase text-[10px] font-black italic dark:text-white tracking-[0.3em]">No Financial Records Found</td></tr>}</tbody></table></div></div>
+                                <div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="bg-slate-50 dark:bg-slate-800/80 text-[9px] font-black uppercase text-slate-400 border-b border-slate-100 dark:border-slate-800 tracking-widest"><tr><th className="p-6 px-8">Deskripsi & Staff</th><th className="text-center">Kategori</th><th className="text-right px-8">Nominal</th><th className="text-center px-6">Nota</th></tr></thead><tbody className="divide-y divide-slate-100 dark:divide-slate-800 font-bold">{report.expenseList.length > 0 ? report.expenseList.map((exp, i) => (<tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all group"><td className="p-5 px-8"><span className="uppercase text-slate-800 dark:text-slate-200 mb-1 block group-hover:text-cosmic-main transition-colors leading-none">{exp.name}</span><div className="flex items-center gap-3 text-[9px] text-slate-400 uppercase tracking-tight font-black italic"><span><IconClock size={12} className="inline mr-1"/> {formatTime(exp.created_at)}</span><span className="opacity-30">|</span><span className="text-cosmic-main uppercase">{exp.user?.name || 'SYSTEM AUTOMATION'}</span></div></td><td className="p-5 text-center"><span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase shadow-sm border ${exp.category === 'Beban Promosi' ? 'bg-emerald-50 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:bg-emerald-900/30' : exp.category === 'Kerugian Stok' ? 'bg-orange-50 text-orange-600 dark:text-orange-400 border-orange-100 dark:bg-orange-900/30' : 'bg-slate-50 text-slate-600 dark:text-slate-400 border-slate-200 dark:bg-slate-800/80'}`}>{exp.category}</span></td><td className={`p-5 text-right px-8 font-black text-sm tracking-tighter ${exp.category === 'Beban Promosi' ? 'text-emerald-500' : 'text-rose-500'}`}>-{formatCurrency(exp.amount)}</td><td className="p-5 text-center">{exp.image_url ? (<a href={exp.image_url} target="_blank" className="p-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-cosmic-main hover:text-white rounded-xl inline-block transition-all shadow-sm"><IconPhoto size={18} /></a>) : <span className="opacity-20 italic font-black text-[9px]">NO ATTACH</span>}</td></tr>)) : <tr><td colSpan="4" className="p-20 text-center opacity-30 uppercase text-[10px] font-black italic dark:text-white tracking-[0.3em]">No Financial Records Found</td></tr>}</tbody></table></div></div>
                         </div>
                     </div>
                 )}

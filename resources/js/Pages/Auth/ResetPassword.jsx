@@ -50,7 +50,7 @@ export default function ResetPassword({ token, email }) {
                     {/* Header Brand */}
                     <div className="mb-10 text-center lg:text-left">
                         <div className="flex items-center justify-center lg:justify-start gap-4 mb-4">
-                            <div className="w-12 h-12 rounded-2xl bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                            <div className="w-12 h-12 rounded-2xl bg-primary-500 dark:bg-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
                                 <IconRotateClockwise2 size={28} className="text-white" />
                             </div>
                             <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase italic">
@@ -135,7 +135,7 @@ export default function ResetPassword({ token, email }) {
                     </form>
 
                     <div className="mt-12 text-center">
-                        <p className="text-[10px] text-slate-300 dark:text-slate-600 font-black uppercase tracking-[0.3em]">
+                        <p className="text-[10px] text-slate-300 dark:text-slate-400 font-black uppercase tracking-[0.3em]">
                             Security Layer Active • POS v2.4
                         </p>
                     </div>
@@ -156,7 +156,7 @@ export default function ResetPassword({ token, email }) {
                 {/* Content Visual */}
                 <div className="relative z-10 text-white p-16 max-w-2xl text-right">
                     <h2 className="text-6xl font-black uppercase leading-[1.1] tracking-tighter mb-8 italic drop-shadow-2xl">
-                        Satu Langkah <br /> <span className="text-primary-500">Lagi Selesai.</span>
+                        Satu Langkah <br /> <span className="text-primary-500 dark:text-primary-400">Lagi Selesai.</span>
                     </h2>
                     <p className="text-lg font-medium text-white/90 leading-relaxed mb-10 max-w-lg ml-auto border-r-4 border-primary-500 pr-6 backdrop-blur-md bg-black/20 py-4 rounded-l-2xl shadow-2xl">
                         Keamanan data transaksi Anda dimulai dari kata sandi yang kuat. Gunakan kombinasi karakter yang unik.

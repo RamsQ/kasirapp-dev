@@ -96,7 +96,7 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                         <div className="bg-white dark:bg-slate-900 shadow-sm border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden transition-all">
                             <div className="p-6 sm:p-8">
                                 <div className="flex items-center gap-4 mb-8">
-                                    <div className="p-2.5 bg-primary-50 dark:bg-primary-900/20 rounded-2xl text-primary-600">
+                                    <div className="p-2.5 bg-primary-50 dark:bg-primary-900/20 rounded-2xl text-primary-600 dark:text-primary-400">
                                         <IconUser size={24} />
                                     </div>
                                     <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">
@@ -118,14 +118,14 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                                         <h3 className="text-lg font-black text-red-600 dark:text-red-400 uppercase tracking-tight italic">
                                             Danger Zone
                                         </h3>
-                                        <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Akses Khusus Pemilik</p>
+                                        <p className="text-[10px] text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest">Akses Khusus Pemilik</p>
                                     </div>
                                 </div>
 
                                 <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-red-100 dark:border-red-900/50 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
                                     <div className="max-w-md">
                                         <h4 className="text-sm font-black text-slate-800 dark:text-white uppercase mb-1">Reset Database Kasir</h4>
-                                        <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                                        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
                                             Hapus seluruh riwayat transaksi, laporan laba rugi, stok produk, bahan baku, dan riwayat shift. Gunakan fitur ini jika ingin memulai buku kas baru dari nol.
                                         </p>
                                     </div>
@@ -155,7 +155,7 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                                             <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight">
                                                 Face ID Setup
                                             </h3>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Otentikasi Biometrik</p>
+                                            <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">Otentikasi Biometrik</p>
                                         </div>
                                     </div>
                                     {isFaceMandatory && (
@@ -175,7 +175,7 @@ export default function Index({ auth, mustVerifyEmail, status }) {
                                     </div>
                                 )}
 
-                                <p className="text-xs text-slate-500 mb-6 font-medium leading-relaxed">
+                                <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium leading-relaxed">
                                     Daftarkan sampel wajah Anda untuk mengaktifkan fitur login tanpa password yang lebih aman dan cepat.
                                 </p>
                                 

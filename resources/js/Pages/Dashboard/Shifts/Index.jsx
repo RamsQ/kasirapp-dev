@@ -94,10 +94,10 @@ export default function Index({ shifts, filters, receiptSetting }) {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 print:hidden">
                 <div>
                     <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic flex items-center gap-2">
-                        <IconReportAnalytics size={28} className="text-primary-500" />
+                        <IconReportAnalytics size={28} className="text-primary-500 dark:text-primary-400" />
                         Laporan Shift Kasir
                     </h1>
-                    <p className="text-sm text-slate-500 font-medium">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">
                         Audit modal laci, penjualan tunai, dan validasi saldo digital.
                     </p>
                 </div>
@@ -164,13 +164,13 @@ export default function Index({ shifts, filters, receiptSetting }) {
                                             </div>
                                         </div>
                                     </Table.Td>
-                                    <Table.Td className="text-[11px] text-slate-500 font-bold uppercase tracking-widest">
+                                    <Table.Td className="text-[11px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest">
                                         {formatPrice(shift.starting_cash)}
                                     </Table.Td>
                                     <Table.Td className="font-bold text-slate-900 dark:text-white italic">
                                         {formatPrice(shift.total_cash_expected)}
                                     </Table.Td>
-                                    <Table.Td className="font-black text-primary-600">
+                                    <Table.Td className="font-black text-primary-600 dark:text-primary-400">
                                         {shift.total_cash_actual !== null ? formatPrice(shift.total_cash_actual) : '-'}
                                     </Table.Td>
                                     <Table.Td>
@@ -204,7 +204,7 @@ export default function Index({ shifts, filters, receiptSetting }) {
                                         {shift.status === 'closed' && (
                                             <button 
                                                 onClick={() => handleReprint(shift)}
-                                                className="p-2.5 bg-white dark:bg-slate-800 text-slate-600 hover:text-primary-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all active:scale-90 shadow-sm"
+                                                className="p-2.5 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:text-primary-600 border border-slate-200 dark:border-slate-700 rounded-xl transition-all active:scale-90 shadow-sm"
                                                 title="Cetak Ulang Laporan Shift"
                                                 disabled={isPrinting}
                                             >
@@ -233,10 +233,10 @@ export default function Index({ shifts, filters, receiptSetting }) {
             {/* Panel Audit Ringkasan */}
             {shifts.data.length > 0 && (
                 <div className="mt-8 p-8 bg-slate-900 rounded-[2.5rem] text-white flex flex-col md:flex-row justify-between items-center gap-6 print:hidden shadow-2xl relative overflow-hidden border border-slate-800">
-                    <div className="absolute top-0 left-0 w-2 h-full bg-primary-500" />
+                    <div className="absolute top-0 left-0 w-2 h-full bg-primary-500 dark:bg-primary-600" />
                     <div className="flex items-center gap-4">
                          <div className="p-4 bg-primary-500/20 rounded-2xl border border-primary-500/30">
-                            <IconReportAnalytics size={32} className="text-primary-500" />
+                            <IconReportAnalytics size={32} className="text-primary-500 dark:text-primary-400" />
                          </div>
                          <div>
                             <h4 className="text-lg font-black uppercase tracking-widest italic">Audit Selisih Laci</h4>

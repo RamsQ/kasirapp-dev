@@ -177,10 +177,10 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                     
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="flex bg-white dark:bg-slate-800 p-1 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700">
-                            <button onClick={() => setActiveTab("products")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "products" ? "bg-rose-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-50"}`}>
+                            <button onClick={() => setActiveTab("products")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "products" ? "bg-rose-500 text-white shadow-lg" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}>
                                 Produk Jadi
                             </button>
-                            <button onClick={() => setActiveTab("ingredients")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "ingredients" ? "bg-emerald-500 text-white shadow-lg" : "text-slate-500 hover:bg-slate-50"}`}>
+                            <button onClick={() => setActiveTab("ingredients")} className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === "ingredients" ? "bg-emerald-500 text-white shadow-lg" : "text-slate-500 dark:text-slate-400 hover:bg-slate-50"}`}>
                                 Bahan Baku
                             </button>
                         </div>
@@ -282,7 +282,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                     </div>
                     <div className="px-6 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex flex-col md:flex-row md:items-center gap-3 justify-between">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Dibayar dengan:</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Dibayar dengan:</span>
                             {[
                                 { value: "cash", label: "Tunai / Rekening" },
                                 { value: "credit", label: "Hutang (Belum Dibayar)" },
@@ -294,7 +294,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                     className={`px-4 py-2 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all ${
                                         (data.payment_method || "cash") === option.value
                                             ? "bg-slate-900 text-white dark:bg-emerald-600 shadow-lg"
-                                            : "bg-white text-slate-500 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:border-slate-400"
+                                            : "bg-white text-slate-500 dark:text-slate-400 border border-slate-200 dark:bg-slate-800 dark:border-slate-700 hover:border-slate-400"
                                     }`}
                                 >
                                     {option.label}
@@ -337,7 +337,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                         </td>
                                         <td className="px-6 py-4 font-bold uppercase text-[11px] text-left">
                                             {h.product?.title || h.ingredient?.name}
-                                            <span className={`ml-2 text-[9px] px-1.5 py-0.5 rounded font-black ${h.product_id ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                                            <span className={`ml-2 text-[9px] px-1.5 py-0.5 rounded font-black ${h.product_id ? 'bg-rose-100 text-rose-600 dark:text-rose-400' : 'bg-emerald-100 text-emerald-600 dark:text-emerald-400'}`}>
                                                 {h.product_id ? 'PRODUK' : 'BAHAN'}
                                             </span>
                                         </td>
@@ -387,7 +387,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                     <tbody className="divide-y divide-slate-50 dark:divide-slate-800 text-[11px]">
                                         {batchInfo.batches.length > 0 ? batchInfo.batches.map((batch, index) => (
                                             <tr key={batch.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                                                <td className="py-4 font-mono text-slate-500 uppercase">
+                                                <td className="py-4 font-mono text-slate-500 dark:text-slate-400 uppercase">
                                                     {batch.serial_number}
                                                     <div className="text-[9px] text-slate-400 normal-case mt-0.5">Masuk: {formatDate(batch.created_at)}</div>
                                                 </td>
@@ -405,7 +405,7 @@ export default function StockIn({ auth, products, ingredients, history, filters 
                                                     {index === 0 ? (
                                                         <span className="text-[9px] font-black bg-rose-500 text-white px-2 py-0.5 rounded shadow-sm">FIFO</span>
                                                     ) : index === batchInfo.batches.length - 1 ? (
-                                                        <span className="text-[9px] font-black bg-orange-500 text-white px-2 py-0.5 rounded shadow-sm">LIFO</span>
+                                                        <span className="text-[9px] font-black bg-orange-500 dark:bg-orange-600 text-white px-2 py-0.5 rounded shadow-sm">LIFO</span>
                                                     ) : (
                                                         <span className="text-[9px] font-black text-slate-300 italic">QUEUE</span>
                                                     )}

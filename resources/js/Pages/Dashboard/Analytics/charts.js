@@ -94,7 +94,8 @@ export function useDeltaColor() {
     return {
         up: darkMode ? "#34d399" : "#047857",
         down: darkMode ? "#fb7185" : "#be123c",
-        flat: darkMode ? "#64748b" : "#64748b",
+        // slate-500 hanya 3.75:1 di atas kartu gelap -- di bawah ambang 4.5:1.
+        flat: darkMode ? "#94a3b8" : "#64748b",
     };
 }
 

@@ -17,8 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="theme-color" content="#4B5563">
 
-    <link rel="icon" type="image/png" href="{{ asset('mangku.png') }}?v={{ time() }}">
-    <link rel="apple-touch-icon" href="{{ asset('mangku.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('laku-pos-logo.jpg') }}?v={{ time() }}">
+    <link rel="apple-touch-icon" href="{{ asset('laku-pos-logo.jpg') }}">
     
     <link rel="manifest" href="/build/manifest.webmanifest">
 

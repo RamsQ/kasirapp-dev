@@ -26,7 +26,7 @@ function QuickAmountButton({ amount, onClick, isSelected }) {
                 transition-all duration-200 min-h-touch
                 ${
                     isSelected
-                        ? "bg-primary-500 text-white shadow-md shadow-primary-500/30"
+                        ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md shadow-primary-500/30"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700"
                 }
             `}
@@ -59,7 +59,7 @@ function PaymentMethodCard({ method, isSelected, onClick }) {
                 w-10 h-10 rounded-lg flex items-center justify-center
                 ${
                     isSelected
-                        ? "bg-primary-500 text-white"
+                        ? "bg-primary-500 dark:bg-primary-600 text-white"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
                 }
             `}
@@ -83,7 +83,7 @@ function PaymentMethodCard({ method, isSelected, onClick }) {
                 )}
             </div>
             {isSelected && (
-                <div className="w-6 h-6 rounded-full bg-primary-500 text-white flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-primary-500 dark:bg-primary-600 text-white flex items-center justify-center">
                     <IconCheck size={14} />
                 </div>
             )}
@@ -317,7 +317,7 @@ export default function PaymentPanel({
                         ${
                             canSubmit
                                 ? "bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg shadow-primary-500/30 hover:shadow-xl hover:shadow-primary-500/40 active:scale-[0.98]"
-                                : "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed"
+                                : "bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed"
                         }
                     `}
                 >

@@ -47,7 +47,7 @@ function ProductCard({ product, onAddToCart, isAdding }) {
                     <div className="w-full h-full flex items-center justify-center">
                         <IconPhoto
                             size={32}
-                            className="text-slate-300 dark:text-slate-600"
+                            className="text-slate-300 dark:text-slate-400"
                         />
                     </div>
                 )}
@@ -82,7 +82,7 @@ function ProductCard({ product, onAddToCart, isAdding }) {
             {/* Hover Add Indicator */}
             {hasStock && (
                 <div className="absolute inset-0 bg-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex items-center justify-center">
-                    <div className="bg-primary-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                    <div className="bg-primary-500 dark:bg-primary-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
                         + Tambah
                     </div>
                 </div>
@@ -101,7 +101,7 @@ function CategoryTab({ category, isActive, onClick }) {
                 transition-all duration-200 min-h-touch
                 ${
                     isActive
-                        ? "bg-primary-500 text-white shadow-md shadow-primary-500/30"
+                        ? "bg-primary-500 dark:bg-primary-600 text-white shadow-md shadow-primary-500/30"
                         : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700"
                 }
             `}
@@ -222,7 +222,7 @@ export default function ProductGrid({
                         ))}
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-400 dark:text-slate-600">
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400">
                         <IconShoppingBag
                             size={48}
                             strokeWidth={1.5}

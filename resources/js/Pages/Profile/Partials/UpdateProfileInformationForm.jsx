@@ -56,7 +56,7 @@ export default function UpdateProfileInformation({ className = '' }) {
     return (
         <section className={className}>
             <header className="flex items-center gap-4">
-                <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl text-primary-600">
+                <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl text-primary-600 dark:text-primary-400">
                     <IconUser size={24} />
                 </div>
                 <div>
@@ -77,7 +77,7 @@ export default function UpdateProfileInformation({ className = '' }) {
                             alt="Profile Preview"
                             onError={(e) => { e.target.src = `https://ui-avatars.com/api/?name=${user.name}&background=random` }}
                         />
-                        <label className="absolute bottom-0 right-0 bg-primary-500 text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-primary-600 transition-all border-2 border-white dark:border-slate-900">
+                        <label className="absolute bottom-0 right-0 bg-primary-500 dark:bg-primary-600 text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-primary-600 transition-all border-2 border-white dark:border-slate-900">
                             <IconCamera size={16} />
                             <input 
                                 type="file" 

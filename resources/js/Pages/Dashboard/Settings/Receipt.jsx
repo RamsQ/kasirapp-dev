@@ -41,13 +41,13 @@ export default function ReceiptSetting({ setting }) {
             <div className="max-w-4xl mx-auto space-y-6">
                 <div className="flex items-center gap-2 mb-6">
                     <div className="p-3 bg-primary-500/10 rounded-2xl">
-                        <IconReceipt size={28} className="text-primary-500" />
+                        <IconReceipt size={28} className="text-primary-500 dark:text-primary-400" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                             Pengaturan Struk
                         </h1>
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Atur logo, nama, dan info toko pada struk thermal.
                         </p>
                     </div>
@@ -87,7 +87,7 @@ export default function ReceiptSetting({ setting }) {
                                                 setLogoUrl(URL.createObjectURL(e.target.files[0]));
                                             }
                                         }}
-                                        className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-700 shadow-sm hover:file:bg-slate-100 cursor-pointer"
+                                        className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-700 shadow-sm hover:file:bg-slate-100 cursor-pointer"
                                     />
                                     <p className="text-[10px] text-slate-400 italic">Disarankan: Gambar Hitam Putih (Sangat Kontras).</p>
                                     {errors.store_logo && <p className="text-red-500 text-xs font-bold">{errors.store_logo}</p>}
@@ -103,7 +103,7 @@ export default function ReceiptSetting({ setting }) {
                                             <IconPhotoOff size={40} />
                                         </div>
                                     )}
-                                    <div className={`absolute -top-3 -right-3 p-1 rounded-full shadow-lg ${data.show_logo == 1 ? 'bg-primary-500 text-white' : 'bg-slate-400 text-white'}`}>
+                                    <div className={`absolute -top-3 -right-3 p-1 rounded-full shadow-lg ${data.show_logo == 1 ? 'bg-primary-500 dark:bg-primary-600 text-white' : 'bg-slate-400 text-white'}`}>
                                         {data.show_logo == 1 ? <IconPhotoCheck size={18} /> : <IconPhotoOff size={18} />}
                                     </div>
                                 </div>
@@ -161,7 +161,7 @@ export default function ReceiptSetting({ setting }) {
                             <button 
                                 type="submit" 
                                 disabled={processing} 
-                                className="inline-flex items-center gap-2 px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/30 transition-all active:scale-95 disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-8 py-4 bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white font-bold rounded-2xl shadow-xl shadow-primary-500/30 transition-all active:scale-95 disabled:opacity-50"
                             >
                                 <IconDeviceFloppy size={22} />
                                 {processing ? "Menyimpan..." : "Simpan Pengaturan"}

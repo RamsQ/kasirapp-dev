@@ -78,7 +78,7 @@ export default function Notification() {
                     <div className='font-semibold text-sm text-gray-700 dark:text-gray-200 '>
                         {data.user} <sup className='text-xs font-mono text-gray-400 ml-1'>{data.time}</sup>
                     </div>
-                    <div className='text-gray-500 text-sm'>{data.title}</div>
+                    <div className='text-gray-500 dark:text-gray-400 text-sm'>{data.title}</div>
                 </div>
             </div>
             <IconChevronRight size={18} className="text-gray-300" />

@@ -97,7 +97,7 @@ export default function Index({ products, search }) {
             <div className="mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
                 <div className="flex flex-col">
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2 uppercase tracking-tight">
-                        <IconPackage size={28} className="text-primary-500" />
+                        <IconPackage size={28} className="text-primary-500 dark:text-primary-400" />
                         Manajemen Produk
                     </h1>
                     <p className="text-sm text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider">Kelola Inventaris & Stok Barang</p>
@@ -110,7 +110,7 @@ export default function Index({ products, search }) {
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase transition-all ${
                             selectedIds.length > 0
                                 ? "bg-red-500 hover:bg-red-600 text-white shadow-md shadow-red-200 dark:shadow-none"
-                                : "bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600"
+                                : "bg-slate-200 text-slate-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-400"
                         }`}
                     >
                         <IconTrash size={18} />
@@ -127,7 +127,7 @@ export default function Index({ products, search }) {
 
                     <button
                         onClick={handleImportClick}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
+                        className="bg-green-600 dark:bg-green-700 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
                     >
                         <IconCalculator size={18} />
                         Import
@@ -135,7 +135,7 @@ export default function Index({ products, search }) {
 
                     <Link
                         href={route("products.create")}
-                        className="bg-primary-500 hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-200 dark:shadow-none transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
+                        className="bg-primary-500 dark:bg-primary-600 hover:bg-primary-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-200 dark:shadow-none transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wide"
                     >
                         <IconPlus size={18} />
                         Tambah Produk
@@ -164,7 +164,7 @@ export default function Index({ products, search }) {
                                 <th scope="col" className="px-4 py-4 w-10 text-center">
                                     <input 
                                         type="checkbox" 
-                                        className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                                        className="w-4 h-4 text-primary-600 dark:text-primary-400 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                                         onChange={handleCheckAll}
                                         checked={products.data.length > 0 && selectedIds.length === products.data.length}
                                     />
@@ -188,7 +188,7 @@ export default function Index({ products, search }) {
                                         <td className="px-4 py-4 text-center">
                                             <input 
                                                 type="checkbox" 
-                                                className="w-4 h-4 text-primary-600 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
+                                                className="w-4 h-4 text-primary-600 dark:text-primary-400 bg-gray-100 border-gray-300 rounded focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 cursor-pointer"
                                                 checked={selectedIds.includes(product.id)}
                                                 onChange={() => handleCheckOne(product.id)}
                                             />
@@ -208,7 +208,7 @@ export default function Index({ products, search }) {
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-0.5">
                                                 <div className="font-bold text-slate-900 dark:text-white uppercase leading-tight">{product.title}</div>
-                                                <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
                                                     <IconBarcode size={12} /> {product.barcode || 'TANPA BARCODE'}
                                                 </div>
                                                 {product.expired_date && (
@@ -223,14 +223,14 @@ export default function Index({ products, search }) {
                                                 <span className={`text-sm font-black ${product.stock <= 5 ? 'text-red-500 animate-pulse' : 'text-slate-700 dark:text-slate-300'}`}>
                                                     {product.stock}
                                                 </span>
-                                                <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500 tracking-tighter">
+                                                <span className="text-[10px] font-bold uppercase text-slate-400 tracking-tighter">
                                                     {product.unit || 'Pcs'}
                                                 </span>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 font-bold text-emerald-600 dark:text-emerald-400 italic">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase not-italic font-black leading-none mb-1">{hppLabel}</span>
+                                                <span className="text-[9px] text-slate-400 uppercase not-italic font-black leading-none mb-1">{hppLabel}</span>
                                                 <div>
                                                     <span className="text-xs mr-1 uppercase">Rp</span>
                                                     {new Intl.NumberFormat("id-ID").format(finalHpp)}
@@ -239,7 +239,7 @@ export default function Index({ products, search }) {
                                         </td>
                                         <td className="px-6 py-4 font-bold text-slate-900 dark:text-slate-200">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black leading-none mb-1">Harga Jual</span>
+                                                <span className="text-[9px] text-slate-400 uppercase font-black leading-none mb-1">Harga Jual</span>
                                                 <div>
                                                     <span className="text-xs mr-1">Rp</span>
                                                     {new Intl.NumberFormat("id-ID").format(product.sell_price)}
@@ -271,7 +271,7 @@ export default function Index({ products, search }) {
                                     <td colSpan="7" className="p-20 text-center">
                                         <div className="flex flex-col items-center gap-2 opacity-20">
                                             <IconInbox size={64} className="text-slate-400" />
-                                            <p className="text-xs font-black uppercase tracking-widest text-slate-500">Produk Tidak Ditemukan</p>
+                                            <p className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Produk Tidak Ditemukan</p>
                                         </div>
                                     </td>
                                 </tr>

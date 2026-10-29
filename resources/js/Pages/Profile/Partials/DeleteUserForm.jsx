@@ -48,7 +48,7 @@ export default function DeleteUserForm({ className = '' }) {
             <header>
                 <h2 className="text-lg font-medium text-gray-900">Deactivate Account</h2>
 
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                     Your account will be deactivated and archived. Before deactivating your account, please download any data or information you wish to retain.
                 </p>
             </header>
@@ -61,7 +61,7 @@ export default function DeleteUserForm({ className = '' }) {
                         Are you sure you want to delete your account?
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-600">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                         Your account will be deactivated and you will be signed out immediately. Please
                         enter your password to confirm this action.
                     </p>

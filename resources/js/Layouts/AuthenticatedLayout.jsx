@@ -94,7 +94,7 @@ export default function Authenticated({ user, header, children }) {
                                 <Dropdown>
                                     <Dropdown.Trigger>
                                         <button className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-gray-500 dark:text-slate-400 bg-white dark:bg-slate-900 hover:text-gray-700 dark:hover:text-white focus:outline-none transition ease-in-out duration-150">
-                                            <div className="h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold mr-2 uppercase shadow-sm">
+                                            <div className="h-8 w-8 rounded-full bg-orange-500 dark:bg-orange-600 flex items-center justify-center text-white font-bold mr-2 uppercase shadow-sm">
                                                 {user.name.substring(0, 2)}
                                             </div>
                                             <span className="hidden md:inline">{user.name}</span>
@@ -106,7 +106,7 @@ export default function Authenticated({ user, header, children }) {
 
                                     <Dropdown.Content>
                                         <div className="px-4 py-2 border-b dark:border-slate-800">
-                                            <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Akun Terhubung</p>
+                                            <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-bold">Akun Terhubung</p>
                                             <p className="text-sm font-semibold truncate dark:text-slate-200">{user.email}</p>
                                         </div>
                                         <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
@@ -161,7 +161,7 @@ export default function Authenticated({ user, header, children }) {
                     <div className="pt-4 pb-1 border-t border-gray-200 dark:border-slate-800">
                         <div className="px-4">
                             <div className="font-medium text-base text-gray-800 dark:text-white">{user.name}</div>
-                            <div className="font-medium text-sm text-gray-500">{user.email}</div>
+                            <div className="font-medium text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
                         </div>
 
                         <div className="mt-3 space-y-1">

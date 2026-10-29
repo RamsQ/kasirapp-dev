@@ -64,7 +64,7 @@ export default function Expired({ products, filter }) {
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white uppercase tracking-tight">
                             Kontrol Produk Expired
                         </h1>
-                        <p className="text-sm text-slate-500 font-medium uppercase tracking-wider flex items-center gap-2">
+                        <p className="text-sm text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider flex items-center gap-2">
                             <IconClockStop size={14} /> Monitoring & Pembersihan Stok Kadaluarsa
                         </p>
                     </div>
@@ -80,7 +80,7 @@ export default function Expired({ products, filter }) {
                     </a>
                     <a 
                         href={route('reports.expired.excel', { start_date: startDate, end_date: endDate })}
-                        className="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-green-200 dark:shadow-none"
+                        className="bg-green-600 dark:bg-green-700 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-lg shadow-green-200 dark:shadow-none"
                     >
                         <IconFileTypeXls size={18} /> Export Excel
                     </a>
@@ -216,7 +216,7 @@ export default function Expired({ products, filter }) {
                                     <td colSpan="5" className="py-24 text-center">
                                         <div className="flex flex-col items-center opacity-20">
                                             <IconCheckupList size={64} className="text-slate-400" />
-                                            <p className="mt-4 text-sm font-black uppercase tracking-[0.3em] text-slate-500">Data Tidak Ditemukan</p>
+                                            <p className="mt-4 text-sm font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Data Tidak Ditemukan</p>
                                         </div>
                                     </td>
                                 </tr>
